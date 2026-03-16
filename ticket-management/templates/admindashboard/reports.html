@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Reports</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@3.35.0/dist/apexcharts.min.css">
+    <link rel="stylesheet" href="{% static 'admindashboard/css/style.css' %}">
+</head>
+<body>
+    <div id="app">
+        <!-- Include Sidebar -->
+        <div id="sidebar-container">
+            <!-- Content will be loaded by JavaScript -->
+        </div>
+
+        <div class="main-container">
+            <!-- Include Header -->
+            <div id="header-container">
+                <!-- Content will be loaded by JavaScript -->
+            </div>
+
+            <!-- Main Content -->
+            <main class="content-area">
+                <!-- REPORTS PAGE CONTENT -->
+                <div id="reports" class="page-content active">
+                    <div class="page-header">
+                        <div>
+                            <h2>Reports & Analytics</h2>
+                        </div>
+                        <div class="d-flex">
+                            <select class="form-select me-2" id="date-range" style="padding: 0.25rem 0.5rem; font-size: 0.875rem; min-width: 140px;">
+                                <option>Last 7 days</option>
+                                <option>Last 30 days</option>
+                                <option>This month</option>
+                                <option>Last month</option>
+                                <option>This year</option>
+                                <option>Custom range</option>
+                            </select>
+                            <button class="btn btn-outline-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                                <i class="bi bi-download"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Breadcrumbs -->
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="/dashboard/admin-dashboard/">
+                                    <i class="bi bi-house-door"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                Reports
+                            </li>
+                        </ol>
+                    </nav>
+
+                    <!-- Summary Cards -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <div class="stat-card h-100">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                    <i class="bi bi-ticket-detailed"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <small>Total Tickets</small>
+                                    <h3>{{ report_total_tickets|default:"0" }}</h3>
+                                    <span class="stat-change positive">Total tickets in system</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card h-100">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                    <i class="bi bi-clock-history"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <small>Avg. Response Time</small>
+                                    <h3>{{ report_avg_response_display|default:"0h 0m" }}</h3>
+                                    <span class="stat-change negative">ticket creation to resolution</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card h-100">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                    <i class="bi bi-check-circle"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <small>Resolution Rate</small>
+                                    <h3>{{ report_resolution_rate|default:"0" }}%</h3>
+                                    <span class="stat-change positive">Resolved / total tickets</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card h-100">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                                    <i class="bi bi-star"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <small>Customer Satisfaction</small>
+                                    <h3>{{ report_customer_satisfaction_avg|default:"0.0" }}/5</h3>
+                                    <span class="stat-change positive">{{ report_customer_satisfaction_percent|default:"0" }}% recommend</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analytics Dashboard -->
+                   
+
+                    <!-- Performance Metrics -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-lg-8">
+                            <div class="card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Ticket Volume Analysis</h5>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary active">Daily</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary">Weekly</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary">Monthly</button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div id="ticket-volume-chart"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Resolution Distribution</h5>
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <div id="resolution-chart" class="flex-grow-1"></div>
+                                    <div class="mt-3">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <div>
+                                                <span class="legend-dot" style="background-color: #28a745;"></span>
+                                                <span>Resolved</span>
+                                            </div>
+                                            <span class="fw-bold" id="resolved-percent">0%</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <div>
+                                                <span class="legend-dot" style="background-color: #ffc107;"></span>
+                                                <span>Open</span>
+                                            </div>
+                                            <span class="fw-bold" id="open-percent">0%</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <span class="legend-dot" style="background-color: #dc3545;"></span>
+                                                <span>In Progress</span>
+                                            </div>
+                                            <span class="fw-bold" id="inprogress-percent">0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                  
+
+                    <!-- Charts Row 2 -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Tickets by Priority</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="tickets-by-priority-chart"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Tickets by Channel</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="tickets-by-channel-chart"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                 <!-- Agent Performance -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Agent Performance</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Agent</th>
+                                            <th>Department</th>
+                                            <th>Avg. Rating</th>
+                                            <th>Response Time</th>
+                                            <th>Resolved</th>
+                                            <th>Satisfaction</th>
+                                            <th>Trend</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if ratings_agent_perf %}
+                                            {% for a in ratings_agent_perf %}
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="agent-avatar me-2">{{ a.initials }}</div>
+                                                            <div>
+                                                                <div class="fw-medium">{{ a.name }}</div>
+                                                                <div class="text-muted small">{{ a.email }}</div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>-</td>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <span class="me-2">{{ a.avg_rating }}</span>
+                                                            <div class="rating-stars" style="font-size: 0.9rem;">
+                                                                {% for i in "12345" %}
+                                                                    {% if forloop.counter <= a.avg_rating|floatformat:0 %}
+                                                                        <i class="bi bi-star-fill"></i>
+                                                                    {% else %}
+                                                                        <i class="bi bi-star"></i>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>-</td>
+                                                    <td>{{ a.rating_count }}</td>
+                                                    <td>-</td>
+                                                    <td>-</td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="7" class="text-center text-muted py-4">No agent ratings available yet.</td>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export Section -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Export Reports</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="export-option">
+                                        <i class="bi bi-file-earmark-text"></i>
+                                        <h6>Ticket Summary</h6>
+                                        <p>Detailed summary of all tickets within the selected date range</p>
+                                        <button id="export-ticket-csv" class="btn btn-outline-primary btn-sm">Export as CSV</button>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="export-option">
+                                        <i class="bi bi-people"></i>
+                                        <h6>Agent Performance</h6>
+                                        <p>Detailed performance metrics for all support agents</p>
+                                        <button id="export-agent-pdf" class="btn btn-outline-primary btn-sm">Export as PDF</button>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="export-option">
+                                        <i class="bi bi-graph-up"></i>
+                                        <h6>Custom Report</h6>
+                                        <p>Create a custom report with your selected metrics</p>
+                                        <button id="open-custom-report" class="btn btn-primary btn-sm">Create Custom Report</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="dashboard-footer mt-4 mb-2 text-muted small">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>© Ultrakey IT Solutions</span>
+                        <span>All systems operational</span>
+                    </div>
+                </footer>
+            </main>
+        </div>
+    </div>
+
+    <!-- Include Modals -->
+    <div id="modals-container">
+        <!-- Content will be loaded by JavaScript -->
+    </div>
+
+    <!-- Custom Report Modal -->
+    <div class="modal fade" id="customReportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Custom Report</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Metric</label>
+                        <select id="custom-report-metric" class="form-select">
+                            <option value="status">Tickets by Status</option>
+                            <option value="priority">Tickets by Priority</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Export Format</label>
+                        <select id="custom-report-format" class="form-select">
+                            <option value="csv">CSV</option>
+                            <option value="pdf">PDF</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Date Range</label>
+                        <select id="custom-report-date-range" class="form-select">
+                            <option value="">Use page selection</option>
+                            <option value="last 7 days">Last 7 days</option>
+                            <option value="last 30 days">Last 30 days</option>
+                            <option value="this month">This month</option>
+                            <option value="last month">Last month</option>
+                            <option value="this year">This year</option>
+                            <option value="custom">Custom (use dates below)</option>
+                        </select>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="form-label">Start Date</label>
+                            <input id="custom-report-start" type="date" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">End Date</label>
+                            <input id="custom-report-end" type="date" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="run-custom-report" class="btn btn-primary">Export</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ApexCharts JS -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.35.0/dist/apexcharts.min.js"></script>
+    </div>
+
+    
+    
+    
+    
+
+    <!-- Core JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Utility function for loading components -->
+    <script>
+        // Function to load HTML content into an element
+        function loadComponent(url, elementId) {
+            return fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        element.innerHTML = html;
+                        
+                        // If loading the sidebar, set the active nav item
+                        if (url.includes('sidebar.html')) {
+                            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                            const pageName = currentPage.replace('.html', '') || 'dashboard';
+                            const activeNavItem = document.querySelector(`.nav-item[data-page="${pageName}"]`);
+                            if (activeNavItem) {
+                                // Remove active class from all nav items
+                                document.querySelectorAll('.nav-item').forEach(item => {
+                                    item.classList.remove('active');
+                                });
+                                activeNavItem.classList.add('active');
+                            }
+                        }
+                        
+                        // If loading the header, initialize it after a short delay
+                        if (url.includes('header.html') && window.initializeHeader) {
+                            setTimeout(() => {
+                                window.initializeHeader();
+                            }, 50);
+                        }
+                        
+                        return true;
+                    }
+                    return false;
+                })
+                .catch(error => {
+                    console.error('Error loading component:', error);
+                    return false;
+                });
+        }
+        
+        // Filter Agent Performance table by search input
+        function applyAgentPerformanceFilters() {
+            const table = document.getElementById('agent-performance-table');
+            if (!table) return;
+            const tbody = table.querySelector('tbody');
+            if (!tbody) return;
+
+            const searchInput = document.getElementById('agent-search');
+            const search = (searchInput?.value || '').toLowerCase().trim();
+
+            Array.from(tbody.querySelectorAll('tr')).forEach(row => {
+                const nameEl = row.querySelector('.agent-name-text');
+                const assignedEl = row.querySelector('.agent-assigned');
+                const resolvedEl = row.querySelector('.agent-resolved');
+                const satisfactionEl = row.querySelector('.agent-satisfaction');
+
+                // Skip placeholder row (no data)
+                if (!nameEl && !assignedEl && !resolvedEl && !satisfactionEl) {
+                    return;
+                }
+
+                const name = (nameEl?.textContent || '').toLowerCase();
+                const assigned = (assignedEl?.textContent || '').toLowerCase();
+                const resolved = (resolvedEl?.textContent || '').toLowerCase();
+                const satisfaction = (satisfactionEl?.textContent || '').toLowerCase();
+
+                const matchesSearch = !search || (
+                    name.includes(search) ||
+                    assigned.includes(search) ||
+                    resolved.includes(search) ||
+                    satisfaction.includes(search)
+                );
+
+                row.style.display = matchesSearch ? '' : 'none';
+            });
+        }
+
+        // Export visible Agent Performance rows as CSV, including selected date range and period
+        function exportAgentPerformance() {
+            const dateRangeSelect = document.getElementById('date-range');
+            const dateRange = dateRangeSelect ? (dateRangeSelect.value || '') : '';
+
+            const params = new URLSearchParams();
+            params.set('report_type', 'agent_performance');
+            if (dateRange) {
+                params.set('date_range', dateRange);
+            }
+
+            window.location.href = '{% url "dashboards:admin_reports_export" "csv" %}' + '?' + params.toString();
+        }
+
+        // Initialize ApexCharts
+        function initCharts() {
+            // Parse backend aggregates (fallback to empty objects if missing)
+            const statusCounts = JSON.parse('{{ report_status_counts_json|default:"{}"|escapejs }}');
+            const priorityCounts = JSON.parse('{{ report_priority_counts_json|default:"{}"|escapejs }}');
+            // Backend supplies series data; use fixed calendar month labels so all 12 months show
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const createdSeries = JSON.parse('{{ report_overview_created_json|default:"[]"|escapejs }}');
+            const resolvedSeries = JSON.parse('{{ report_overview_resolved_json|default:"[]"|escapejs }}');
+
+            // Tickets Overview Chart (Line Chart)
+            const ticketsOverviewOptions = {
+                series: [{
+                    name: 'New Tickets',
+                    data: createdSeries
+                }, {
+                    name: 'Resolved Tickets',
+                    data: resolvedSeries
+                }],
+                chart: {
+                    height: 350,
+                    type: 'line',
+                    zoom: {
+                        enabled: false
+                    },
+                    toolbar: {
+                        show: true
+                    }
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    curve: 'smooth',
+                    width: 3
+                },
+                xaxis: {
+                    categories: months,
+                    labels: {
+                        show: true,
+                        rotate: -90,
+                        rotateAlways: true,
+                        trim: false,
+                        hideOverlappingLabels: false,
+                        style: {
+                            fontSize: '10px'
+                        }
+                    },
+                    tickPlacement: 'on'
+                },
+                colors: ['#4e73df', '#1cc88a'],
+                tooltip: {
+                    theme: 'light'
+                }
+            };
+
+            const ticketsOverviewChart = new ApexCharts(document.querySelector("#tickets-overview-chart"), ticketsOverviewOptions);
+            ticketsOverviewChart.render();
+
+            // Response Time Trends Chart
+            const responseTimeOptions = {
+                series: [{
+                    name: 'Avg Response Time',
+                    data: [2.5, 2.8, 2.3, 3.1, 2.9, 3.5, 2.7, 3.2, 2.4, 2.8, 3.0, 2.6]
+                }],
+                chart: {
+                    height: 300,
+                    type: 'area',
+                    toolbar: { show: false }
+                },
+                colors: ['#4e73df'],
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.7,
+                        opacityTo: 0.3
+                    }
+                },
+                dataLabels: { enabled: false },
+                stroke: {
+                    curve: 'smooth',
+                    width: 2
+                },
+                xaxis: {
+                    categories: months,
+                    labels: { style: { fontSize: '11px' } }
+                },
+                yaxis: {
+                    labels: {
+                        formatter: function(val) { return val + 'h' }
+                    }
+                },
+                tooltip: {
+                    y: {
+                        formatter: function(val) { return val + ' hours' }
+                    }
+                }
+            };
+
+            const responseTimeChart = new ApexCharts(document.querySelector("#response-time-chart"), responseTimeOptions);
+            responseTimeChart.render();
+
+            // Customer Satisfaction Trend Chart
+            const satisfactionTrendOptions = {
+                series: [{
+                    name: 'Satisfaction Score',
+                    data: [4.2, 4.3, 4.1, 4.5, 4.4, 4.6, 4.3, 4.7, 4.5, 4.8, 4.6, 4.9]
+                }],
+                chart: {
+                    height: 300,
+                    type: 'line',
+                    toolbar: { show: false }
+                },
+                colors: ['#28a745'],
+                stroke: {
+                    curve: 'smooth',
+                    width: 3
+                },
+                markers: {
+                    size: 4,
+                    colors: ['#28a745'],
+                    strokeColors: '#fff',
+                    strokeWidth: 2
+                },
+                xaxis: {
+                    categories: months,
+                    labels: { style: { fontSize: '11px' } }
+                },
+                yaxis: {
+                    min: 3.5,
+                    max: 5,
+                    labels: {
+                        formatter: function(val) { return val.toFixed(1) }
+                    }
+                },
+                tooltip: {
+                    y: {
+                        formatter: function(val) { return val.toFixed(1) + ' / 5.0' }
+                    }
+                }
+            };
+
+            const satisfactionTrendChart = new ApexCharts(document.querySelector("#satisfaction-trend-chart"), satisfactionTrendOptions);
+            satisfactionTrendChart.render();
+
+            // Ticket Volume Analysis Chart
+            const ticketVolumeOptions = {
+                series: [{
+                    name: 'Created',
+                    data: [45, 52, 38, 65, 59, 72, 48, 55, 62, 71, 68, 75]
+                }, {
+                    name: 'Resolved',
+                    data: [42, 48, 35, 58, 52, 68, 45, 50, 55, 65, 62, 70]
+                }],
+                chart: {
+                    height: 350,
+                    type: 'bar',
+                    toolbar: { show: true }
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        columnWidth: '60%',
+                        borderRadius: 4
+                    }
+                },
+                dataLabels: { enabled: false },
+                xaxis: {
+                    categories: months,
+                    labels: { style: { fontSize: '11px' } }
+                },
+                yaxis: {
+                    labels: {
+                        formatter: function(val) { return val + ' tickets' }
+                    }
+                },
+                colors: ['#4e73df', '#1cc88a'],
+                tooltip: {
+                    y: {
+                        formatter: function(val) { return val + ' tickets' }
+                    }
+                }
+            };
+
+            const ticketVolumeChart = new ApexCharts(document.querySelector("#ticket-volume-chart"), ticketVolumeOptions);
+            ticketVolumeChart.render();
+
+            // Resolution Distribution Chart - Use actual backend data
+            const resolutionData = [
+                (statusCounts["Resolved"] || 0) + (statusCounts["Closed"] || 0),  // Resolved includes both Resolved and Closed
+                statusCounts["Open"] || 0,
+                statusCounts["In Progress"] || 0
+            ];
+            
+            const resolutionOptions = {
+                series: resolutionData,
+                chart: {
+                    type: 'donut',
+                    height: 250
+                },
+                labels: ['Resolved', 'Open', 'In Progress'],
+                colors: ['#28a745', '#ffc107', '#dc3545'],
+                legend: { show: false },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '70%',
+                            labels: {
+                                show: true,
+                                total: {
+                                    show: true,
+                                    label: 'Total',
+                                    color: '#6c757d'
+                                }
+                            }
+                        }
+                    }
+                },
+                dataLabels: { enabled: false },
+                tooltip: {
+                    y: {
+                        formatter: function(value) { 
+                            const total = resolutionData.reduce((a, b) => a + b, 0);
+                            const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                            return `${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            };
+
+            const resolutionChart = new ApexCharts(document.querySelector("#resolution-chart"), resolutionOptions);
+            resolutionChart.render();
+
+            // Update legend percentages with actual data
+            const totalTickets = resolutionData.reduce((a, b) => a + b, 0);
+            if (totalTickets > 0) {
+                document.getElementById('resolved-percent').textContent = 
+                    Math.round((resolutionData[0] / totalTickets) * 100) + '%';
+                document.getElementById('open-percent').textContent = 
+                    Math.round((resolutionData[1] / totalTickets) * 100) + '%';
+                document.getElementById('inprogress-percent').textContent = 
+                    Math.round((resolutionData[2] / totalTickets) * 100) + '%';
+            }
+
+            // Department Performance Chart
+            const departmentPerformanceOptions = {
+                series: [{
+                    name: 'Response Time',
+                    data: [2.1, 3.2, 2.8, 2.5, 3.1]
+                }, {
+                    name: 'Resolution Rate',
+                    data: [92, 85, 88, 95, 87]
+                }, {
+                    name: 'Customer Satisfaction',
+                    data: [4.7, 4.2, 4.5, 4.8, 4.3]
+                }],
+                chart: {
+                    height: 400,
+                    type: 'radar',
+                    toolbar: { show: false }
+                },
+                xaxis: {
+                    categories: ['Technical', 'Billing', 'General', 'Sales', 'Support']
+                },
+                yaxis: {
+                    show: true,
+                    labels: {
+                        style: { fontSize: '10px' }
+                    }
+                },
+                stroke: {
+                    width: 2
+                },
+                fill: {
+                    opacity: 0.3
+                },
+                markers: {
+                    size: 4
+                },
+                colors: ['#4e73df', '#1cc88a', '#ffc107'],
+                tooltip: {
+                    y: {
+                        formatter: function(val) { 
+                            if (val < 5) return val.toFixed(1);
+                            return val + '%';
+                        }
+                    }
+                }
+            };
+
+            const departmentPerformanceChart = new ApexCharts(document.querySelector("#department-performance-chart"), departmentPerformanceOptions);
+            departmentPerformanceChart.render();
+
+            // Ticket Status Chart (Donut Chart) - Use actual backend data
+            const ticketStatusOptions = {
+                series: [
+                    statusCounts["Open"] || 0,
+                    (statusCounts["Resolved"] || 0) + (statusCounts["Closed"] || 0),
+                    statusCounts["In Progress"] || 0,
+                ],
+                chart: {
+                    type: 'donut',
+                    height: 300
+                },
+                labels: ['Open', 'Resolved', 'In Progress'],
+                colors: ['#4e73df', '#1cc88a', '#36b9cc'],
+                legend: {
+                    show: false
+                },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '70%',
+                            labels: {
+                                show: true,
+                                total: {
+                                    show: true,
+                                    label: 'Total',
+                                    color: '#6c757d'
+                                }
+                            }
+                        }
+                    }
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                tooltip: {
+                    y: {
+                        formatter: function(value) {
+                            const total = [
+                                statusCounts["Open"] || 0,
+                                (statusCounts["Resolved"] || 0) + (statusCounts["Closed"] || 0),
+                                statusCounts["In Progress"] || 0
+                            ].reduce((a, b) => a + b, 0);
+                            const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                            return `${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            };
+
+            const ticketStatusChart = new ApexCharts(document.querySelector("#ticket-status-chart"), ticketStatusOptions);
+            ticketStatusChart.render();
+
+            // Tickets by Priority (Bar Chart)
+            const ticketsByPriorityOptions = {
+                series: [{
+                    name: 'Tickets',
+                    data: [
+                        priorityCounts.Low || 0,
+                        priorityCounts.Medium || 0,
+                        priorityCounts.High || 0,
+                        priorityCounts.Critical || 0,
+                    ]
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 350,
+                    width:600,
+                    toolbar: {
+                        show: false
+                    }
+                },
+                plotOptions: {
+                    bar: {
+                        borderRadius: 4,
+                        horizontal: false,
+                        distributed: true,
+                        columnWidth: '43%'
+                    }
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                xaxis: {
+                    categories: ['Low', 'Medium', 'High', 'Urgent'],
+                    labels: {
+                        style: {
+                            fontSize: '10px'
+                        }
+                    }
+                },
+                colors: ['#1cc88a', '#4e73df', '#f6c23e', '#e74a3b'],
+                tooltip: {
+                    y: {
+                        formatter: function(val) {
+                            return val + ' tickets';
+                        }
+                    }
+                }
+            };
+
+            const ticketsByPriorityChart = new ApexCharts(document.querySelector("#tickets-by-priority-chart"), ticketsByPriorityOptions);
+            ticketsByPriorityChart.render();
+
+            // Tickets by Channel (Pie Chart)
+            const ticketsByChannelOptions = {
+                series: [44, 55, 13, 28],
+                chart: {
+                    type: 'donut',
+                    height: 350
+                },
+                labels: ['Email', 'Web', 'Chat', 'Phone'],
+                colors: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e'],
+                legend: {
+                    position: 'bottom'
+                },
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        chart: {
+                            width: 200
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }],
+                dataLabels: {
+                    enabled: false
+                },
+                tooltip: {
+                    y: {
+                        formatter: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            };
+
+            const ticketsByChannelChart = new ApexCharts(document.querySelector("#tickets-by-channel-chart"), ticketsByChannelOptions);
+            ticketsByChannelChart.render();
+        }
+
+        // Initialize components when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize charts
+            initCharts();
+            
+            // Load header if container exists
+            if (document.getElementById('header-container')) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/header.html" %}', 'header-container');
+            }
+            
+            // Load sidebar if container exists
+            if (document.getElementById('sidebar-container')) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/sidebar.html" %}', 'sidebar-container');
+            }
+            
+            // Load modals if container exists
+            if (document.getElementById('modals-container')) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/modals.html" %}', 'modals-container');
+            }
+            
+            // Listen for navigation events (for single-page navigation)
+            document.body.addEventListener('click', function(e) {
+                // Check if the click was on a navigation link
+                const navLink = e.target.closest('a[data-page]');
+                if (navLink) {
+                    // Re-initialize header after a short delay to allow the page to update
+                    setTimeout(() => {
+                        if (window.initializeHeader) {
+                            window.initializeHeader();
+                        }
+                    }, 100);
+                }
+            });
+
+            // Wire up Agent Performance search
+            const agentSearchInput = document.getElementById('agent-search');
+            if (agentSearchInput) {
+                agentSearchInput.addEventListener('input', applyAgentPerformanceFilters);
+            }
+
+            // Wire up top-level Export button to export Agent Performance table
+            const pageHeader = document.querySelector('.page-header');
+            if (pageHeader) {
+                const exportBtn = pageHeader.querySelector('button.btn.btn-outline-secondary');
+                if (exportBtn) {
+                    exportBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        exportAgentPerformance();
+                    });
+                }
+            }
+
+            // Make Day/Week/Month buttons toggle active state (used in export metadata)
+            const periodCardHeader = document.querySelector('#tickets-overview-chart')?.closest('.card')?.querySelector('.card-header .btn-group');
+            if (periodCardHeader) {
+                periodCardHeader.addEventListener('click', function(e) {
+                    const btn = e.target.closest('button');
+                    if (!btn) return;
+                    Array.from(periodCardHeader.querySelectorAll('button')).forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            }
+
+            function buildExportUrl(exportFormat, reportType, extraParams) {
+                const dateRangeSelect = document.getElementById('date-range');
+                const pageDateRange = dateRangeSelect ? (dateRangeSelect.value || '') : '';
+
+                const params = new URLSearchParams();
+                params.set('report_type', reportType);
+                if (extraParams) {
+                    Object.keys(extraParams).forEach(k => {
+                        if (extraParams[k] !== undefined && extraParams[k] !== null && String(extraParams[k]).trim() !== '') {
+                            params.set(k, extraParams[k]);
+                        }
+                    });
+                }
+                if (!params.get('date_range') && pageDateRange) {
+                    params.set('date_range', pageDateRange);
+                }
+
+                return '{% url "dashboards:admin_reports_export" "__fmt__" %}'.replace('__fmt__', exportFormat) + '?' + params.toString();
+            }
+
+            const ticketCsvBtn = document.getElementById('export-ticket-csv');
+            if (ticketCsvBtn) {
+                ticketCsvBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.location.href = buildExportUrl('csv', 'ticket_summary');
+                });
+            }
+
+            const agentPdfBtn = document.getElementById('export-agent-pdf');
+            if (agentPdfBtn) {
+                agentPdfBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.location.href = buildExportUrl('pdf', 'agent_performance');
+                });
+            }
+
+            const openCustomBtn = document.getElementById('open-custom-report');
+            if (openCustomBtn) {
+                openCustomBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const modalEl = document.getElementById('customReportModal');
+                    if (!modalEl) return;
+                    const modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+                });
+            }
+
+            const runCustomBtn = document.getElementById('run-custom-report');
+            if (runCustomBtn) {
+                runCustomBtn.addEventListener('click', function() {
+                    const metric = document.getElementById('custom-report-metric')?.value || 'status';
+                    const fmt = document.getElementById('custom-report-format')?.value || 'csv';
+                    const dr = document.getElementById('custom-report-date-range')?.value || '';
+                    const start = document.getElementById('custom-report-start')?.value || '';
+                    const end = document.getElementById('custom-report-end')?.value || '';
+
+                    const extra = { metric: metric };
+                    if (dr && dr !== 'custom') {
+                        extra.date_range = dr;
+                    }
+                    if (dr === 'custom') {
+                        extra.start_date = start;
+                        extra.end_date = end;
+                    }
+
+                    window.location.href = buildExportUrl(fmt, 'custom', extra);
+                });
+            }
+        });
+    </script>
+    
+    <!-- Application Scripts -->
+    <script src="{% static 'admindashboard/js/script.js' %}"></script>
+    <script src="{% static 'admindashboard/js/header.js' %}"></script>
+</body>
+</html>

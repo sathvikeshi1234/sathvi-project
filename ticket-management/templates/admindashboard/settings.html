@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Settings</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+    <link rel="stylesheet" href="{% static 'admindashboard/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'admindashboard/css/settings.css' %}">
+</head>
+<body>
+    <div id="app">
+        <!-- Include Sidebar -->
+        <div id="sidebar-container">
+            <!-- Content will be loaded by JavaScript -->
+        </div>
+
+        <div class="main-container">
+            <!-- Include Header -->
+            <div id="header-container">
+                <!-- Content will be loaded by JavaScript -->
+            </div>
+
+            <!-- Main Content -->
+            <main class="content-area">
+                <!-- SETTINGS PAGE CONTENT -->
+                <div id="settings" class="page-content active">
+                    <div class="page-header">
+                        <div>
+                            <h2>Settings</h2>
+                            <p class="text-muted">Configure system settings and preferences</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-secondary me-2" id="resetDefaults">
+                                <i class="bi bi-arrow-counterclockwise"></i> Reset to Defaults
+                            </button>
+                            <button class="btn btn-primary" id="saveSettings">
+                                <i class="bi bi-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Breadcrumbs -->
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="/dashboard/admin-dashboard/">
+                                    <i class="bi bi-house-door"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                Settings
+                            </li>
+                        </ol>
+                    </nav>
+
+                    <div class="row">
+                        <!-- Settings Sidebar -->
+                        <div class="col-lg-3">
+                            <div class="settings-sidebar">
+                                <div class="list-group list-group-flush">
+                                    <a href="#general" class="list-group-item list-group-item-action active" data-bs-toggle="list">
+                                        <i class="bi bi-gear"></i> General
+                                    </a>
+                                    <a href="#tickets" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                                        <i class="bi bi-ticket-detailed"></i> Tickets
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Settings Content -->
+                        <div class="col-lg-9">
+                            <div class="settings-content">
+                                <div class="tab-content">
+                                    <!-- General Settings -->
+                                    <div class="tab-pane fade show active" id="general">
+                                        <div class="settings-section">
+                                            <h4>General Settings</h4>
+                                            
+                                            <div class="settings-card">
+                                                <div class="card-header">Company Information</div>
+                                                <div class="card-body">
+                                                    <div class="row mb-3">
+                                                        <div class="col-md-6">
+                                                            <label class="form-label">Company Name</label>
+                                                            <input type="text" class="form-control" id="companyName" value="{% if site_settings %}{{ site_settings.company_name|default:"" }}{% else %}TicketHub Inc.{% endif %}">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label">Website URL</label>
+                                                            <input type="url" class="form-control" id="websiteUrl" value="{% if site_settings %}{{ site_settings.website_url|default:"" }}{% else %}https://tickethub.example.com{% endif %}">
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                        <div class="col-md-6">
+                                                            <label class="form-label">Contact Email</label>
+                                                            <input type="email" class="form-control" id="contactEmail" value="{% if site_settings %}{{ site_settings.contact_email|default:"" }}{% else %}support@tickethub.example.com{% endif %}">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label">Contact Phone</label>
+                                                            <input type="tel" class="form-control" id="contactPhone" value="{% if site_settings %}{{ site_settings.contact_phone|default:"" }}{% else %}+1 (555) 123-4567{% endif %}">
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Address</label>
+                                                        <textarea class="form-control" id="address" rows="2">{% if site_settings %}{{ site_settings.address|default:"" }}{% else %}123 Support Street, Suite 100
+San Francisco, CA 94103, USA{% endif %}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="settings-card">
+                                                <div class="card-header">Localization</div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-4 mb-3">
+                                                            <label class="form-label">Default Language</label>
+                                                            <select class="form-select" id="defaultLanguage">
+                                                                <option value="English (United States)" {% if site_settings and site_settings.default_language == "English (United States)" %}selected{% endif %}>English (United States)</option>
+                                                                <option value="Español (Spanish)" {% if site_settings and site_settings.default_language == "Español (Spanish)" %}selected{% endif %}>Español (Spanish)</option>
+                                                                <option value="Français (French)" {% if site_settings and site_settings.default_language == "Français (French)" %}selected{% endif %}>Français (French)</option>
+                                                                <option value="Deutsch (German)" {% if site_settings and site_settings.default_language == "Deutsch (German)" %}selected{% endif %}>Deutsch (German)</option>
+                                                                <option value="中文 (Chinese)" {% if site_settings and site_settings.default_language == "中文 (Chinese)" %}selected{% endif %}>中文 (Chinese)</option>
+                                                                <option value="日本語 (Japanese)" {% if site_settings and site_settings.default_language == "日本語 (Japanese)" %}selected{% endif %}>日本語 (Japanese)</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-4 mb-3">
+                                                            <label class="form-label">Time Zone</label>
+                                                            <select class="form-select" id="timeZone">
+                                                                <option value="(UTC-08:00) Pacific Time (US & Canada)" {% if site_settings and site_settings.time_zone == "(UTC-08:00) Pacific Time (US & Canada)" %}selected{% endif %}>(UTC-08:00) Pacific Time (US & Canada)</option>
+                                                                <option value="(UTC-07:00) Mountain Time (US & Canada)" {% if site_settings and site_settings.time_zone == "(UTC-07:00) Mountain Time (US & Canada)" %}selected{% endif %}>(UTC-07:00) Mountain Time (US & Canada)</option>
+                                                                <option value="(UTC-05:00) Eastern Time (US & Canada)" {% if site_settings and site_settings.time_zone == "(UTC-05:00) Eastern Time (US & Canada)" %}selected{% endif %}>(UTC-05:00) Eastern Time (US & Canada)</option>
+                                                                <option value="(UTC) London" {% if site_settings and site_settings.time_zone == "(UTC) London" %}selected{% endif %}>(UTC) London</option>
+                                                                <option value="(UTC+01:00) Berlin" {% if site_settings and site_settings.time_zone == "(UTC+01:00) Berlin" %}selected{% endif %}>(UTC+01:00) Berlin</option>
+                                                                <option value="(UTC+05:30) India" {% if site_settings and site_settings.time_zone == "(UTC+05:30) India" %}selected{% endif %}>(UTC+05:30) India</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-4 mb-3">
+                                                            <label class="form-label">Date Format</label>
+                                                            <select class="form-select" id="dateFormat">
+                                                                <option value="MM/DD/YYYY" {% if site_settings and site_settings.date_format == "MM/DD/YYYY" %}selected{% endif %}>MM/DD/YYYY</option>
+                                                                <option value="DD/MM/YYYY" {% if site_settings and site_settings.date_format == "DD/MM/YYYY" %}selected{% endif %}>DD/MM/YYYY</option>
+                                                                <option value="YYYY-MM-DD" {% if site_settings and site_settings.date_format == "YYYY-MM-DD" %}selected{% endif %}>YYYY-MM-DD</option>
+                                                                <option value="Month D, YYYY" {% if site_settings and site_settings.date_format == "Month D, YYYY" %}selected{% endif %}>Month D, YYYY</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <label class="form-label">Time Format</label>
+                                                            <select class="form-select" id="timeFormat">
+                                                                <option value="12-hour (2:30 PM)" {% if site_settings and site_settings.time_format == "12-hour (2:30 PM)" %}selected{% endif %}>12-hour (2:30 PM)</option>
+                                                                <option value="24-hour (14:30)" {% if site_settings and site_settings.time_format == "24-hour (14:30)" %}selected{% endif %}>24-hour (14:30)</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <label class="form-label">First Day of Week</label>
+                                                            <select class="form-select" id="firstDayOfWeek">
+                                                                <option value="0" {% if site_settings and site_settings.first_day_of_week == 0 %}selected{% endif %}>Sunday</option>
+                                                                <option value="1" {% if site_settings and site_settings.first_day_of_week == 1 %}selected{% endif %}>Monday</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <label class="form-label">Currency</label>
+                                                            <select class="form-select" id="currency">
+                                                                <option value="USD - US Dollar ($)" {% if site_settings and site_settings.currency == "USD - US Dollar ($)" %}selected{% endif %}>USD - US Dollar ($)</option>
+                                                                <option value="EUR - Euro (€)" {% if site_settings and site_settings.currency == "EUR - Euro (€)" %}selected{% endif %}>EUR - Euro (€)</option>
+                                                                <option value="GBP - British Pound (£)" {% if site_settings and site_settings.currency == "GBP - British Pound (£)" %}selected{% endif %}>GBP - British Pound (£)</option>
+                                                                <option value="JPY - Japanese Yen (¥)" {% if site_settings and site_settings.currency == "JPY - Japanese Yen (¥)" %}selected{% endif %}>JPY - Japanese Yen (¥)</option>
+                                                                <option value="INR - Indian Rupee (₹)" {% if site_settings and site_settings.currency == "INR - Indian Rupee (₹)" %}selected{% endif %}>INR - Indian Rupee (₹)</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="settings-card">
+                                                <div class="card-header">System Settings</div>
+                                                <div class="card-body">
+                                                    <div class="form-check form-switch mb-3">
+                                                        <input class="form-check-input" type="checkbox" id="maintenanceMode" {% if site_settings and site_settings.maintenance_mode %}checked{% endif %}>
+                                                        <label class="form-check-label" for="maintenanceMode">Maintenance Mode</label>
+                                                        <div class="form-text">When enabled, only administrators can access the system.</div>
+                                                    </div>
+                                                    <div class="form-check form-switch mb-3">
+                                                        <input class="form-check-input" type="checkbox" id="userRegistration" {% if site_settings and site_settings.user_registration %}checked{% endif %}>
+                                                        <label class="form-check-label" for="userRegistration">Allow User Registration</label>
+                                                        <div class="form-text">Allow new users to create accounts.</div>
+                                                    </div>
+                                                    <div class="form-check form-switch mb-3">
+                                                        <input class="form-check-input" type="checkbox" id="emailVerification" {% if site_settings and site_settings.email_verification %}checked{% endif %}>
+                                                        <label class="form-check-label" for="emailVerification">Require Email Verification</label>
+                                                        <div class="form-text">Users must verify their email address before accessing the system.</div>
+                                                    </div>
+                                                    <div class="form-check form-switch mb-3">
+                                                        <input class="form-check-input" type="checkbox" id="rememberMe" {% if site_settings and site_settings.remember_me %}checked{% endif %}>
+                                                        <label class="form-check-label" for="rememberMe">Enable "Remember Me" on Login</label>
+                                                    </div>
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox" id="showTutorial" {% if site_settings and site_settings.show_tutorial %}checked{% endif %}>
+                                                        <label class="form-check-label" for="showTutorial">Show Tutorial for New Users</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Appearance Settings removed -->
+
+                                    <!-- Email Settings removed -->
+
+                                    <!-- Notifications Settings removed -->
+
+                                    <!-- Tickets Settings -->
+                                    <div class="tab-pane fade" id="tickets">
+                                        <div class="settings-section">
+                                            <h4>Ticket Settings</h4>
+                                            
+                                            <div class="settings-card">
+                                                <div class="card-header">General Ticket Settings</div>
+                                                <div class="card-body">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Default Ticket Status</label>
+                                                        <select class="form-select" id="defaultTicketStatus">
+                                                            <option>Open</option>
+                                                            <option>In Progress</option>
+                                                            <option>On Hold</option>
+                                                            <option>Resolved</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Default Priority</label>
+                                                        <select class="form-select" id="defaultTicketPriority">
+                                                            <option>Low</option>
+                                                            <option selected>Medium</option>
+                                                            <option>High</option>
+                                                            <option>Urgent</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-check form-switch mb-3">
+                                                        <input class="form-check-input" type="checkbox" id="ticketAssignment" checked>
+                                                        <label class="form-check-label" for="ticketAssignment">Enable Automatic Ticket Assignment</label>
+                                                    </div>
+                                                    <div class="form-check form-switch mb-3">
+                                                        <input class="form-check-input" type="checkbox" id="ticketReopen" checked>
+                                                        <label class="form-check-label" for="ticketReopen">Allow Customers to Reopen Tickets</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="settings-card">
+                                                <div class="card-header">SLA (Service Level Agreement)</div>
+                                                <div class="card-body">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">First Response Time (hours)</label>
+                                                        <input type="number" class="form-control" id="firstResponseHours" value="24">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Resolution Time (hours)</label>
+                                                        <input type="number" class="form-control" id="resolutionTimeHours" value="72">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Business Hours</label>
+                                                        <select class="form-select" id="slaBusinessHours">
+                                                            <option>24/7</option>
+                                                            <option selected>Business Hours (9 AM - 5 PM, Mon-Fri)</option>
+                                                            <option>Custom</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Users & Roles Settings removed -->
+
+                                    <!-- Custom Fields Settings removed -->
+
+                                    <!-- Automation Settings removed -->
+
+                                    <!-- Integrations Settings removed -->
+
+                                    <!-- API Settings removed -->
+
+                                    <!-- Backup & Restore Settings -->
+                                    <div class="tab-pane fade" id="backup">
+                                        <div class="settings-section">
+                                            <h4>Backup & Restore</h4>
+                                            
+                                            <div class="settings-card">
+                                                <div class="card-header">Backup Database</div>
+                                                <div class="card-body">
+                                                    <p>Create a backup of your database for safekeeping or before making major changes.</p>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Backup Options</label>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" value="" id="backupDatabase" checked>
+                                                            <label class="form-check-label" for="backupDatabase">
+                                                                Database
+                                                            </label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" value="" id="backupAttachments" checked>
+                                                            <label class="form-check-label" for="backupAttachments">
+                                                                Attachments
+                                                            </label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" value="" id="backupEmails">
+                                                            <label class="form-check-label" for="backupEmails">
+                                                                Email Templates
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <button class="btn btn-primary">
+                                                        <i class="bi bi-download me-1"></i> Create Backup
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="settings-card">
+                                                <div class="card-header">Restore Database</div>
+                                                <div class="card-body">
+                                                    <div class="alert alert-warning">
+                                                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                                        <strong>Warning:</strong> Restoring from a backup will overwrite your current data. This action cannot be undone.
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="backupFile" class="form-label">Select Backup File</label>
+                                                        <input class="form-control" type="file" id="backupFile">
+                                                    </div>
+                                                    <div class="form-check mb-3">
+                                                        <input class="form-check-input" type="checkbox" id="confirmRestore">
+                                                        <label class="form-check-label" for="confirmRestore">
+                                                            I understand that this will overwrite my current data
+                                                        </label>
+                                                    </div>
+                                                    <button class="btn btn-danger" disabled>
+                                                        <i class="bi bi-arrow-counterclockwise me-1"></i> Restore from Backup
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="settings-card">
+                                                <div class="card-header">Scheduled Backups</div>
+                                                <div class="card-body">
+                                                    <div class="form-check form-switch mb-3">
+                                                        <input class="form-check-input" type="checkbox" id="scheduledBackups" checked>
+                                                        <label class="form-check-label" for="scheduledBackups">Enable Scheduled Backups</label>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Frequency</label>
+                                                                <select class="form-select">
+                                                                    <option>Daily</option>
+                                                                    <option selected>Weekly</option>
+                                                                    <option>Monthly</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Time</label>
+                                                                <input type="time" class="form-control" value="02:00">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Backup Retention</label>
+                                                        <select class="form-select">
+                                                            <option>Keep all backups</option>
+                                                            <option selected>Keep for 30 days</option>
+                                                            <option>Keep for 90 days</option>
+                                                            <option>Keep for 1 year</option>
+                                                        </select>
+                                                    </div>
+                                                    <button class="btn btn-outline-primary">
+                                                        <i class="bi bi-save me-1"></i> Save Schedule
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Updates Settings -->
+                                    <div class="tab-pane fade" id="updates">
+                                        <div class="settings-section">
+                                            <h4>Updates</h4>
+                                            
+                                            <div class="settings-card">
+                                                <div class="card-header">System Information</div>
+                                                <div class="card-body">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-borderless">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <th style="width: 200px;">Current Version</th>
+                                                                    <td>v2.5.1 <span class="badge bg-success">Latest</span></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Last Checked</th>
+                                                                    <td>2023-11-08 14:30:45</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>PHP Version</th>
+                                                                    <td>8.1.12</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Database Version</th>
+                                                                    <td>MySQL 8.0.32</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Server Software</th>
+                                                                    <td>Apache/2.4.54 (Ubuntu)</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="settings-card">
+                                                <div class="card-header">Check for Updates</div>
+                                                <div class="card-body">
+                                                    <p>Check if there are any updates available for your system.</p>
+                                                    <button class="btn btn-primary">
+                                                        <i class="bi bi-arrow-repeat me-1"></i> Check for Updates
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="settings-card">
+                                                <div class="card-header">Automatic Updates</div>
+                                                <div class="card-body">
+                                                    <div class="form-check form-switch mb-3">
+                                                        <input class="form-check-input" type="checkbox" id="autoUpdate" checked>
+                                                        <label class="form-check-label" for="autoUpdate">Enable Automatic Updates</label>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Update Channel</label>
+                                                        <select class="form-select">
+                                                            <option value="stable" selected>Stable (Recommended)</option>
+                                                            <option value="beta">Beta (For testing only)</option>
+                                                            <option value="alpha">Alpha (Unstable)</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-check form-switch mb-3">
+                                                        <input class="form-check-input" type="checkbox" id="backupBeforeUpdate" checked>
+                                                        <label class="form-check-label" for="backupBeforeUpdate">Create backup before updating</label>
+                                                    </div>
+                                                    <button class="btn btn-outline-primary">
+                                                        <i class="bi bi-save me-1"></i> Save Settings
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Maintenance Settings -->
+                                    <div class="tab-pane fade" id="maintenance">
+                                        <div class="settings-section">
+                                            <h4>Maintenance Mode</h4>
+                                            
+                                            <div class="settings-card">
+                                                <div class="card-header">Maintenance Mode</div>
+                                                <div class="card-body">
+                                                    <div class="alert alert-warning">
+                                                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                                        <strong>Warning:</strong> Enabling maintenance mode will restrict access to all users except administrators.
+                                                    </div>
+                                                    
+                                                    <div class="form-check form-switch mb-3">
+                                                        <input class="form-check-input" type="checkbox" id="maintenanceMode">
+                                                        <label class="form-check-label" for="maintenanceMode">Enable Maintenance Mode</label>
+                                                    </div>
+                                                    
+                                                    <div id="maintenanceSettings" style="display: none;">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Maintenance Message</label>
+                                                            <textarea class="form-control" rows="4" placeholder="We're currently performing scheduled maintenance. We'll be back shortly."></textarea>
+                                                        </div>
+                                                        
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Allow Access For</label>
+                                                            <select class="form-select" multiple>
+                                                                <option selected>Administrators</option>
+                                                                <option>Agents</option>
+                                                                <option>API</option>
+                                                            </select>
+                                                            <div class="form-text">Hold down the Ctrl (Windows) or Command (Mac) button to select multiple options.</div>
+                                                        </div>
+                                                        
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Scheduled Maintenance</label>
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <label class="form-label">Start Time</label>
+                                                                    <input type="datetime-local" class="form-control">
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <label class="form-label">End Time</label>
+                                                                    <input type="datetime-local" class="form-control">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <button class="btn btn-primary">
+                                                        <i class="bi bi-save me-1"></i> Save Settings
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="settings-card">
+                                                <div class="card-header">System Logs</div>
+                                                <div class="card-body">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Log Level</label>
+                                                        <select class="form-select">
+                                                            <option>Debug</option>
+                                                            <option>Info</option>
+                                                            <option selected>Warning</option>
+                                                            <option>Error</option>
+                                                            <option>Critical</option>
+                                                        </select>
+                                                    </div>
+                                                    
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Log Retention</label>
+                                                        <select class="form-select">
+                                                            <option>1 day</option>
+                                                            <option>7 days</option>
+                                                            <option selected>30 days</option>
+                                                            <option>90 days</option>
+                                                            <option>1 year</option>
+                                                            <option>Forever</option>
+                                                        </select>
+                                                    </div>
+                                                    
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <button class="btn btn-outline-primary">
+                                                            <i class="bi bi-download me-1"></i> Download Logs
+                                                        </button>
+                                                        <button class="btn btn-outline-danger">
+                                                            <i class="bi bi-trash me-1"></i> Clear Logs
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="dashboard-footer mt-4 mb-2 text-muted small">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>© TicketHub Admin Dashboard</span>
+                        <span>All systems operational</span>
+                    </div>
+                </footer>
+            </main>
+        </div>
+    </div>
+
+    <!-- Include Modals -->
+    <div id="modals-container">
+        <!-- Content will be loaded by JavaScript -->
+        
+        <!-- Color Picker Modal -->
+        <div class="modal fade" id="colorPickerModal" tabindex="-1" aria-labelledby="colorPickerModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="colorPickerModalLabel">Choose a Color</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-center">
+                            <div id="colorPicker"></div>
+                            <div class="mt-3">
+                                <input type="text" class="form-control text-center" value="#0d6efd" id="colorHexInput">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="applyColor">Apply Color</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    
+    
+    
+    
+    <!-- Toast for saved settings -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="settingsSavedToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-success text-white">
+                <i class="bi bi-check-circle me-2"></i>
+                <strong class="me-auto">Success</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                Settings saved successfully!
+            </div>
+        </div>
+    </div>
+
+    <!-- Core JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Utility function for loading components -->
+    <script>
+        // Function to load HTML content into an element
+        async function loadComponent(url, elementId) {
+            try {
+                const res = await fetch(url, { credentials: 'same-origin' });
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(`Failed to load component (${res.status}): ${text}`);
+                }
+                const html = await res.text();
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.innerHTML = html;
+                    
+                    // If loading the sidebar, set the active nav item
+                    if (url.includes('sidebar.html')) {
+                        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                        const pageName = currentPage.replace('.html', '') || 'dashboard';
+                        const activeNavItem = document.querySelector(`.nav-item[data-page="${pageName}"]`);
+                        if (activeNavItem) {
+                            // Remove active class from all nav items
+                            document.querySelectorAll('.nav-item').forEach(item => {
+                                item.classList.remove('active');
+                            });
+                            activeNavItem.classList.add('active');
+                        }
+
+                    // Apply theme visually on load
+                    // Note: data is not available in this scope, using defaults
+                    applyTheme('light', '#0d6efd');
+                    }
+                    
+                    // If loading the header, initialize it after a short delay
+                    if (url.includes('header.html') && window.initializeHeader) {
+                        setTimeout(() => {
+                            window.initializeHeader();
+                        }, 50);
+                    }
+                    
+                    return true;
+                }
+                return false;
+            } catch (err) {
+                console.error('Error loading component:', err);
+                return false;
+            }
+        }
+
+        // Helper: get CSRF token from cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Apply theme to page background and primary buttons
+        function applyTheme(theme, primaryColor) {
+            const body = document.body;
+            if (!body) return;
+
+            // Background + text color
+            if (theme === 'dark') {
+                body.style.backgroundColor = '#121212';
+                body.style.color = '#f8f9fa';
+            } else {
+                body.style.backgroundColor = '#f8f9fa';
+                body.style.color = '#212529';
+            }
+
+            // Primary color for buttons on this page
+            if (primaryColor) {
+                const buttons = document.querySelectorAll('.btn-primary');
+                buttons.forEach(btn => {
+                    btn.style.backgroundColor = primaryColor;
+                    btn.style.borderColor = primaryColor;
+                });
+            }
+        }
+        
+        // Toggle maintenance settings based on maintenance mode
+        const maintenanceMode = document.getElementById('maintenanceMode');
+        const maintenanceSettings = document.getElementById('maintenanceSettings');
+        
+        if (maintenanceMode && maintenanceSettings) {
+            maintenanceMode.addEventListener('change', function() {
+                maintenanceSettings.style.display = this.checked ? 'block' : 'none';
+            });
+            
+            // Initialize visibility on page load
+            maintenanceSettings.style.display = maintenanceMode.checked ? 'block' : 'none';
+        }
+        
+        // Enable/disable restore button based on confirmation
+        const confirmRestore = document.getElementById('confirmRestore');
+        const restoreButton = document.querySelector('button[disabled]');
+        
+        if (confirmRestore && restoreButton) {
+            confirmRestore.addEventListener('change', function() {
+                restoreButton.disabled = !this.checked;
+            });
+        }
+        
+        // Copy API URL to clipboard
+        const copyApiUrl = document.getElementById('copyApiUrl');
+        if (copyApiUrl) {
+            copyApiUrl.addEventListener('click', function() {
+                const apiUrl = this.previousElementSibling;
+                apiUrl.select();
+                document.execCommand('copy');
+                
+                // Show tooltip or feedback
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="bi bi-check"></i>';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                }, 2000);
+            });
+        }
+        
+        // Initialize components when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load header if container exists
+            if (document.getElementById('header-container')) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/header.html" %}', 'header-container');
+            }
+            
+            // Load sidebar if container exists
+            if (document.getElementById('sidebar-container')) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/sidebar.html" %}', 'sidebar-container');
+            }
+            
+            // Load modals if container exists
+            if (document.getElementById('modals-container')) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/modals.html" %}', 'modals-container');
+            }
+            
+            // ----------------------
+            // Load existing site settings via API
+            // ----------------------
+            const settingsApiUrl = '{% url "dashboards:site_settings_api" %}';
+            const companyNameInput = document.getElementById('companyName');
+            const websiteUrlInput = document.getElementById('websiteUrl');
+            const contactEmailInput = document.getElementById('contactEmail');
+            const contactPhoneInput = document.getElementById('contactPhone');
+            const addressInput = document.getElementById('address');
+            const defaultLanguageSelect = document.getElementById('defaultLanguage');
+            const timeZoneSelect = document.getElementById('timeZone');
+            const dateFormatSelect = document.getElementById('dateFormat');
+            const timeFormatSelect = document.getElementById('timeFormat');
+            const firstDayOfWeekSelect = document.getElementById('firstDayOfWeek');
+            const currencySelect = document.getElementById('currency');
+            const maintenanceModeInput = document.getElementById('maintenanceMode');
+            const userRegistrationInput = document.getElementById('userRegistration');
+            const emailVerificationInput = document.getElementById('emailVerification');
+            const rememberMeInput = document.getElementById('rememberMe');
+            const showTutorialInput = document.getElementById('showTutorial');
+            const fixedHeaderInput = document.getElementById('fixedHeader');
+            const fixedSidebarInput = document.getElementById('fixedSidebar');
+            const collapsedSidebarInput = document.getElementById('collapsedSidebar');
+            const themeRadios = document.querySelectorAll('input[name="theme"]');
+            const themeColorEls = document.querySelectorAll('.theme-color');
+            // Ticket settings inputs
+            const defaultTicketStatusSelect = document.getElementById('defaultTicketStatus');
+            const defaultTicketPrioritySelect = document.getElementById('defaultTicketPriority');
+            const ticketAssignmentInput = document.getElementById('ticketAssignment');
+            const ticketReopenInput = document.getElementById('ticketReopen');
+            const firstResponseHoursInput = document.getElementById('firstResponseHours');
+            const resolutionTimeHoursInput = document.getElementById('resolutionTimeHours');
+            const slaBusinessHoursSelect = document.getElementById('slaBusinessHours');
+
+            fetch(settingsApiUrl, { credentials: 'same-origin' })
+                .then(res => {
+                    if (!res.ok) {
+                        if (res.status === 403) {
+                            console.warn('Authentication required for settings. Please ensure you are logged in as admin.');
+                            // Don't throw error for 403, just log warning and continue
+                            return null;
+                        }
+                        throw new Error(`Failed to load site settings (${res.status}): ${res.statusText}`);
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (!data) return; // Skip if data is null (e.g., 403 response)
+                    
+                    if (companyNameInput && typeof data.company_name === 'string') {
+                        companyNameInput.value = data.company_name;
+                    }
+                    if (websiteUrlInput && typeof data.website_url === 'string') {
+                        websiteUrlInput.value = data.website_url;
+                    }
+                    if (contactEmailInput && typeof data.contact_email === 'string') {
+                        contactEmailInput.value = data.contact_email;
+                    }
+                    if (contactPhoneInput && typeof data.contact_phone === 'string') {
+                        contactPhoneInput.value = data.contact_phone;
+                    }
+                    if (addressInput && typeof data.address === 'string') {
+                        addressInput.value = data.address;
+                    }
+
+                    function setSelectByText(selectEl, text) {
+                        if (!selectEl || typeof text !== 'string') return;
+                        for (const opt of selectEl.options) {
+                            if (opt.text.trim() === text.trim()) {
+                                selectEl.value = opt.value;
+                                return;
+                            }
+                        }
+                    }
+
+                    setSelectByText(defaultLanguageSelect, data.default_language);
+                    setSelectByText(timeZoneSelect, data.time_zone);
+                    setSelectByText(dateFormatSelect, data.date_format);
+                    setSelectByText(timeFormatSelect, data.time_format);
+                    setSelectByText(currencySelect, data.currency);
+
+                    if (firstDayOfWeekSelect && typeof data.first_day_of_week !== 'undefined') {
+                        firstDayOfWeekSelect.value = String(data.first_day_of_week);
+                    }
+
+                    if (typeof data.maintenance_mode === 'boolean' && maintenanceModeInput) {
+                        maintenanceModeInput.checked = data.maintenance_mode;
+                    }
+                    if (typeof data.user_registration === 'boolean' && userRegistrationInput) {
+                        userRegistrationInput.checked = data.user_registration;
+                    }
+                    if (typeof data.email_verification === 'boolean' && emailVerificationInput) {
+                        emailVerificationInput.checked = data.email_verification;
+                    }
+                    if (typeof data.remember_me === 'boolean' && rememberMeInput) {
+                        rememberMeInput.checked = data.remember_me;
+                    }
+                    if (typeof data.show_tutorial === 'boolean' && showTutorialInput) {
+                        showTutorialInput.checked = data.show_tutorial;
+                    }
+
+                    // Theme (light/dark/system)
+                    if (data.theme && themeRadios && themeRadios.length) {
+                        const themeValue = String(data.theme).toLowerCase();
+                        themeRadios.forEach(r => {
+                            if (themeValue === 'light' && r.id === 'lightTheme') {
+                                r.checked = true;
+                            } else if (themeValue === 'dark' && r.id === 'darkTheme') {
+                                r.checked = true;
+                            } else if (themeValue === 'system' && r.id === 'systemTheme') {
+                                r.checked = true;
+                            }
+                        });
+                    }
+
+                    // Primary color palette
+                    if (data.primary_color && themeColorEls && themeColorEls.length) {
+                        themeColorEls.forEach(el => {
+                            el.classList.remove('active');
+                            if (el.dataset.color && el.dataset.color.toLowerCase() === String(data.primary_color).toLowerCase()) {
+                                el.classList.add('active');
+                            }
+                        });
+                    }
+
+                    // Appearance toggles
+                    if (typeof data.fixed_header === 'boolean' && fixedHeaderInput) {
+                        fixedHeaderInput.checked = data.fixed_header;
+                    }
+                    if (typeof data.fixed_sidebar === 'boolean' && fixedSidebarInput) {
+                        fixedSidebarInput.checked = data.fixed_sidebar;
+                    }
+                    if (typeof data.collapsed_sidebar === 'boolean' && collapsedSidebarInput) {
+                        collapsedSidebarInput.checked = data.collapsed_sidebar;
+                    }
+
+                    // Ticket settings: selects by text/value
+                    setSelectByText(defaultTicketStatusSelect, data.default_ticket_status);
+                    setSelectByText(defaultTicketPrioritySelect, data.default_ticket_priority);
+                    setSelectByText(slaBusinessHoursSelect, data.sla_business_hours);
+                    if (ticketAssignmentInput && typeof data.auto_ticket_assignment === 'boolean') {
+                        ticketAssignmentInput.checked = data.auto_ticket_assignment;
+                    }
+                    if (ticketReopenInput && typeof data.allow_ticket_reopen === 'boolean') {
+                        ticketReopenInput.checked = data.allow_ticket_reopen;
+                    }
+                    if (firstResponseHoursInput && typeof data.first_response_hours !== 'undefined' && data.first_response_hours !== null) {
+                        firstResponseHoursInput.value = data.first_response_hours;
+                    }
+                    if (resolutionTimeHoursInput && typeof data.resolution_time_hours !== 'undefined' && data.resolution_time_hours !== null) {
+                        resolutionTimeHoursInput.value = data.resolution_time_hours;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error loading settings:', err);
+                });
+
+            // ----------------------
+            // Handle Save Changes button (save via API then show toast)
+            // ----------------------
+            const saveSettingsBtn = document.getElementById('saveSettings');
+            const settingsSavedToastEl = document.getElementById('settingsSavedToast');
+            const csrftoken = getCookie('csrftoken');
+            if (saveSettingsBtn && settingsSavedToastEl && window.bootstrap && window.bootstrap.Toast) {
+                const settingsSavedToast = new window.bootstrap.Toast(settingsSavedToastEl);
+                saveSettingsBtn.addEventListener('click', function() {
+                    // Determine selected theme
+                    let themeValue = 'light';
+                    if (themeRadios && themeRadios.length) {
+                        themeRadios.forEach(r => {
+                            if (r.checked) {
+                                if (r.id === 'darkTheme') {
+                                    themeValue = 'dark';
+                                } else if (r.id === 'systemTheme') {
+                                    themeValue = 'light'; // treat system as light for now
+                                } else {
+                                    themeValue = 'light';
+                                }
+                            }
+                        });
+                    }
+
+                    // Determine selected primary color
+                    let primaryColorValue = '#0d6efd';
+                    if (themeColorEls && themeColorEls.length) {
+                        themeColorEls.forEach(el => {
+                            if (el.classList.contains('active') && el.dataset.color) {
+                                primaryColorValue = el.dataset.color;
+                            }
+                        });
+                    }
+                    const payload = {
+                        company_name: companyNameInput ? companyNameInput.value : '',
+                        website_url: websiteUrlInput ? websiteUrlInput.value : '',
+                        contact_email: contactEmailInput ? contactEmailInput.value : '',
+                        contact_phone: contactPhoneInput ? contactPhoneInput.value : '',
+                        address: addressInput ? addressInput.value : '',
+                        default_language: defaultLanguageSelect ? defaultLanguageSelect.options[defaultLanguageSelect.selectedIndex].text : '',
+                        time_zone: timeZoneSelect ? timeZoneSelect.options[timeZoneSelect.selectedIndex].text : '',
+                        date_format: dateFormatSelect ? dateFormatSelect.options[dateFormatSelect.selectedIndex].text : '',
+                        time_format: timeFormatSelect ? timeFormatSelect.options[timeFormatSelect.selectedIndex].text : '',
+                        first_day_of_week: firstDayOfWeekSelect ? firstDayOfWeekSelect.value : '',
+                        currency: currencySelect ? currencySelect.options[currencySelect.selectedIndex].text : '',
+                        maintenance_mode: maintenanceModeInput ? maintenanceModeInput.checked : false,
+                        user_registration: userRegistrationInput ? userRegistrationInput.checked : false,
+                        email_verification: emailVerificationInput ? emailVerificationInput.checked : false,
+                        remember_me: rememberMeInput ? rememberMeInput.checked : false,
+                        show_tutorial: showTutorialInput ? showTutorialInput.checked : false,
+                        theme: themeValue,
+                        primary_color: primaryColorValue,
+                        fixed_header: fixedHeaderInput ? fixedHeaderInput.checked : false,
+                        fixed_sidebar: fixedSidebarInput ? fixedSidebarInput.checked : false,
+                        collapsed_sidebar: collapsedSidebarInput ? collapsedSidebarInput.checked : false,
+                        // Ticket settings
+                        default_ticket_status: defaultTicketStatusSelect ? defaultTicketStatusSelect.options[defaultTicketStatusSelect.selectedIndex].text : '',
+                        default_ticket_priority: defaultTicketPrioritySelect ? defaultTicketPrioritySelect.options[defaultTicketPrioritySelect.selectedIndex].text : '',
+                        auto_ticket_assignment: ticketAssignmentInput ? ticketAssignmentInput.checked : false,
+                        allow_ticket_reopen: ticketReopenInput ? ticketReopenInput.checked : false,
+                        first_response_hours: firstResponseHoursInput ? firstResponseHoursInput.value : '',
+                        resolution_time_hours: resolutionTimeHoursInput ? resolutionTimeHoursInput.value : '',
+                        sla_business_hours: slaBusinessHoursSelect ? slaBusinessHoursSelect.options[slaBusinessHoursSelect.selectedIndex].text : ''
+                    };
+
+                    fetch(settingsApiUrl, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken || ''
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify(payload)
+                    })
+                        .then(res => {
+                            if (!res.ok) {
+                                if (res.status === 403) {
+                                    throw new Error('Authentication failed. Please ensure you are logged in as an administrator.');
+                                } else if (res.status === 400) {
+                                    return res.json().then(data => {
+                                        throw new Error('Validation error: ' + (data.detail || JSON.stringify(data)));
+                                    });
+                                } else {
+                                    throw new Error(`Failed to save site settings (${res.status}): ${res.statusText}`);
+                                }
+                            }
+                            return res.json();
+                        })
+                        .then(data => {
+                            console.log('Settings saved successfully:', data);
+                            settingsSavedToast.show();
+                        })
+                        .catch(err => {
+                            console.error('Save settings error:', err);
+                            alert('Failed to save settings: ' + err.message);
+                        });
+                });
+            }
+
+            // Handle Reset to Defaults button (reload page to original values)
+            const resetDefaultsBtn = document.getElementById('resetDefaults');
+            if (resetDefaultsBtn) {
+                resetDefaultsBtn.addEventListener('click', function() {
+                    window.location.reload();
+                });
+            }
+            // Listen for navigation events (for single-page navigation)
+            document.body.addEventListener('click', function(e) {
+                // Check if the click was on a navigation link
+                const navLink = e.target.closest('a[data-page]');
+                if (navLink) {
+                    // Re-initialize header after a short delay to allow the page to update
+                    setTimeout(() => {
+                        if (window.initializeHeader) {
+                            window.initializeHeader();
+                        }
+                    }, 100);
+                }
+            });
+        });
+    </script>
+    
+    <!-- Application Scripts -->
+    <script src="{% static 'admindashboard/js/script.js' %}"></script>
+    <script src="{% static 'admindashboard/js/header.js' %}"></script>
+</body>
+</html>

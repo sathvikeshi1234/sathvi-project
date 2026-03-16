@@ -1,0 +1,596 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Agents</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'agentdashboard/css/style.css' %}">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Include Sidebar (server-side include to ensure visibility) -->
+        <div id="sidebar-container">
+            <!-- Content will be loaded by JavaScript -->
+        </div>
+
+        <div class="main-container">
+            <!-- Include Header (server-side include to ensure visibility) -->
+            <div id="header-container">
+                <!-- Content will be loaded by JavaScript -->
+            </div>
+
+            <!-- Main Content -->
+            <main class="content-area">
+                <!-- AGENTS PAGE CONTENT -->
+                <div id="agents" class="page-content active">
+                    <div class="page-header">
+                        <div>
+                            <h2>Agents</h2>
+                            <p class="text-muted">Manage your support team members and their permissions</p>
+                        </div>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newAgentModal">
+                            <i class="bi bi-plus"></i> Add Agent
+                        </button>
+                    </div>
+
+                    <div class="row">
+                        <!-- Agent Statistics -->
+                        <div class="col-12 mb-4">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <div class="stat-card">
+                                        <div class="stat-icon"
+                                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                            <i class="bi bi-people"></i>
+                                        </div>
+                                        <div class="stat-content">
+                                            <small>Total Agents</small>
+                                            <h3>24</h3>
+                                            <span class="stat-change positive">+3 this month</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="stat-card">
+                                        <div class="stat-icon"
+                                            style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                            <i class="bi bi-person-check"></i>
+                                        </div>
+                                        <div class="stat-content">
+                                            <small>Active Now</small>
+                                            <h3>12</h3>
+                                            <span class="stat-change positive">+2 today</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="stat-card">
+                                        <div class="stat-icon"
+                                            style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                            <i class="bi bi-headset"></i>
+                                        </div>
+                                        <div class="stat-content">
+                                            <small>On Support</small>
+                                            <h3>8</h3>
+                                            <span class="stat-change negative">-1 from yesterday</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="stat-card">
+                                        <div class="stat-icon"
+                                            style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                                            <i class="bi bi-star"></i>
+                                        </div>
+                                        <div class="stat-content">
+                                            <small>Avg. Rating</small>
+                                            <h3>4.7/5</h3>
+                                            <span class="stat-change positive">+0.1 this week</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Agent Dashboard Panels -->
+                        <div class="col-12 mb-4">
+                            <div class="row g-3">
+                                <!-- Performance Overview -->
+                                <div class="col-12 col-xl-8">
+                                    <div class="card h-100">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">Performance Overview</h5>
+                                            <div class="d-flex gap-2">
+                                                <button class="btn btn-sm btn-outline-secondary">Week</button>
+                                                <button class="btn btn-sm btn-outline-secondary active">Month</button>
+                                                <button class="btn btn-sm btn-outline-secondary">Quarter</button>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-3">
+                                                <div class="col-6 col-md-3">
+                                                    <div class="mini-kpi">
+                                                        <small class="text-muted">Tickets Closed</small>
+                                                        <div class="kpi-value">482</div>
+                                                        <div class="mini-chart">
+                                                            <span style="height: 30%"></span>
+                                                            <span style="height: 55%"></span>
+                                                            <span style="height: 40%"></span>
+                                                            <span style="height: 70%"></span>
+                                                            <span style="height: 65%"></span>
+                                                            <span style="height: 85%"></span>
+                                                            <span style="height: 60%"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 col-md-3">
+                                                    <div class="mini-kpi">
+                                                        <small class="text-muted">Avg. First Response</small>
+                                                        <div class="kpi-value">6m 24s</div>
+                                                        <div class="progress" style="height: 6px;">
+                                                            <div class="progress-bar bg-info" style="width: 68%"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 col-md-3">
+                                                    <div class="mini-kpi">
+                                                        <small class="text-muted">SLA Met</small>
+                                                        <div class="kpi-value">94%</div>
+                                                        <div class="progress" style="height: 6px;">
+                                                            <div class="progress-bar bg-success" style="width: 94%">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 col-md-3">
+                                                    <div class="mini-kpi">
+                                                        <small class="text-muted">Customer Satisfaction</small>
+                                                        <div class="kpi-value">4.6/5</div>
+                                                        <div class="progress" style="height: 6px;">
+                                                            <div class="progress-bar bg-warning" style="width: 92%">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mt-4">
+                                                <div class="chart-placeholder">
+                                                    <div class="chart-grid"></div>
+                                                    <div class="chart-line"></div>
+                                                    <div class="chart-line second"></div>
+                                                </div>
+                                                <small class="text-muted">Tickets resolved and first response times over
+                                                    the selected period.</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Top Agents Leaderboard -->
+                                <div class="col-12 col-xl-4">
+                                    <div class="card h-100">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">Top Agents</h5>
+                                            <span class="text-muted small">This month</span>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="leaderboard-item">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm me-3" style="background-color:#0d6efd;">
+                                                        <span>AD</span></div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="d-flex justify-content-between">
+                                                            <strong>Alex Davis</strong>
+                                                            <span class="text-muted">128</span>
+                                                        </div>
+                                                        <div class="progress mt-1" style="height:6px;">
+                                                            <div class="progress-bar" style="width: 92%"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="leaderboard-item">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm me-3" style="background-color:#20c997;">
+                                                        <span>SM</span></div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="d-flex justify-content-between">
+                                                            <strong>Sarah Miller</strong>
+                                                            <span class="text-muted">115</span>
+                                                        </div>
+                                                        <div class="progress mt-1" style="height:6px;">
+                                                            <div class="progress-bar bg-success" style="width: 82%">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="leaderboard-item">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm me-3" style="background-color:#6610f2;">
+                                                        <span>RJ</span></div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="d-flex justify-content-between">
+                                                            <strong>Robert Johnson</strong>
+                                                            <span class="text-muted">98</span>
+                                                        </div>
+                                                        <div class="progress mt-1" style="height:6px;">
+                                                            <div class="progress-bar bg-info" style="width: 70%"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Recent Activity -->
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">Recent Agent Activity</h5>
+                                            <a href="#" class="text-decoration-none">View all</a>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="activity-list">
+                                                <div class="activity-item">
+                                                    <div class="activity-dot bg-success"></div>
+                                                    <div>
+                                                        <strong>Sarah Miller</strong> resolved ticket <span
+                                                            class="text-muted">#1238</span>
+                                                        <div class="text-muted small">2 mins ago</div>
+                                                    </div>
+                                                </div>
+                                                <div class="activity-item">
+                                                    <div class="activity-dot bg-info"></div>
+                                                    <div>
+                                                        <strong>Alex Davis</strong> replied to <span
+                                                            class="text-muted">#1235</span>
+                                                        <div class="text-muted small">10 mins ago</div>
+                                                    </div>
+                                                </div>
+                                                <div class="activity-item">
+                                                    <div class="activity-dot bg-warning"></div>
+                                                    <div>
+                                                        <strong>Robert Johnson</strong> escalated <span
+                                                            class="text-muted">#1227</span>
+                                                        <div class="text-muted small">34 mins ago</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Agents List -->
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div
+                                        class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+                                        <div class="d-flex align-items-center">
+                                            <h4 class="mb-0">All Agents</h4>
+                                            <span class="badge bg-light text-dark ms-3">24 Agents</span>
+                                        </div>
+                                        <div class="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto">
+                                            <div class="position-relative flex-grow-1" style="min-width: 200px;">
+                                                <i
+                                                    class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                                                <input type="text" class="form-control ps-5" id="agent-search"
+                                                    placeholder="Search agents...">
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                <select class="form-select" style="min-width: 150px;">
+                                                    <option value="">All Roles</option>
+                                                    <option>Administrator</option>
+                                                    <option>Agent</option>
+                                                    <option>Manager</option>
+                                                </select>
+                                                <select class="form-select" style="min-width: 150px;">
+                                                    <option value="">All Status</option>
+                                                    <option>Active</option>
+                                                    <option>Inactive</option>
+                                                    <option>Away</option>
+                                                </select>
+                                                <button class="btn btn-outline-secondary d-flex align-items-center">
+                                                    <i class="bi bi-funnel me-2"></i> Filter
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Agent</th>
+                                                    <th>Role</th>
+                                                    <th>Department</th>
+                                                    <th>Tickets</th>
+                                                    <th>Status</th>
+                                                    <th>Last Active</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="avatar-sm me-3">
+                                                                <span>AD</span>
+                                                                <span class="status-dot online"></span>
+                                                            </div>
+                                                            <div>
+                                                                <div class="fw-bold">Alex Davis</div>
+                                                                <small
+                                                                    class="text-muted">alex.davis@tickethub.com</small>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td><span class="badge bg-primary">Administrator</span></td>
+                                                    <td>Technical Support</td>
+                                                    <td>124</td>
+                                                    <td><span class="badge bg-success">Online</span></td>
+                                                    <td>2 min ago</td>
+                                                    <td>
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-sm btn-icon" type="button"
+                                                                data-bs-toggle="dropdown">
+                                                                <i class="bi bi-three-dots-vertical"></i>
+                                                            </button>
+                                                            <ul class="dropdown-menu">
+                                                                <li><a class="dropdown-item" href="#"><i
+                                                                            class="bi bi-eye me-2"></i>View</a></li>
+                                                                <li><a class="dropdown-item" href="#"><i
+                                                                            class="bi bi-pencil me-2"></i>Edit</a></li>
+                                                                <li><a class="dropdown-item" href="#"><i
+                                                                            class="bi bi-person-lock me-2"></i>Permissions</a>
+                                                                </li>
+                                                                <li>
+                                                                    <hr class="dropdown-divider">
+                                                                </li>
+                                                                <li><a class="dropdown-item text-danger" href="#"><i
+                                                                            class="bi bi-trash me-2"></i>Delete</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="avatar-sm me-3"
+                                                                style="background-color: #e83e8c;">
+                                                                <span>SM</span>
+                                                                <span class="status-dot online"></span>
+                                                            </div>
+                                                            <div>
+                                                                <div class="fw-bold">Sarah Miller</div>
+                                                                <small class="text-muted">sarah.m@tickethub.com</small>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td><span class="badge bg-info">Manager</span></td>
+                                                    <td>Customer Support</td>
+                                                    <td>89</td>
+                                                    <td><span class="badge bg-success">Online</span></td>
+                                                    <td>15 min ago</td>
+                                                    <td>
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-sm btn-icon" type="button"
+                                                                data-bs-toggle="dropdown">
+                                                                <i class="bi bi-three-dots-vertical"></i>
+                                                            </button>
+                                                            <ul class="dropdown-menu">
+                                                                <li><a class="dropdown-item" href="#"><i
+                                                                            class="bi bi-eye me-2"></i>View</a></li>
+                                                                <li><a class="dropdown-item" href="#"><i
+                                                                            class="bi bi-pencil me-2"></i>Edit</a></li>
+                                                                <li><a class="dropdown-item" href="#"><i
+                                                                            class="bi bi-person-lock me-2"></i>Permissions</a>
+                                                                </li>
+                                                                <li>
+                                                                    <hr class="dropdown-divider">
+                                                                </li>
+                                                                <li><a class="dropdown-item text-danger" href="#"><i
+                                                                            class="bi bi-trash me-2"></i>Delete</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="avatar-sm me-3"
+                                                                style="background-color: #6f42c1;">
+                                                                <span>RJ</span>
+                                                                <span class="status-dot away"></span>
+                                                            </div>
+                                                            <div>
+                                                                <div class="fw-bold">Robert Johnson</div>
+                                                                <small class="text-muted">robert.j@tickethub.com</small>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td><span class="badge bg-secondary">Agent</span></td>
+                                                    <td>Billing</td>
+                                                    <td>67</td>
+                                                    <td><span class="badge bg-warning">Away</span></td>
+                                                    <td>1 hour ago</td>
+                                                    <td>
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-sm btn-icon" type="button"
+                                                                data-bs-toggle="dropdown">
+                                                                <i class="bi bi-three-dots-vertical"></i>
+                                                            </button>
+                                                            <ul class="dropdown-menu">
+                                                                <li><a class="dropdown-item" href="#"><i
+                                                                            class="bi bi-eye me-2"></i>View</a></li>
+                                                                <li><a class="dropdown-item" href="#"><i
+                                                                            class="bi bi-pencil me-2"></i>Edit</a></li>
+                                                                <li><a class="dropdown-item" href="#"><i
+                                                                            class="bi bi-person-lock me-2"></i>Permissions</a>
+                                                                </li>
+                                                                <li>
+                                                                    <hr class="dropdown-divider">
+                                                                </li>
+                                                                <li><a class="dropdown-item text-danger" href="#"><i
+                                                                            class="bi bi-trash me-2"></i>Delete</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                        <div class="text-muted">
+                                            Showing <span>1</span> to <span>3</span> of <span>24</span> agents
+                                        </div>
+                                        <nav aria-label="Page navigation">
+                                            <ul class="pagination mb-0">
+                                                <li class="page-item disabled">
+                                                    <a class="page-link" href="#" tabindex="-1"
+                                                        aria-disabled="true">Previous</a>
+                                                </li>
+                                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                                <li class="page-item">
+                                                    <a class="page-link" href="#">Next</a>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="dashboard-footer mt-4 mb-2 text-muted small">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="https://ultrakeyit.com/" target="_blank" rel="noopener noreferrer"
+                            class="text-muted text-decoration-none">© Ultrakey IT Solutions</a>
+                        <span>All systems operational</span>
+                    </div>
+                </footer>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Include Modals (server-side include to ensure visibility) -->
+    <div id="modals-container">
+        <!-- Content will be loaded by JavaScript -->
+    </div>
+
+    <!-- Core JavaScript -->
+    
+
+    <!-- Utility function for loading components -->
+    
+
+    <!-- Application Scripts -->
+    
+    
+    <!-- Load header/sidebar/modals via agent_dashboard_page -->
+    <script>
+        function loadComponent(url, elementId) {
+            return fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        element.innerHTML = html;
+                        
+                        // If loading the sidebar, set the active nav item
+                        if (url.includes('sidebar.html')) {
+                            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                            let pageName = currentPage.replace('.html', '') || 'dashboard';
+                            // Map index to dashboard so the correct nav item is highlighted
+                            if (pageName === 'index') pageName = 'dashboard';
+                            const activeNavItem = document.querySelector(`.nav-item[data-page="${pageName}"]`);
+                            if (activeNavItem) {
+                                // Remove active class from all nav items
+                                document.querySelectorAll('.nav-item').forEach(item => {
+                                    item.classList.remove('active');
+                                });
+                                activeNavItem.classList.add('active');
+                            }
+                        }
+                        
+                        // If loading the header, initialize it after a short delay
+                        if (url.includes('header.html') && window.initializeHeader) {
+                            setTimeout(() => {
+                                window.initializeHeader();
+                            }, 50);
+                        }
+                        
+                        return true;
+                    }
+                    return false;
+                })
+                .catch(error => {
+                    console.error('Error loading component:', error);
+                    return false;
+                });
+        }
+        
+        // Initialize components when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load header if container exists
+            if (document.getElementById('header-container')) {
+                loadComponent('{{ header_url }}', 'header-container')
+                    .then(function(){
+                        if (window.initializeHeader) {
+                            window.initializeHeader();
+                        }
+                    });
+            }
+            
+            // Load sidebar if container exists
+            if (document.getElementById('sidebar-container')) {
+                loadComponent('{{ sidebar_url }}', 'sidebar-container');
+            }
+            
+            // Load modals if container exists
+            if (document.getElementById('modals-container')) {
+                loadComponent('{{ modals_url }}', 'modals-container');
+            }
+            
+            // Listen for navigation events (for single-page navigation)
+            document.body.addEventListener('click', function(e) {
+                // Check if the click was on a navigation link
+                const navLink = e.target.closest('a[data-page]');
+                if (navLink) {
+                    // Re-initialize header after a short delay to allow the page to update
+                    setTimeout(() => {
+                        if (window.initializeHeader) {
+                            window.initializeHeader();
+                        }
+                    }, 100);
+                }
+            });
+        });
+    </script>
+    
+    <!-- Application Scripts -->
+    <script src="{% static 'agentdashboard/js/script.js' %}"></script>
+    <script src="{% static 'agentdashboard/js/header.js' %}"></script>
+</body>
+
+</html>

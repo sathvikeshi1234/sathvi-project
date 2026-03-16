@@ -1,0 +1,80 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>{% block title %}TicketHub{% endblock %}</title>
+
+
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+  <link rel="stylesheet" href="{% static 'userdashboard/css/styles.css' %}">
+
+  {% block extra_css %}{% endblock %}
+
+</head>
+
+<body>
+
+
+
+  <!-- Include Sidebar -->
+
+  {% include 'userdashboard/partials/sidebar.html' %}
+
+
+
+  <!-- Include Header -->
+
+  {% include 'userdashboard/partials/header.html' %}
+
+
+
+  <!-- Main Content -->
+
+  <div class="ts-shell">
+
+    <main class="ts-main-wrap">
+
+      <div class="ts-main-inner">
+
+        <div class="ts-page-shell">
+
+          <div class="ts-page-shell-inner">
+
+            {% block content %}
+
+            {% endblock %}
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  {% block extra_js %}{% endblock %}
+
+</body>
+
+</html>
+

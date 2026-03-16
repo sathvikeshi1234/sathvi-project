@@ -1,0 +1,227 @@
+﻿
+{% extends "superadmin/base.html" %}
+
+{% block title %}Companies{% endblock %}
+
+{% block content %}
+            <div class="main-content">
+                <form action="{% url 'superadmin:company_create' %}?v={{ random }}" method="post">                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title">Company Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Company Name <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" name="name" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                                            <input type="email" class="form-control" name="email" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Phone Number</label>
+                                            <input type="tel" class="form-control" name="phone">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">GST Number</label>
+                                            <input type="text" class="form-control">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Address</label>
+                                            <textarea class="form-control" rows="2" name="address"></textarea>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">City</label>
+                                            <input type="text" class="form-control">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Country</label>
+                                            <select class="form-select">
+                                                <option>Select Country</option>
+                                                <option>United States</option>
+                                                <option>United Kingdom</option>
+                                                <option>Canada</option>
+                                                <option>Australia</option>
+                                                <option>India</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Postal Code</label>
+                                            <input type="text" class="form-control">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Status</label>
+                                            <select class="form-select" required>
+                                                <option value="active" selected>Active</option>
+                                                <option value="inactive">Inactive</option>
+                                                <option value="suspended">Suspended</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    <h5 class="card-title">Subscription Details</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Select Plan</label>
+                                            <select class="form-select" name="plan" id="planSelect">
+                                                <option value="">Select a plan</option>
+                                                <option value="free_trial">🎯 Free Trial (7 days)</option>
+                                                {% for plan in plans %}
+                                                <option value="{{ plan.id }}">{{ plan.name }} - ₹{{ plan.price }}/{{ plan.billing_cycle }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Subscription Status</label>
+                                            <select class="form-select" name="subscription_status">
+                                                <option value="trial">Trial</option>
+                                                <option value="active">Active</option>
+                                                <option value="expired">Expired</option>
+                                                <option value="cancelled">Cancelled</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Subscription Start Date</label>
+                                            <input type="date" class="form-control" name="subscription_start_date">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Plan Expiry Date</label>
+                                            <input type="date" class="form-control" name="plan_expiry_date">
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="sendWelcomeEmail" checked>
+                                                <label class="form-check-label" for="sendWelcomeEmail">
+                                                    Send welcome email with login details
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title">Company Logo</h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <div class="avatar-upload mb-3">
+                                            <div class="avatar-edit">
+                                                <input type="file" id="logoUpload" accept=".png, .jpg, .jpeg" />
+                                                <label for="logoUpload"></label>
+                                            </div>
+                                            <div class="avatar-preview">
+                                                <div id="logoPreview" style="background-image: url('assets/images/placeholder.jpg');">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="text-muted small">Allowed file types: png, jpg, jpeg. Max size: 2MB</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    <h5 class="card-title">Additional Notes</h5>
+                                </div>
+                                <div class="card-body">
+                                    <textarea class="form-control" rows="5" placeholder="Add any additional notes here..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="feather-save me-1"></i> Save Company
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary">
+                                    <i class="feather-x me-1"></i> Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- [Main Content] End -->
+        </div>
+    </main>
+    <!-- [End] Main Content -->
+
+    <!-- Required Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Initialize select2
+            $('.form-select').select2({
+                minimumResultsForSearch: Infinity,
+                width: '100%'
+            });
+
+            // Handle plan selection - auto-set subscription status
+            $('#planSelect').on('change', function() {
+                const selectedPlan = $(this).val();
+                const statusSelect = $('select[name="subscription_status"]');
+                
+                if (selectedPlan === 'free_trial') {
+                    // Auto-set to trial when free trial is selected
+                    statusSelect.val('trial').trigger('change');
+                } else if (selectedPlan && selectedPlan !== '') {
+                    // Auto-set to active when paid plan is selected
+                    statusSelect.val('active').trigger('change');
+                }
+            });
+
+            // Style free trial option differently
+            $('#planSelect').on('select2:open', function() {
+                setTimeout(function() {
+                    $('.select2-results__option:contains("Free Trial")')
+                        .css({
+                            'background-color': '#e8f5e8',
+                            'border': '1px solid #28a745',
+                            'font-weight': 'bold'
+                        });
+                }, 10);
+            });
+
+            // Logo upload preview
+            function readURL(input) {
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#logoPreview').css('background-image', 'url('+e.target.result +')');
+                    }
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
+            $("#logoUpload").change(function() {
+                readURL(this);
+            });
+        });
+    </script>
+    
+    <style>
+    /* Style for free trial option */
+    .select2-results__option[data-select2-id*="free_trial"] {
+        background-color: #e8f5e8 !important;
+        border: 1px solid #28a745 !important;
+        font-weight: bold !important;
+        color: #155724 !important;
+    }
+    </style>
+</body>
+{% endblock %}
+

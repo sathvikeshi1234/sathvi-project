@@ -1,0 +1,921 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Tickets</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'agentdashboard/css/style.css' %}">
+</head>
+<body>
+    <div id="app">
+        <!-- Include Sidebar (server-side include to ensure visibility) -->
+        <div id="sidebar-container">
+            <!-- Content will be loaded by JavaScript -->
+        </div>
+
+        <div class="main-container">
+            <!-- Include Header (server-side include to ensure visibility) -->
+            <div id="header-container">
+                <!-- Content will be loaded by JavaScript -->
+            </div>
+           
+             <!-- Main Content -->
+            <main class="content-area">
+                <!-- RATINGS PAGE CONTENT -->
+                <div id="ratings" class="page-content active">
+                    <div class="page-header">
+                        <div>
+                            <h2>My Performance</h2>
+                            <p class="text-muted">See your ratings, feedback, and customer satisfaction</p>
+                        </div>
+                        <div class="d-flex">
+                            <div class="dropdown me-2">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-download me-1"></i> Export
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-excel me-2"></i>Excel</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-pdf me-2"></i>PDF</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-text me-2"></i>CSV</a></li>
+                                </ul>
+                            </div>
+                            <!-- <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ratingSettingsModal">
+                                <i class="bi bi-gear me-1"></i> Settings
+                            </button> -->
+                        </div>
+                    </div>
+
+                    <!-- Summary Cards -->
+                    <div class="row mb-4">
+                        <!-- Average Rating -->
+                        <div class="col-md-3 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <div class="display-4 fw-bold text-primary">{{ agent_avg_rating|default:"0.0" }}</div>
+                                    <div class="text-muted mb-2">Average Rating</div>
+                                    <div class="rating-stars mb-1">
+                                        {% with avg=agent_avg_rating|default:0 %}
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= avg|floatformat:"0"|add:"0" %}
+                                                    <i class="bi bi-star-fill text-warning"></i>
+                                                {% else %}
+                                                    <i class="bi bi-star text-muted"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endwith %}
+                                    </div>
+                                    <small class="text-muted">Based on {{ agent_total_reviews|default:0 }} ratings</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Response Rate -->
+                        <div class="col-md-3 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="card-title mb-0">Response Rate</h6>
+                                        <i class="bi bi-chat-square-text text-primary" style="font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div class="d-flex align-items-end">
+                                        <div class="display-4 fw-bold me-2">{{ agent_response_rate|default:0 }}%</div>
+                                    </div>
+                                    <div class="progress mt-2">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ agent_response_rate|default:0 }}%" aria-valuenow="{{ agent_response_rate|default:0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <small class="text-muted">Percentage of tickets responded</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Satisfaction -->
+                        <div class="col-md-3 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="card-title mb-0">Satisfaction</h6>
+                                        <i class="bi bi-emoji-smile text-warning" style="font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div class="d-flex align-items-end">
+                                        <div class="display-4 fw-bold me-2">{{ agent_satisfaction|default:0 }}%</div>
+                                    </div>
+                                    <div class="progress mt-2">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ agent_satisfaction|default:0 }}%" aria-valuenow="{{ agent_satisfaction|default:0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <small class="text-muted">Share of 4★ and 5★ ratings</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Response Time -->
+                        <div class="col-md-3 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="card-title mb-0">Response Time</h6>
+                                        <i class="bi bi-stopwatch text-info" style="font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div class="d-flex align-items-end">
+                                        <div class="display-4 fw-bold me-2">{{ agent_avg_response_hours|default:"0.0" }}</div>
+                                    </div>
+                                    <div class="progress mt-2">
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: 76%" aria-valuenow="76" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <small class="text-muted">Average hours to resolve</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Left Column - Charts -->
+                        <div class="col-lg-8 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Rating Trends</h5>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary active">Week</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary">Month</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary">Quarter</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary">Year</button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <!-- Chart will be rendered here by JavaScript -->
+                                        <div class="d-flex align-items-center justify-content-center h-100">
+                                            <div class="text-center">
+                                                <div class="spinner-border text-primary mb-2" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                                <p class="text-muted mb-0">Loading rating trends...</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column - Rating Distribution -->
+                        <div class="col-lg-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Rating Distribution</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-4">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2">5 <i class="bi bi-star-fill text-warning"></i></span>
+                                            </div>
+                                            <span>{{ agent_count_5|default:0 }}</span>
+                                        </div>
+                                        <div class="progress" style="height: 10px;">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ agent_percent_5|default:0 }}%;" aria-valuenow="{{ agent_percent_5|default:0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2">4 <i class="bi bi-star-fill text-warning"></i></span>
+                                            </div>
+                                            <span>{{ agent_count_4|default:0 }}</span>
+                                        </div>
+                                        <div class="progress" style="height: 10px;">
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: {{ agent_percent_4|default:0 }}%;" aria-valuenow="{{ agent_percent_4|default:0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2">3 <i class="bi bi-star-fill text-warning"></i></span>
+                                            </div>
+                                            <span>{{ agent_count_3|default:0 }}</span>
+                                        </div>
+                                        <div class="progress" style="height: 10px;">
+                                            <div class="progress-bar bg-warning" role="progressbar" style="width: {{ agent_percent_3|default:0 }}%;" aria-valuenow="{{ agent_percent_3|default:0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2">2 <i class="bi bi-star-fill text-warning"></i></span>
+                                            </div>
+                                            <span>{{ agent_count_2|default:0 }}</span>
+                                        </div>
+                                        <div class="progress" style="height: 10px;">
+                                            <div class="progress-bar bg-orange" role="progressbar" style="width: {{ agent_percent_2|default:0 }}%; background-color: #fd7e14;" aria-valuenow="{{ agent_percent_2|default:0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2">1 <i class="bi bi-star-fill text-warning"></i></span>
+                                            </div>
+                                            <span>{{ agent_count_1|default:0 }}</span>
+                                        </div>
+                                        <div class="progress" style="height: 10px;">
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: {{ agent_percent_1|default:0 }}%;" aria-valuenow="{{ agent_percent_1|default:0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Feedback -->
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Recent Feedback</h5>
+                            <div class="input-group" style="width: 300px;">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                <input type="text" class="form-control" placeholder="Search feedback...">
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Ticket</th>
+                                            <th>Rating</th>
+                                            <th>Feedback</th>
+                                            <th>Agent</th>
+                                            <th>Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if agent_ratings %}
+                                            {% for rating in agent_ratings %}
+                                                <tr>
+                                                    <td>
+                                                        <a href="#" class="text-primary fw-bold">{{ rating.ticket_reference|default:"-" }}</a>
+                                                    </td>
+                                                    <td>
+                                                        <div class="rating-stars">
+                                                            {{ rating.rating }}/5
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="rating-comment">
+                                                            {{ rating.title }}{% if rating.content %} - {{ rating.content }}{% endif %}
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="agent-avatar me-2">{{ request.user.username|slice:":2"|upper }}</div>
+                                                            <div>
+                                                                <div class="fw-medium">{{ request.user.get_full_name|default:request.user.username }}</div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="text-muted small">{{ rating.created_at|date:"M d, Y H:i" }}</div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-sm btn-icon" type="button" data-bs-toggle="dropdown">
+                                                                <i class="bi bi-three-dots-vertical"></i>
+                                                            </button>
+                                                            <ul class="dropdown-menu">
+                                                                <li>
+                                                                    <button
+                                                                        class="dropdown-item btn-ticket-view"
+                                                                        type="button"
+                                                                        data-ticket="{{ rating.ticket_reference|default:'' }}"
+                                                                        data-rating="{{ rating.rating|default:'' }}"
+                                                                        data-title="{{ rating.title|default:''|escape }}"
+                                                                        data-content="{{ rating.content|default:''|escape }}"
+                                                                        data-date="{{ rating.created_at|date:'M d, Y H:i'|default:'' }}"
+                                                                    >
+                                                                        <i class="bi bi-eye me-2"></i>View
+                                                                    </button>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted py-4">No ratings received yet.</td>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <nav aria-label="Feedback pagination">
+                                <ul class="pagination justify-content-center mb-0">
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                                    </li>
+                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity (moved from profile) -->
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Recent Activity</h5>
+                            <a href="#" class="small">View all</a>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex flex-column gap-3">
+                                {% if agent_recent_activity %}
+                                    {% for t in agent_recent_activity %}
+                                        <div class="d-flex align-items-start">
+                                            <div class="me-3 {% if t.status == 'Resolved' or t.status == 'Closed' %}text-success{% elif t.status == 'In Progress' %}text-primary{% else %}text-warning{% endif %}">
+                                                <i class="bi bi-ticket-detailed"></i>
+                                            </div>
+                                            <div>
+                                                <div>
+                                                    <strong>{{ t.status }}</strong>
+                                                    ticket <span class="text-muted">#{{ t.ticket_id }}</span>
+                                                </div>
+                                                <small class="text-muted">Updated on {{ t.updated_at|date:"M d, Y H:i" }}</small>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="text-muted">No recent ticket activity.</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Agent Performance -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Agent Performance</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Agent</th>
+                                            <th>Department</th>
+                                            <th>Avg. Rating</th>
+                                            <th>Total Ratings</th>
+                                            <th>5★ Share</th>
+                                            <th>Satisfaction</th>
+                                            <th>Trend</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="agent-avatar me-2">{{ request.user.username|slice:":2"|upper }}</div>
+                                                    <div>
+                                                        <div class="fw-medium">{{ request.user.get_full_name|default:request.user.username }}</div>
+                                                        <div class="text-muted small">{{ request.user.email }}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark">My Queue</span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="me-2">{{ agent_avg_rating|default:"0.0" }}</span>
+                                                    <div class="rating-stars" style="font-size: 0.9rem;">
+                                                        <i class="bi bi-star-fill"></i>
+                                                        <i class="bi bi-star-fill"></i>
+                                                        <i class="bi bi-star-fill"></i>
+                                                        <i class="bi bi-star-fill"></i>
+                                                        <i class="bi bi-star"></i>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{{ agent_total_reviews|default:0 }}</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="progress flex-grow-1 me-2" style="height: 6px;">
+                                                        <div class="progress-bar bg-success" style="width: {{ agent_percent_5|default:0 }}%"></div>
+                                                    </div>
+                                                    <span>{{ agent_percent_5|default:0 }}%</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="progress flex-grow-1 me-2" style="height: 6px;">
+                                                        <div class="progress-bar bg-info" style="width: {{ agent_percent_4|default:0 }}%"></div>
+                                                    </div>
+                                                    <span>{{ agent_percent_4|default:0 }}% 4★+</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="text-success">
+                                                    <i class="bi bi-graph-up-arrow"></i>
+                                                    {{ agent_avg_rating|default:"0.0" }}/5
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <footer class="dashboard-footer mt-4 mb-2 text-muted small">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="https://ultrakeyit.com/" target="_blank" rel="noopener noreferrer" class="text-muted text-decoration-none"> Ultrakey IT Solutions</a>
+                        <span>All systems operational</span>
+                    </div>
+                </footer>
+
+            </main>
+          
+        </div>
+    </div>
+
+    <!-- Include Modals -->
+    <div id="modals-container">
+        <!-- Content will be loaded by JavaScript -->
+        
+        <!-- Rating Settings Modal -->
+        <div class="modal fade" id="ratingSettingsModal" tabindex="-1" aria-labelledby="ratingSettingsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ratingSettingsModalLabel">Rating & Feedback Settings</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="ratingSettingsForm">
+                        <div class="modal-body">
+                            <ul class="nav nav-tabs mb-4" id="ratingSettingsTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general-settings" type="button" role="tab" aria-controls="general-settings" aria-selected="true">General</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="email-tab" data-bs-toggle="tab" data-bs-target="#email-settings" type="button" role="tab" aria-controls="email-settings" aria-selected="false">Email</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="questions-tab" data-bs-toggle="tab" data-bs-target="#questions-settings" type="button" role="tab" aria-controls="questions-settings" aria-selected="false">Questions</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications-settings" type="button" role="tab" aria-controls="notifications-settings" aria-selected="false">Notifications</button>
+                                </li>
+                            </ul>
+                            
+                            <div class="tab-content" id="ratingSettingsTabsContent">
+                                <!-- General Settings -->
+                                <div class="tab-pane fade show active" id="general-settings" role="tabpanel" aria-labelledby="general-tab">
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Rating System</h6>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="enableRatingSystem" checked>
+                                            <label class="form-check-label" for="enableRatingSystem">Enable rating system</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="requireRating" checked>
+                                            <label class="form-check-label" for="requireRating">Require rating when closing tickets</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="allowAnonymous" checked>
+                                            <label class="form-check-label" for="allowAnonymous">Allow anonymous ratings</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Rating Scale</h6>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="ratingScale" id="ratingScale5" value="5" checked>
+                                            <label class="form-check-label" for="ratingScale5">
+                                                5-point scale (1-5 stars)
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="ratingScale" id="ratingScale10" value="10">
+                                            <label class="form-check-label" for="ratingScale10">
+                                                10-point scale (1-10)
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="ratingScale" id="ratingScaleEmoticons" value="emoticons">
+                                            <label class="form-check-label" for="ratingScaleEmoticons">
+                                                Emoticons (Happy/Neutral/Sad)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Rating Display</h6>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="showRatingInTickets" checked>
+                                            <label class="form-check-label" for="showRatingInTickets">Show ratings in ticket list</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="showRatingToAgents" checked>
+                                            <label class="form-check-label" for="showRatingToAgents">Show ratings to agents</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="showRatingPublicly" checked>
+                                            <label class="form-check-label" for="showRatingPublicly">Show average rating publicly</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Email Settings -->
+                                <div class="tab-pane fade" id="email-settings" role="tabpanel" aria-labelledby="email-tab">
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Email Notifications</h6>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="sendRatingEmail" checked>
+                                            <label class="form-check-label" for="sendRatingEmail">Send rating request emails</label>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Send email after ticket is closed</label>
+                                            <div class="input-group" style="max-width: 200px;">
+                                                <input type="number" class="form-control" value="1" min="0" max="168">
+                                                <select class="form-select" style="max-width: 100px;">
+                                                    <option value="minutes">Minutes</option>
+                                                    <option value="hours" selected>Hours</option>
+                                                    <option value="days">Days</option>
+                                                </select>
+                                            </div>
+                                            <small class="form-text text-muted">Set to 0 to send immediately</small>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Email Subject</label>
+                                            <input type="text" class="form-control" value="How did we do? - Rate your support experience">
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Email Template</label>
+                                            <textarea class="form-control" rows="8">Hello {customer_name},
+
+Thank you for contacting our support team. We hope we were able to assist you with your issue.
+
+We would appreciate it if you could take a moment to rate your support experience by clicking the link below:
+
+[Rate Your Experience] ({rating_link})
+
+Your feedback helps us improve our service.
+
+Best regards,
+{company_name} Support Team</textarea>
+                                            <small class="form-text text-muted">
+                                                Available variables: {customer_name}, {ticket_id}, {agent_name}, {company_name}, {rating_link}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <h6 class="mb-3">Follow-up Emails</h6>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="sendFollowUpEmail" checked>
+                                            <label class="form-check-label" for="sendFollowUpEmail">Send follow-up email if no response</label>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Send follow-up after</label>
+                                            <div class="input-group" style="max-width: 200px;">
+                                                <input type="number" class="form-control" value="3" min="1" max="30">
+                                                <span class="input-group-text">days</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Questions Settings -->
+                                <div class="tab-pane fade" id="questions-settings" role="tabpanel" aria-labelledby="questions-tab">
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Feedback Questions</h6>
+                                        <p class="text-muted">Customize the questions shown to customers when they provide feedback.</p>
+                                        
+                                        <div class="card mb-3">
+                                            <div class="card-header bg-light">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span>Question 1</span>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Question Text</label>
+                                                    <input type="text" class="form-control" value="How would you rate your overall satisfaction with the support you received?">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Question Type</label>
+                                                    <select class="form-select">
+                                                        <option>Star Rating</option>
+                                                        <option>Number Scale</option>
+                                                        <option>Text</option>
+                                                        <option>Multiple Choice</option>
+                                                        <option>Yes/No</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="question1Required" checked>
+                                                    <label class="form-check-label" for="question1Required">Required</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="card mb-3">
+                                            <div class="card-header bg-light">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span>Question 2</span>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Question Text</label>
+                                                    <input type="text" class="form-control" value="How likely are you to recommend our service to others?">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Question Type</label>
+                                                    <select class="form-select">
+                                                        <option>Number Scale (0-10)</option>
+                                                        <option>Star Rating</option>
+                                                        <option>Text</option>
+                                                        <option>Multiple Choice</option>
+                                                        <option>Yes/No</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="question2Required" checked>
+                                                    <label class="form-check-label" for="question2Required">Required</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="card">
+                                            <div class="card-header bg-light">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span>Question 3</span>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Question Text</label>
+                                                    <input type="text" class="form-control" placeholder="Enter question text">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Question Type</label>
+                                                    <select class="form-select">
+                                                        <option>Text</option>
+                                                        <option>Star Rating</option>
+                                                        <option>Number Scale</option>
+                                                        <option>Multiple Choice</option>
+                                                        <option>Yes/No</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="question3Required">
+                                                    <label class="form-check-label" for="question3Required">Required</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <button type="button" class="btn btn-outline-primary mt-3">
+                                            <i class="bi bi-plus"></i> Add Question
+                                        </button>
+                                    </div>
+                                    
+                                    <div>
+                                        <h6 class="mb-3">Feedback Form Customization</h6>
+                                        <div class="mb-3">
+                                            <label class="form-label">Form Title</label>
+                                            <input type="text" class="form-control" value="How did we do?">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Form Description</label>
+                                            <textarea class="form-control" rows="2">We'd love to hear your feedback about your recent support experience.</textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Thank You Message</label>
+                                            <textarea class="form-control" rows="2">Thank you for your feedback! We appreciate you taking the time to help us improve our service.</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Notifications Settings -->
+                                <div class="tab-pane fade" id="notifications-settings" role="tabpanel" aria-labelledby="notifications-tab">
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Email Notifications</h6>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="notifyOnNewRating" checked>
+                                            <label class="form-check-label" for="notifyOnNewRating">Notify when a new rating is submitted</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="notifyOnLowRating" checked>
+                                            <label class="form-check-label" for="notifyOnLowRating">Notify on low ratings (below 3 stars)</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="notifyOnNegativeFeedback" checked>
+                                            <label class="form-check-label" for="notifyOnNegativeFeedback">Notify on negative feedback</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Notification Recipients</h6>
+                                        <div class="mb-3">
+                                            <label class="form-label">Send notifications to</label>
+                                            <select class="form-select" multiple>
+                                                <option selected>Support Team</option>
+                                                <option selected>Team Leads</option>
+                                                <option>Managers</option>
+                                                <option>Administrators</option>
+                                                <option>Custom Email</option>
+                                            </select>
+                                            <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple options</small>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Additional Email Addresses</label>
+                                            <input type="text" class="form-control" placeholder="email@example.com, another@example.com">
+                                            <small class="form-text text-muted">Separate multiple emails with commas</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <h6 class="mb-3">In-App Notifications</h6>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="showInAppNotifications" checked>
+                                            <label class="form-check-label" for="showInAppNotifications">Show in-app notifications for new feedback</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="playSoundOnNotification" checked>
+                                            <label class="form-check-label" for="playSoundOnNotification">Play sound for new notifications</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="recentFeedbackModal" tabindex="-1" aria-labelledby="recentFeedbackModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="recentFeedbackModalLabel">Feedback Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="text-muted small">Ticket</div>
+                                <div class="fw-semibold" id="recentFeedbackTicket">-</div>
+                            </div>
+                            <div class="text-end">
+                                <div class="text-muted small">Rating</div>
+                                <div class="fw-semibold" id="recentFeedbackRating">-</div>
+                            </div>
+                        </div>
+                        <hr class="my-3" />
+                        <div class="mb-2">
+                            <div class="text-muted small">Title</div>
+                            <div class="fw-semibold" id="recentFeedbackTitle">-</div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="text-muted small">Message</div>
+                            <div id="recentFeedbackContent" style="white-space: pre-wrap;">-</div>
+                        </div>
+                        <div class="mt-3 text-muted small" id="recentFeedbackDate"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+        
+    <!-- Load header/sidebar/modals via agent_dashboard_page -->
+    <script>
+        function loadComponent(url, elementId) {
+            return fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        element.innerHTML = html;
+                        
+                        // If loading the sidebar, set the active nav item
+                        if (url.includes('sidebar.html')) {
+                            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                            let pageName = currentPage.replace('.html', '') || 'dashboard';
+                            // Map index to dashboard so the correct nav item is highlighted
+                            if (pageName === 'index') pageName = 'dashboard';
+                            const activeNavItem = document.querySelector(`.nav-item[data-page="${pageName}"]`);
+                            if (activeNavItem) {
+                                // Remove active class from all nav items
+                                document.querySelectorAll('.nav-item').forEach(item => {
+                                    item.classList.remove('active');
+                                });
+                                activeNavItem.classList.add('active');
+                            }
+                        }
+                        
+                        // If loading the header, initialize it after a short delay
+                        if (url.includes('header.html') && window.initializeHeader) {
+                            setTimeout(() => {
+                                window.initializeHeader();
+                            }, 50);
+                        }
+                        
+                        return true;
+                    }
+                    return false;
+                })
+                .catch(error => {
+                    console.error('Error loading component:', error);
+                    return false;
+                });
+        }
+        
+        // Initialize components when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function(){
+            // Debug: Check if URLs are available
+            console.log('Header URL:', '{{ header_url }}');
+            console.log('Sidebar URL:', '{{ sidebar_url }}');
+            console.log('Modals URL:', '{{ modals_url }}');
+            
+            // Fallback URLs if template variables are not available
+            const headerUrl = '{{ header_url }}' || '/dashboard/agent-dashboard/partials/header.html';
+            const sidebarUrl = '{{ sidebar_url }}' || '/dashboard/agent-dashboard/partials/sidebar.html';
+            const modalsUrl = '{{ modals_url }}' || '/dashboard/agent-dashboard/partials/modals.html';
+            
+            // Header
+            loadComponent(headerUrl, 'header-container')
+                .then(function(success){
+                    if (success) {
+                        // Wait a bit for header to be fully loaded, then initialize
+                        setTimeout(() => {
+                            if (window.initializeHeader) {
+                                window.initializeHeader();
+                            } else {
+                                console.error('initializeHeader function not available');
+                            }
+                        }, 100);
+                    } else {
+                        console.error('Failed to load header component');
+                    }
+                });
+            // Sidebar & modals
+            loadComponent(sidebarUrl, 'sidebar-container');
+            loadComponent(modalsUrl, 'modals-container');
+            
+            // Listen for navigation events (for single-page navigation)
+            document.body.addEventListener('click', function(e) {
+                // Check if the click was on a navigation link
+                const navLink = e.target.closest('a[data-page]');
+                if (navLink) {
+                    // Re-initialize header after a short delay to allow the page to update
+                    setTimeout(() => {
+                        if (window.initializeHeader) {
+                            window.initializeHeader();
+                        }
+                    }, 100);
+                }
+            });
+        });
+    </script>
+  
+
+    <!-- Agent static JS -->
+    <script src="{% static 'agentdashboard/js/script.js' %}"></script>
+    <script src="{% static 'agentdashboard/js/header.js' %}"></script>
+</body>
+</html>

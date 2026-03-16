@@ -1,0 +1,520 @@
+<!-- New Ticket Modal -->
+<div class="modal fade" id="ticketModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Ticket</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="ticketForm">
+                    <div class="mb-3">
+                        <label class="form-label" for="ticket_title">Subject</label>
+                        <input type="text" id="ticket_title" name="title" class="form-control" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="ticket_customer">Customer</label>
+                            <input type="text" id="ticket_customer" name="customer" class="form-control" placeholder="Enter customer username (optional)">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="ticket_priority">Priority</label>
+                            <select id="ticket_priority" name="priority" class="form-select">
+                                <option value="Low">Low</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="High">High</option>
+                                <option value="Critical">Critical</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="ticket_description">Description</label>
+                        <textarea id="ticket_description" name="description" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Attachments</label>
+                        <input type="file" class="form-control" multiple>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="ticketForm" class="btn btn-primary">Create Ticket</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Agent Modal -->
+<div class="modal fade" id="newAgentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Agent</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="agentForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="agent_first_name">First Name</label>
+                            <input type="text" id="agent_first_name" name="first_name" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="agent_last_name">Last Name</label>
+                            <input type="text" id="agent_last_name" name="last_name" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="agent_email">Email</label>
+                            <input type="email" id="agent_email" name="email" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="agent_phone">Phone</label>
+                            <input type="text" id="agent_phone" name="phone" class="form-control" placeholder="+91 ...">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="agent_password">Password</label>
+                            <input type="password" id="agent_password" name="password" class="form-control" autocomplete="new-password" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="agent_category">Category</label>
+                            <select id="agent_category" name="category" class="form-select">
+                                <option value="Support" selected>Support</option>
+                                <option value="Sales">Sales</option>
+                                <option value="Technical">Technical</option>
+                                <option value="Billing">Billing</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="agent_department">Department</label>
+                            <select id="agent_department" name="department" class="form-select">
+                                <option value="Support" selected>Support</option>
+                                <option value="Sales">Sales</option>
+                                <option value="Technical">Technical</option>
+                                <option value="Billing">Billing</option>
+                                <option value="HR">HR</option>
+                                <option value="Operations">Operations</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="agent_status">Status</label>
+                            <select id="agent_status" name="is_active" class="form-select">
+                                <option value="true" selected>Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="agentForm" class="btn btn-primary">Save Agent</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Customer Modal -->
+<div class="modal fade" id="newCustomerModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Customer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="customerForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="customer_name">Full Name</label>
+                            <input type="text" id="customer_name" name="name" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="customer_email">Email</label>
+                            <input type="email" id="customer_email" name="email" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="customer_phone">Phone</label>
+                            <input type="text" id="customer_phone" name="phone" class="form-control" placeholder="+91 ...">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="customer_status">Status</label>
+                            <select id="customer_status" name="status" class="form-select">
+                                <option value="Active" selected>Active</option>
+                                <option value="Inactive">Inactive</option>
+                                <option value="VIP">VIP</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="customer_notes">Notes (optional)</label>
+                        <textarea id="customer_notes" name="notes" class="form-control" rows="3" placeholder="Any additional information..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="customerForm" class="btn btn-primary">Save Customer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Customer Modal -->
+<div class="modal fade" id="editCustomerModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Customer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editCustomerForm">
+                    <input type="hidden" id="edit_customer_id" name="id">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="edit_customer_first_name">First Name</label>
+                            <input type="text" id="edit_customer_first_name" name="first_name" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="edit_customer_last_name">Last Name</label>
+                            <input type="text" id="edit_customer_last_name" name="last_name" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="edit_customer_email">Email</label>
+                            <input type="email" id="edit_customer_email" name="email" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="edit_customer_phone">Phone</label>
+                            <input type="text" id="edit_customer_phone" name="phone" class="form-control" placeholder="+91 ...">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="edit_customer_status">Status</label>
+                            <select id="edit_customer_status" name="status" class="form-select">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="editCustomerForm" class="btn btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Customer Modal -->
+<div class="modal fade" id="viewCustomerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Customer Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-2">
+                    <strong>Name:</strong>
+                    <div id="view_customer_name" class="text-muted"></div>
+                </div>
+                <div class="mb-2">
+                    <strong>Username:</strong>
+                    <div id="view_customer_username" class="text-muted"></div>
+                </div>
+                <div class="mb-2">
+                    <strong>Email:</strong>
+                    <div id="view_customer_email" class="text-muted"></div>
+                </div>
+                <div class="mb-2">
+                    <strong>Role:</strong>
+                    <div id="view_customer_role" class="text-muted"></div>
+                </div>
+                <div class="mb-2">
+                    <strong>Department:</strong>
+                    <div id="view_customer_department" class="text-muted"></div>
+                </div>
+                <div class="mb-2">
+                    <strong>Status:</strong>
+                    <div id="view_customer_status" class="text-muted"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Agent Modal -->
+<div class="modal fade" id="editAgentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Agent</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editAgentForm">
+                    <input type="hidden" id="edit_agent_id" name="id">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="edit_agent_first_name">First Name</label>
+                            <input type="text" id="edit_agent_first_name" name="first_name" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="edit_agent_last_name">Last Name</label>
+                            <input type="text" id="edit_agent_last_name" name="last_name" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="edit_agent_email">Email</label>
+                            <input type="email" id="edit_agent_email" name="email" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="edit_agent_department">Department</label>
+                            <input type="text" id="edit_agent_department" name="department" class="form-control" placeholder="e.g. Support">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="edit_agent_role">Role</label>
+                            <select id="edit_agent_role" name="role" class="form-select">
+                                <option value="Agent">Agent</option>
+                                <option value="Admin">Admin</option>
+                                <option value="User">User</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="edit_agent_status">Status</label>
+                            <select id="edit_agent_status" name="status" class="form-select">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="editAgentForm" class="btn btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Agent Modal -->
+<div class="modal fade" id="viewAgentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Agent Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-2">
+                    <strong>Name:</strong>
+                    <div id="view_agent_name" class="text-muted"></div>
+                </div>
+                <div class="mb-2">
+                    <strong>Username:</strong>
+                    <div id="view_agent_username" class="text-muted"></div>
+                </div>
+                <div class="mb-2">
+                    <strong>Email:</strong>
+                    <div id="view_agent_email" class="text-muted"></div>
+                </div>
+                <div class="mb-2">
+                    <strong>Role:</strong>
+                    <div id="view_agent_role" class="text-muted"></div>
+                </div>
+                <div class="mb-2">
+                    <strong>Department:</strong>
+                    <div id="view_agent_department" class="text-muted"></div>
+                </div>
+                <div class="mb-2">
+                    <strong>Status:</strong>
+                    <div id="view_agent_status" class="text-muted"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Set Password Modal -->
+<div class="modal fade" id="setPasswordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Set User Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="setPasswordForm">
+                    <input type="hidden" id="set_password_user_id" name="user_id">
+                    <div class="mb-3">
+                        <label class="form-label" for="set_password_user_info">User</label>
+                        <div id="set_password_user_info" class="form-control bg-light text-muted"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="set_password_password">New Password</label>
+                        <input type="password" id="set_password_password" name="password" class="form-control" autocomplete="new-password" required>
+                        <div class="form-text">Password must be at least 6 characters long</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="set_password_confirm_password">Confirm Password</label>
+                        <input type="password" id="set_password_confirm_password" name="confirm_password" class="form-control" autocomplete="new-password" required>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Note:</strong> After setting the password, the user will be able to login using their email/username and this password.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="setPasswordForm" class="btn btn-primary" onclick="handleSetPasswordSubmit(event)">
+                    <i class="bi bi-lock me-2"></i>Set Password
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Feedback Details Modal -->
+<div class="modal fade" id="viewFeedbackModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Feedback Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <strong>Ticket Reference:</strong>
+                            <div id="feedback_ticket_ref" class="text-muted"></div>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Customer:</strong>
+                            <div id="feedback_customer" class="text-muted"></div>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Date:</strong>
+                            <div id="feedback_date" class="text-muted"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <strong>Rating:</strong>
+                            <div id="feedback_rating" class="rating-stars"></div>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Agent:</strong>
+                            <div id="feedback_agent" class="text-muted"></div>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Status:</strong>
+                            <div id="feedback_status" class="text-muted"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <strong>Feedback Title:</strong>
+                    <div id="feedback_title" class="fw-medium"></div>
+                </div>
+                <div class="mb-3">
+                    <strong>Feedback Message:</strong>
+                    <div id="feedback_content" class="border rounded p-3 bg-light"></div>
+                </div>
+                <div id="feedback_reply_section" class="mb-3" style="display: none;">
+                    <strong>Previous Reply:</strong>
+                    <div id="feedback_reply" class="border rounded p-3 bg-info bg-opacity-10"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="replyFromViewBtn">
+                    <i class="bi bi-reply me-2"></i>Reply to Customer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reply to Customer Modal -->
+<div class="modal fade" id="replyFeedbackModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reply to Customer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="replyFeedbackForm">
+                <div class="modal-body">
+                    <input type="hidden" id="reply_feedback_id" name="feedback_id">
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Original Feedback:</strong>
+                        <div id="reply_original_feedback" class="mt-2"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Reply To:</label>
+                        <div id="reply_customer_info" class="form-control bg-light text-muted"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label" for="reply_subject">Subject</label>
+                        <input type="text" id="reply_subject" name="subject" class="form-control" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label" for="reply_message">Message</label>
+                        <textarea id="reply_message" name="message" class="form-control" rows="6" required 
+                                  placeholder="Type your reply to the customer..."></textarea>
+                        <div class="form-text">Be professional and address the customer's feedback appropriately.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="send_email_copy" checked>
+                            <label class="form-check-label" for="send_email_copy">
+                                Send email copy to customer
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-send me-2"></i>Send Reply
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Other modals can be added here -->

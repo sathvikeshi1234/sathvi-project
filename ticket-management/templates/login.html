@@ -1,0 +1,459 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin: 0px auto;
+            max-width: 900px;
+            width: 90%;
+        }
+
+        /* Left Side - Form */
+        .login-left {
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .login-logo img {
+            width: 90%;
+            height: 90%;
+        }
+
+        .login-logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .login-header h2 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .login-header p {
+            color: #999;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 13px;
+        }
+
+        .form-options label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-options input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .form-options a {
+            color: #7c3aed;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .form-options a:hover {
+            text-decoration: underline;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(124, 58, 237, 0.3);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .signup-link {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .signup-link a {
+            color: #7c3aed;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Right Side - Illustration */
+        .login-right {
+            background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .illustration {
+            text-align: center;
+            color: white;
+            z-index: 2;
+        }
+
+        .illustration-icon {
+            font-size: 150px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .illustration h3 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .illustration p {
+            font-size: 16px;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        /* Floating shapes */
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .shape1 {
+            width: 300px;
+            height: 300px;
+            background: white;
+            top: -100px;
+            right: -100px;
+        }
+
+        .shape2 {
+            width: 200px;
+            height: 200px;
+            background: white;
+            bottom: -50px;
+            left: -50px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .login-container {
+                grid-template-columns: 1fr;
+            }
+
+            .login-right {
+                display: none;
+            }
+
+            .login-left {
+                padding: 40px 30px;
+            }
+
+            .login-header h2 {
+                font-size: 24px;
+            }
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .error-message.alert {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .success-message {
+            background: #ecfdf5;
+            color: #065f46;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .success-message.alert {
+            background: #ecfdf5;
+            border: 1px solid #bbf7d0;
+            color: #065f46;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .password-field {
+            position: relative;
+        }
+
+        .password-field input {
+            padding-right: 44px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .password-toggle:hover {
+            color: #111827;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <!-- Left Side -->
+    <div class="login-left">
+        <div class="login-logo">
+            {% if site_settings and site_settings.company_logo %}
+                <img src="{{ site_settings.company_logo.url }}" alt="TicketHub">
+            {% else %}
+                <img src="{% static 'assets/images/logo.jpg' %}" alt="TicketHub">
+            {% endif %}
+        </div>
+
+        <div class="login-header">
+            <h2>Welcome Back</h2>
+            <p>Login to your account to continue</p>
+        </div>
+
+   
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="{% if message.tags %}{{ message.tags }}{% endif %}-message alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+    
+
+        <form method="post" action="{% url 'users:login' %}">
+    {% csrf_token %}
+
+    {% if errors.invalid %}
+        <div class="error-message">{{ errors.invalid }}</div>
+    {% endif %}
+
+    <div class="form-group">
+        <label for="username">Email or Username</label>
+        <input type="text" id="username" name="username" placeholder="Enter your email or username" value="{{ request_post.username }}" autocomplete="username">
+        <small class="error-message" id="username_error"></small>
+    </div>
+
+    <div class="form-group">
+        <label for="password">Password</label>
+        <div class="password-field">
+            <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password">
+            <button type="button" class="password-toggle" aria-label="Show password" data-toggle-password="password">
+                <i class="fa-solid fa-eye"></i>
+            </button>
+        </div>
+        <small class="error-message" id="password_error"></small>
+    </div>
+
+    <div class="form-options">
+        <label>
+            <input type="checkbox" name="remember" id="remember">
+            <span>Remember me</span>
+        </label>
+        <a href="{% url 'users:forgot_password' %}">Forgot Password?</a>
+    </div>
+
+    <button type="submit" class="btn-login">
+        <i class="fas fa-sign-in-alt"></i> Sign In
+    </button>
+</form>
+
+
+        <div class="signup-link">
+            Don't have an account? <a href="{% url 'users:user_signup' %}">Sign Up</a>
+        </div>
+    </div>
+
+    <!-- Right Side -->
+    <div class="login-right">
+        <div class="shape shape1"></div>
+        <div class="shape shape2"></div>
+
+        <div class="illustration">
+            <div class="illustration-icon">🎫</div>
+            <h3>Manage Tickets</h3>
+            <p>Track and resolve support tickets efficiently</p>
+        </div>
+    </div>
+</div>
+
+</body>
+
+<script>
+function validateLoginForm() {
+    let isValid = true;
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+
+    // Clear previous errors
+    document.getElementById('username_error').innerText = '';
+    document.getElementById('password_error').innerText = '';
+
+    if(username === '') {
+        document.getElementById('username_error').innerText = 'Username or email is required';
+        isValid = false;
+    }
+
+    if(password === '') {
+        document.getElementById('password_error').innerText = 'Password is required';
+        isValid = false;
+    }
+
+    return isValid;
+}
+
+// Password visibility toggle
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-toggle-password]');
+    if (!btn) return;
+    const inputId = btn.getAttribute('data-toggle-password');
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const isHidden = input.getAttribute('type') === 'password';
+    input.setAttribute('type', isHidden ? 'text' : 'password');
+    btn.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+    const icon = btn.querySelector('i');
+    if (icon) {
+        icon.className = isHidden ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+    }
+});
+
+// Simple form submission - allow normal form behavior
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            console.log('Form submitting...');
+        });
+    }
+});
+</script>
+
+
+</html>
+{% endblock %}

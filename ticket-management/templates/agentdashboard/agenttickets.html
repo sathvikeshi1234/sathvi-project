@@ -1,0 +1,785 @@
+
+{% load static %}{% load chat_permissions %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Tickets</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'agentdashboard/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'admindashboard/css/dropdown.css' %}">
+</head>
+<body>
+    <div id="app">
+        <!-- Include Sidebar (server-side include to ensure visibility) -->
+        <div id="sidebar-container">
+            <!-- Content will be loaded by JavaScript -->
+        </div>
+
+        <div class="main-container">
+            <!-- Include Header (server-side include to ensure visibility) -->
+            <div id="header-container">
+                <!-- Content will be loaded by JavaScript -->
+            </div>
+
+              <main class="content-area">
+                <div id="agent-tickets" class="page-content active">
+                    <div class="page-header">
+                        <div>
+                            <h2>My Tickets</h2>
+                            <p class="text-muted">View and manage tickets assigned to you</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-secondary"><i class="bi bi-arrow-repeat me-1"></i>Refresh</button>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ticketModal">
+                                <i class="bi bi-plus me-1"></i>New Ticket
+                            </button>
+                            <button class="btn btn-outline-secondary d-md-none" data-bs-toggle="collapse" data-bs-target="#filtersCollapse">
+                                <i class="bi bi-funnel me-1"></i>Filters
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-12 col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                    <i class="bi bi-inbox"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <small>Open</small>
+                                    <h3>{{ agenttickets_open_count }}</h3>
+                                    <span class="stat-change negative">Assigned to you</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                    <i class="bi bi-hourglass-split"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <small>Pending</small>
+                                    <h3>{{ agenttickets_pending_count }}</h3>
+                                    <span class="stat-change positive">In progress</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                                    <i class="bi bi-check2-circle"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <small>Resolved (7d)</small>
+                                    <h3>{{ agenttickets_resolved_7d_count }}</h3>
+                                    <span class="stat-change positive">Last 7 days</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <small>Breached SLA</small>
+                                    <h3>{{ agenttickets_breached_sla_count }}</h3>
+                                    <span class="stat-change negative">High / Critical</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div id="filtersCollapse" class="collapse d-md-block">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-12 col-md-4">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <input type="text" id="agent-filter-search" class="form-control" placeholder="Search subject, ID or customer">
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <select id="agent-filter-status" class="form-select">
+                                        <option value="">Status: All</option>
+                                        <option value="Open">Open</option>
+                                        <option value="In Progress">In Progress</option>
+                                        <option value="Resolved">Resolved</option>
+                                        <option value="Closed">Closed</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <select id="agent-filter-priority" class="form-select">
+                                        <option value="">Priority: All</option>
+                                        <option value="High">High</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="Low">Low</option>
+                                        <option value="Critical">Critical</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <select id="agent-filter-type" class="form-select">
+                                        <option value="">Type: All</option>
+                                        <option value="Incident">Incident</option>
+                                        <option value="Service">Service</option>
+                                        <option value="Question">Question</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 col-md-2 text-end">
+                                    <div class="btn-group w-100 w-md-auto" role="group">
+                                        <button type="button" class="btn btn-outline-secondary active" data-range="all">All</button>
+                                        <button type="button" class="btn btn-outline-secondary" data-range="today">Today</button>
+                                        <button type="button" class="btn btn-outline-secondary" data-range="7d">7d</button>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Assigned to Me</h5>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="text-muted small">Sort by</span>
+                                <select id="agent-sort-select" class="form-select form-select-sm" style="width:auto">
+                                    <option value="newest">Newest</option>
+                                    <option value="oldest">Oldest</option>
+                                    <option value="priority">Priority</option>
+                                    <option value="sla">SLA</option>
+                                </select>
+                                <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-columns-gap me-1"></i>Columns</button>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">ID</th>
+                                        <th scope="col">Subject</th>
+                                        <th scope="col">Priority</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Customer</th>
+                                        <th scope="col">Created</th>
+                                        <th scope="col">Due</th>
+                                        <th scope="col">SLA</th>
+                                        <th scope="col" class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="agent-tickets-tbody">
+                                    {% for t in agenttickets_list %}
+                                    {% can_chat_with_ticket t request.user as can_chat %}
+                                    {% get_chat_partner_id t request.user as chat_partner_id %}
+                                    {% get_chat_display_text can_chat t as chat_text %}
+                                    <tr
+                                        data-pk="{{ t.id }}"
+                                        data-ticket-id="{{ t.ticket_id }}"
+                                        data-subject="{{ t.title|escape }}"
+                                        data-customer="{{ t.created_by.get_full_name|default:t.created_by.username|escape }}"
+                                        data-status="{{ t.status }}"
+                                        data-priority="{{ t.priority }}"
+                                        data-created="{{ t.created_at|date:'c' }}"
+                                        data-type="Incident"
+                                    >
+                                        <td><a href="#" class="text-decoration-none">#{{ t.ticket_id }}</a></td>
+                                        <td>
+                                            <div class="fw-semibold">{{ t.title }}</div>
+                                            <small class="text-muted">Created {{ t.created_at|timesince }} ago</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge
+                                                {% if t.priority == 'High' %} bg-danger
+                                                {% elif t.priority == 'Medium' %} bg-warning text-dark
+                                                {% elif t.priority == 'Low' %} bg-secondary
+                                                {% else %} bg-info{% endif %}">
+                                                {{ t.priority }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="badge
+                                                    {% if t.status == 'Open' %} bg-primary
+                                                    {% elif t.status == 'In Progress' %} bg-warning text-dark
+                                                    {% elif t.status == 'Resolved' %} bg-success
+                                                    {% elif t.status == 'Closed' %} bg-secondary
+                                                    {% else %} bg-light text-dark{% endif %} js-status-badge">
+                                                    {{ t.status }}
+                                                </span>
+                                                <select class="form-select form-select-sm w-auto js-status-select">
+                                                    <option value="Open" {% if t.status == 'Open' %}selected{% endif %}>Open</option>
+                                                    <option value="In Progress" {% if t.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                                                    <option value="Resolved" {% if t.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+                                                    <option value="Closed" {% if t.status == 'Closed' %}selected{% endif %}>Closed</option>
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div>
+                                                    <div class="fw-semibold">{{ t.created_by.get_full_name|default:t.created_by.username }}</div>
+                                                    <small class="text-muted">Customer</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ t.created_at|date:"M d" }}</td>
+                                        <td>-</td>
+                                        <td>
+                                            <span class="badge
+                                                {% if t.priority in 'High,Critical' and t.status in 'Open,In Progress' %} bg-danger
+                                                {% else %} bg-success{% endif %}">
+                                                {% if t.priority in 'High,Critical' and t.status in 'Open,In Progress' %}
+                                                    At Risk
+                                                {% else %}
+                                                    OK
+                                                {% endif %}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="dropdown text-end">
+                                                <button class="btn btn-sm btn-icon" type="button" data-bs-toggle="dropdown">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <button class="dropdown-item btn-ticket-view" data-id="{{ t.ticket_id }}">
+                                                            <i class="bi bi-eye me-2"></i>View
+                                                        </button>
+                                                    </li>
+                                                    {% if can_chat is not None %}
+                                                    <li>
+                                                        <button class="dropdown-item btn-agent-chat" 
+                                                                data-ticket-id="{{ t.ticket_id }}" 
+                                                                data-partner-id="{{ chat_partner_id }}"
+                                                                {% if not can_chat %}disabled{% endif %}>
+                                                            <i class="bi bi-chat-dots me-2"></i>{{ chat_text }}
+                                                        </button>
+                                                    </li>
+                                                    {% endif %}
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="9" class="text-center text-muted">No tickets assigned to you yet.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center p-3">
+                            <div class="text-muted">
+                                Showing
+                                <span id="agent-showing-from">1</span>
+                                to
+                                <span id="agent-showing-to">{{ agenttickets_list|length }}</span>
+                                of
+                                <span id="agent-total-count">{{ agenttickets_list|length }}</span>
+                                tickets
+                            </div>
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination mb-0">
+                                    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>  <footer class="dashboard-footer mt-4 mb-2 text-muted small">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="https://ultrakeyit.com/" target="_blank" rel="noopener noreferrer" class="text-muted text-decoration-none">© Ultrakey IT Solutions</a>
+                        <span>All systems operational</span>
+                    </div>
+                </footer>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Include Modals (server-side include to ensure visibility) -->
+    <div id="modals-container">
+        <!-- Content will be loaded by JavaScript -->
+    </div>
+
+    <!-- Core JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+        <script>
+        function loadComponent(url, elementId){
+            return fetch(url)
+                .then(r => { if (!r.ok) throw new Error('Network response was not ok'); return r.text(); })
+                .then(html => {
+                    const el = document.getElementById(elementId);
+                    if (el) {
+                        el.innerHTML = html;
+                    }
+                    return true;
+                })
+                .catch(err => { console.error('Error loading component:', err); return false; });
+        }
+
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        document.addEventListener('DOMContentLoaded', function(){
+            // Debug: Check if URLs are available
+            console.log('Header URL:', '{{ header_url }}');
+            console.log('Sidebar URL:', '{{ sidebar_url }}');
+            console.log('Modals URL:', '{{ modals_url }}');
+            
+            // Fallback URLs if template variables are not available
+            const headerUrl = '{{ header_url }}' || '/dashboard/agent-dashboard/partials/header.html';
+            const sidebarUrl = '{{ sidebar_url }}' || '/dashboard/agent-dashboard/partials/sidebar.html';
+            const modalsUrl = '{{ modals_url }}' || '/dashboard/agent-dashboard/partials/modals.html';
+            
+            // Header
+            loadComponent(headerUrl, 'header-container')
+                .then(function(success){
+                    if (success) {
+                        // Wait a bit for header to be fully loaded, then initialize
+                        setTimeout(() => {
+                            if (window.initializeHeader) {
+                                window.initializeHeader();
+                            } else {
+                                console.error('initializeHeader function not available');
+                            }
+                        }, 100);
+                    } else {
+                        console.error('Failed to load header component');
+                    }
+                });
+            // Sidebar & modals
+            loadComponent(sidebarUrl, 'sidebar-container');
+            loadComponent(modalsUrl, 'modals-container');
+
+            document.body.addEventListener('click', function(e) {
+                const navLink = e.target.closest('a[data-page]');
+                if (navLink) {
+                    e.preventDefault(); // Prevent default navigation
+                    const page = navLink.getAttribute('data-page');
+                    const url = navLink.getAttribute('href');
+                    
+                    console.log('Navigating to:', page, 'URL:', url);
+                    
+                    // For now, just do a full page reload to ensure it works
+                    window.location.href = url;
+                }
+            });
+
+            // Allow agents to change ticket status via the existing API
+            const table = document.querySelector('#agent-tickets table tbody');
+            if (table) {
+                table.addEventListener('change', async function(e) {
+                    const sel = e.target.closest('.js-status-select');
+                    if (!sel) return;
+                    const tr = sel.closest('tr');
+                    const pk = tr?.getAttribute('data-pk');
+                    const newStatus = sel.value;
+                    if (!pk || !newStatus) return;
+                    sel.disabled = true;
+                    try {
+                        const res = await fetch(`/tickets/api/tickets/${pk}/status/`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status: newStatus })
+                        });
+                        if (!res.ok) throw new Error('Update failed');
+                        const badge = tr.querySelector('.js-status-badge');
+                        if (badge) {
+                            badge.textContent = newStatus;
+                            badge.className = 'badge js-status-badge';
+                            if (newStatus === 'Open') badge.classList.add('bg-primary');
+                            else if (newStatus === 'In Progress') badge.classList.add('bg-warning', 'text-dark');
+                            else if (newStatus === 'Resolved') badge.classList.add('bg-success');
+                            else if (newStatus === 'Closed') badge.classList.add('bg-secondary');
+                            else badge.classList.add('bg-light', 'text-dark');
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert('Could not update status.');
+                    } finally {
+                        sel.disabled = false;
+                    }
+                });
+            }
+
+            // Client-side filtering for agent tickets
+            const tbody = document.getElementById('agent-tickets-tbody');
+            const searchInput = document.getElementById('agent-filter-search');
+            const statusSelect = document.getElementById('agent-filter-status');
+            const prioritySelect = document.getElementById('agent-filter-priority');
+            const typeSelect = document.getElementById('agent-filter-type');
+            const sortSelect = document.getElementById('agent-sort-select');
+            const rangeButtons = document.querySelectorAll('[data-range]');
+            let activeRange = 'all';
+
+            // Debug: Check if sort select exists
+            console.log('Sort select element:', sortSelect);
+            if (sortSelect) {
+                console.log('Sort select options:', Array.from(sortSelect.options).map(opt => opt.value));
+            }
+
+            // Debug: Add event listener to sort dropdown
+            if (sortSelect) {
+                sortSelect.addEventListener('change', function(e) {
+                    console.log('Sort dropdown changed:', e.target.value);
+                });
+            }
+
+            function applyAgentTicketFilters() {
+                if (!tbody) return;
+                const rows = Array.from(tbody.querySelectorAll('tr[data-pk]'));
+                const q = (searchInput?.value || '').toLowerCase().trim();
+                const statusVal = statusSelect?.value || '';
+                const priorityVal = prioritySelect?.value || '';
+                const typeVal = typeSelect?.value || '';
+                const sortVal = sortSelect?.value || 'newest';
+
+                console.log('Applying filters - Sort:', sortVal, 'Status:', statusVal, 'Priority:', priorityVal);
+
+                const now = new Date();
+                const todayStr = now.toDateString();
+                const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+                // First, filter the rows
+                const filteredRows = rows.filter(tr => {
+                    const ticketId = String(tr.dataset.ticketId || '').toLowerCase();
+                    const subject = String(tr.dataset.subject || '').toLowerCase();
+                    const customer = String(tr.dataset.customer || '').toLowerCase();
+                    const status = String(tr.dataset.status || '').toLowerCase();
+                    const priority = String(tr.dataset.priority || '').toLowerCase();
+                    const type = String(tr.dataset.type || '').toLowerCase();
+
+                    const createdRaw = tr.dataset.created;
+                    const createdDate = createdRaw ? new Date(createdRaw) : null;
+
+                    // Search: match id, subject, customer
+                    const matchesSearch = !q ||
+                        ticketId.includes(q) ||
+                        subject.includes(q) ||
+                        customer.includes(q);
+
+                    // Status filter
+                    const matchesStatus = !statusVal || tr.dataset.status === statusVal;
+
+                    // Priority filter
+                    const matchesPriority = !priorityVal || tr.dataset.priority === priorityVal;
+
+                    // Type filter (static for now)
+                    const matchesType = !typeVal || type === typeVal.toLowerCase();
+
+                    // Date range filter
+                    let matchesRange = true;
+                    if (createdDate && activeRange === 'today') {
+                        matchesRange = (createdDate.toDateString() === todayStr);
+                    } else if (createdDate && activeRange === '7d') {
+                        matchesRange = (createdDate >= sevenDaysAgo);
+                    }
+
+                    return matchesSearch && matchesStatus && matchesPriority && matchesType && matchesRange;
+                });
+
+                // Then, sort the filtered rows
+                filteredRows.sort((a, b) => {
+                    switch (sortVal) {
+                        case 'oldest':
+                            return new Date(a.dataset.created) - new Date(b.dataset.created);
+                        case 'newest':
+                            return new Date(b.dataset.created) - new Date(a.dataset.created);
+                        case 'priority':
+                            const priorityOrder = { 'Critical': 4, 'High': 3, 'Medium': 2, 'Low': 1 };
+                            const priorityA = priorityOrder[a.dataset.priority] || 0;
+                            const priorityB = priorityOrder[b.dataset.priority] || 0;
+                            return priorityB - priorityA; // Higher priority first
+                        case 'sla':
+                            // For SLA, prioritize tickets that are at risk (High/Critical + Open/In Progress)
+                            const slaRiskA = (a.dataset.priority === 'High' || a.dataset.priority === 'Critical') && 
+                                            (a.dataset.status === 'Open' || a.dataset.status === 'In Progress') ? 1 : 0;
+                            const slaRiskB = (b.dataset.priority === 'High' || b.dataset.priority === 'Critical') && 
+                                            (b.dataset.status === 'Open' || b.dataset.status === 'In Progress') ? 1 : 0;
+                            if (slaRiskA !== slaRiskB) {
+                                return slaRiskB - slaRiskA;
+                            }
+                            // If same SLA risk, sort by priority
+                            const pOrder = { 'Critical': 4, 'High': 3, 'Medium': 2, 'Low': 1 };
+                            return (pOrder[b.dataset.priority] || 0) - (pOrder[a.dataset.priority] || 0);
+                        default:
+                            return 0;
+                    }
+                });
+
+                // Hide all rows first
+                rows.forEach(tr => tr.style.display = 'none');
+
+                // Show sorted filtered rows and reorder them in the DOM
+                filteredRows.forEach(tr => {
+                    tr.style.display = '';
+                    tbody.appendChild(tr); // This moves the element to the end, maintaining sort order
+                });
+
+                // Update pagination summary
+                const fromEl = document.getElementById('agent-showing-from');
+                const toEl = document.getElementById('agent-showing-to');
+                const totalEl = document.getElementById('agent-total-count');
+                const totalRows = rows.length;
+                const visibleCount = filteredRows.length;
+
+                if (fromEl && toEl && totalEl) {
+                    const fromVal = visibleCount > 0 ? 1 : 0;
+                    fromEl.textContent = fromVal;
+                    toEl.textContent = visibleCount;
+                    totalEl.textContent = totalRows;
+                }
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', () => applyAgentTicketFilters());
+            }
+            if (statusSelect) {
+                statusSelect.addEventListener('change', () => applyAgentTicketFilters());
+            }
+            if (prioritySelect) {
+                prioritySelect.addEventListener('change', () => applyAgentTicketFilters());
+            }
+            if (typeSelect) {
+                typeSelect.addEventListener('change', () => applyAgentTicketFilters());
+            }
+            if (sortSelect) {
+                sortSelect.addEventListener('change', () => applyAgentTicketFilters());
+            }
+            if (rangeButtons.length) {
+                rangeButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        rangeButtons.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        activeRange = btn.dataset.range || 'all';
+                        applyAgentTicketFilters();
+                    });
+                });
+            }
+
+            // Initial filter to normalize view
+            applyAgentTicketFilters();
+
+            // Helper function to display chat messages
+            function displayChatMessages(messages, container) {
+                if (!messages.length) {
+                    container.innerHTML = '<div class="text-muted">No messages yet. Start the conversation!</div>';
+                    return;
+                }
+                
+                const messagesHtml = messages.map(msg => {
+                    const directionClass = msg.direction === 'sent' ? 'text-end' : 'text-start';
+                    const bgClass = msg.direction === 'sent' ? 'bg-primary text-white' : 'bg-light';
+                    return `
+                        <div class="${directionClass} mb-2">
+                            <div class="d-inline-block ${bgClass} rounded p-2" style="max-width: 80%;">
+                                <div class="small">${msg.text}</div>
+                                <div class="small ${msg.direction === 'sent' ? 'text-white-50' : 'text-muted'}">${msg.time}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                container.innerHTML = messagesHtml;
+                container.scrollTop = container.scrollHeight;
+            }
+
+            // Delegated handler for View action to open ticket details modal
+            if (tbody) {
+                tbody.addEventListener('click', async function(e) {
+                    const viewBtn = e.target.closest('.btn-ticket-view');
+                    if (!viewBtn) return;
+
+                    const tr = viewBtn.closest('tr');
+                    if (!tr) return;
+
+                    const identifier = (viewBtn.dataset.id || tr.dataset.ticketId || '').trim();
+                    if (!identifier) return;
+
+                    try {
+                        const res = await fetch(`/dashboard/agent-dashboard/ticket/${encodeURIComponent(identifier)}/`);
+                        if (!res.ok) throw new Error('Failed to load ticket');
+                        const html = await res.text();
+
+                        const tmp = document.createElement('div');
+                        tmp.innerHTML = html;
+                        const modal = tmp.querySelector('#ticketDetailModal');
+                        if (!modal) throw new Error('Modal not found in response');
+
+                        const existing = document.getElementById('ticketDetailModal');
+                        if (existing) existing.remove();
+
+                        document.body.appendChild(modal);
+                        if (window.bootstrap && window.bootstrap.Modal) {
+                            const instance = new window.bootstrap.Modal(modal);
+                            instance.show();
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert('Could not load ticket details.');
+                    }
+                });
+            }
+
+            // Handle Agent Chat button clicks
+            if (tbody) {
+                tbody.addEventListener('click', async function(e) {
+                    const chatBtn = e.target.closest('.btn-agent-chat');
+                    if (!chatBtn) return;
+
+                    const ticketId = chatBtn.dataset.ticketId;
+                    const partnerId = chatBtn.dataset.partnerId;
+                    
+                    if (!ticketId || !partnerId) {
+                        alert('Missing ticket or partner information');
+                        return;
+                    }
+
+                    // Use the existing chat system - open chat with the ticket creator
+                    try {
+                        // Check if there's an existing chat modal or create one
+                        let chatModal = document.getElementById('agentChatModal');
+                        
+                        if (!chatModal) {
+                            // Create a simple chat modal
+                            const modalHtml = `
+                                <div class="modal fade" id="agentChatModal" tabindex="-1">
+                                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Agent Chat - Ticket #${ticketId}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div id="chatMessages" style="height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px;">
+                                                    <div class="text-muted">Loading messages...</div>
+                                                </div>
+                                                <div class="input-group">
+                                                    <input type="text" id="chatInput" class="form-control" placeholder="Type your message...">
+                                                    <button class="btn btn-primary" id="sendChatBtn">Send</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            document.body.insertAdjacentHTML('beforeend', modalHtml);
+                            chatModal = document.getElementById('agentChatModal');
+                        }
+
+                        // Set up chat functionality
+                        const chatMessages = document.getElementById('chatMessages');
+                        const chatInput = document.getElementById('chatInput');
+                        const sendBtn = document.getElementById('sendChatBtn');
+
+                        // Load messages
+                        const loadMessages = async () => {
+                            chatMessages.innerHTML = '<div class="text-muted">Loading messages...</div>';
+                            
+                            try {
+                                const response = await fetch(`/api/chat/messages/?contact_id=${partnerId}&ticket_id=${ticketId}`, {
+                                    method: 'GET',
+                                    headers: {
+                                        'X-CSRFToken': getCookie('csrftoken')
+                                    }
+                                });
+                                
+                                if (response.ok) {
+                                    const data = await response.json();
+                                    displayChatMessages(data.results || [], chatMessages);
+                                } else {
+                                    chatMessages.innerHTML = '<div class="text-muted">No messages yet. Start the conversation!</div>';
+                                }
+                            } catch (err) {
+                                console.error('Error loading messages:', err);
+                                chatMessages.innerHTML = '<div class="text-danger">Failed to load messages</div>';
+                            }
+                        };
+
+                        // Send message functionality
+                        const sendMessage = async () => {
+                            const text = chatInput.value.trim();
+                            if (!text) return;
+
+                            try {
+                                const response = await fetch('/api/chat/messages/', {
+                                    method: 'POST',
+                                    headers: { 
+                                        'Content-Type': 'application/json',
+                                        'X-CSRFToken': getCookie('csrftoken')
+                                    },
+                                    body: JSON.stringify({
+                                        contact_id: partnerId,
+                                        ticket_id: ticketId,
+                                        text: text
+                                    })
+                                });
+
+                                if (response.ok) {
+                                    chatInput.value = '';
+                                    // Reload messages
+                                    await loadMessages();
+                                } else {
+                                    alert('Failed to send message');
+                                }
+                            } catch (err) {
+                                console.error('Error sending message:', err);
+                                alert('Failed to send message');
+                            }
+                        };
+
+                        // Event listeners
+                        sendBtn.addEventListener('click', sendMessage);
+                        chatInput.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                sendMessage();
+                            }
+                        });
+
+                        // Show modal
+                        const modal = new bootstrap.Modal(chatModal);
+                        modal.show();
+
+                        // Load initial messages
+                        await loadMessages();
+
+                    } catch (err) {
+                        console.error('Error opening chat:', err);
+                        alert('Failed to open chat');
+                    }
+                });
+            }
+        });
+    </script>
+
+    <!-- Agent static JS -->
+    <script src="{% static 'agentdashboard/js/script.js' %}"></script>
+    <script src="{% static 'agentdashboard/js/header.js' %}"></script>
+    <script src="{% static 'js/dropdown.js' %}"></script>
+</body>
+</html>

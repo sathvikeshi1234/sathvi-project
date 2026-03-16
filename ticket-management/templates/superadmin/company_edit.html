@@ -1,0 +1,158 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Edit {{ company.name }} - Company - SuperAdmin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Edit Company</h1>
+                    <p class="text-muted mb-0">{{ company.name }}</p>
+                </div>
+                <div>
+                    <a href="{% url 'superadmin:companies_list' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Companies
+                    </a>
+                    <a href="{% url 'superadmin:company_detail' company.id %}" class="btn btn-info">
+                        <i class="bi bi-eye"></i> View Details
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card sa-card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Company Information</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="name" class="form-label">Company Name <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="name" name="name" value="{{ company.name }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                            <input type="email" class="form-control" id="email" name="email" value="{{ company.email }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="phone" class="form-label">Phone <span class="text-danger">*</span></label>
+                                            <input type="tel" class="form-control" id="phone" name="phone" value="{{ company.phone }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="plan" class="form-label">Plan <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="plan" name="plan" required>
+                                                <option value="">Select a plan</option>
+                                                {% for plan in plans %}
+                                                    <option value="{{ plan.id }}" {% if company.plan and company.plan.id == plan.id %}selected{% endif %}>
+                                                        {{ plan.name }} - ${{ plan.price }}/{{ plan.billing_cycle }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="address" class="form-label">Address <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="address" name="address" rows="3" required>{{ company.address }}</textarea>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="subscription_status" class="form-label">Subscription Status <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="subscription_status" name="subscription_status" required>
+                                                <option value="">Select status</option>
+                                                <option value="trial" {% if company.subscription_status == 'trial' %}selected{% endif %}>Trial</option>
+                                                <option value="active" {% if company.subscription_status == 'active' %}selected{% endif %}>Active</option>
+                                                <option value="expired" {% if company.subscription_status == 'expired' %}selected{% endif %}>Expired</option>
+                                                <option value="cancelled" {% if company.subscription_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <div class="form-check mt-4">
+                                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" {% if company.is_active %}checked{% endif %}>
+                                                <label class="form-check-label" for="is_active">
+                                                    Active Company
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="{% url 'superadmin:companies_list' %}" class="btn btn-secondary">
+                                        Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle"></i> Update Company
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card sa-card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Company Statistics</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Total Users</label>
+                                <p class="form-control-plaintext">{{ users.count }} users</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Total Subscriptions</label>
+                                <p class="form-control-plaintext">{{ subscriptions.count }} subscriptions</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Company Status</label>
+                                <p class="form-control-plaintext">
+                                    {% if company.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactive</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Created Date</label>
+                                <p class="form-control-plaintext">{{ company.created_at|date:"M d, Y H:i" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

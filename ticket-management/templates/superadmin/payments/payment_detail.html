@@ -1,0 +1,166 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Payment Detail{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-credit-card me-2"></i>
+                        Payment Detail
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'payments:payment_receipt' payment.id %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-download me-1"></i> Download Receipt
+                        </a>
+                        <a href="{% url 'payments:payments_list' %}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Payment Information -->
+                        <div class="col-md-6">
+                            <h6>Payment Information</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Transaction ID:</strong></td>
+                                    <td><code>{{ payment.transaction_id }}</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Amount:</strong></td>
+                                    <td class="h5 text-primary">₹{{ payment.amount }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Payment Method:</strong></td>
+                                    <td>{{ payment.get_payment_method_display }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Status:</strong></td>
+                                    <td>
+                                        <span class="badge bg-{{ payment.status|yesno:'success,danger,warning' }}">
+                                            {{ payment.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Payment Date:</strong></td>
+                                    <td>{{ payment.payment_date|date:"F d, Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Created:</strong></td>
+                                    <td>{{ payment.created_at|date:"F d, Y H:i" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <!-- Company & Subscription Information -->
+                        <div class="col-md-6">
+                            <h6>Company & Subscription</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Company:</strong></td>
+                                    <td>{{ company.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Email:</strong></td>
+                                    <td>{{ company.email }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Plan:</strong></td>
+                                    <td>{{ subscription.plan.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Billing Cycle:</strong></td>
+                                    <td>{{ subscription.get_billing_cycle_display }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Subscription Period:</strong></td>
+                                    <td>{{ subscription.start_date|date:"M d, Y" }} - {{ subscription.end_date|date:"M d, Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Next Billing:</strong></td>
+                                    <td>{{ subscription.next_billing_date|date:"M d, Y" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Card Details (if applicable) -->
+                    {% if payment.card_last_four %}
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h6>Card Details</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Card Type:</strong></td>
+                                    <td>{{ payment.get_payment_method_display }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Last Four Digits:</strong></td>
+                                    <td>**** **** **** {{ payment.card_last_four }}</td>
+                                </tr>
+                                {% if payment.card_holder_name %}
+                                <tr>
+                                    <td><strong>Card Holder:</strong></td>
+                                    <td>{{ payment.card_holder_name }}</td>
+                                </tr>
+                                {% endif %}
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Notes -->
+                    {% if payment.notes %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6>Notes</h6>
+                            <div class="alert alert-info">
+                                {{ payment.notes }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Actions -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex gap-2">
+                                {% if payment.status != 'completed' %}
+                                <form method="post" action="{% url 'payments:payment_update_status' payment.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="status" value="completed">
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="fas fa-check me-1"></i> Mark as Completed
+                                    </button>
+                                </form>
+                                {% endif %}
+                                
+                                {% if payment.status == 'completed' %}
+                                <form method="post" action="{% url 'payments:payment_update_status' payment.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="status" value="failed">
+                                    <button type="submit" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-times me-1"></i> Mark as Failed
+                                    </button>
+                                </form>
+                                {% endif %}
+                                
+                                <a href="{% url 'payments:subscription_payments' subscription.id %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-history me-1"></i> View Subscription Payments
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

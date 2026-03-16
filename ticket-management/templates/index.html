@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container" style="max-width:600px; margin-top:40px;">
+  <h2>Welcome to Ticket System</h2>
+  <p>Select an option to continue:</p>
+  <div style="display:flex; gap:12px; flex-wrap:wrap;">
+    <a class="btn btn-primary" href="/user-login/">User Login</a>
+    <a class="btn btn-success" href="/user-signup/">User Signup</a>
+    <a class="btn btn-warning" href="/admin-signup/">Admin Signup</a>
+  </div>
+</div>
+{% endblock %}

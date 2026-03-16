@@ -1,0 +1,123 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Ticket Management System</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- User Dashboard CSS -->
+    <link rel="stylesheet" href="{% static 'userdashboard/css/styles.css' %}">
+</head>
+
+<body class="app-body" data-page="dashboard">
+
+<div class="app-root">
+
+
+   <!-- Include Sidebar -->
+  {% include 'userdashboard/partials/sidebar.html' %}
+
+    <!-- Main Content -->
+    <main class="main">
+
+        <!-- Include Header -->
+  {% include 'userdashboard/partials/header.html' %}
+
+    {% block content %}
+
+        <!-- Main Page Content -->
+        <section class="page">
+
+            <!-- Dashboard Cards -->
+            <section class="cards-grid">
+                <article class="card">
+                    <h2 class="card-title">🎫 Total Tickets</h2>
+                    <p class="card-value">{{ total_tickets }}</p>
+                    <p class="card-meta">All tickets in the system</p>
+                </article>
+
+                <article class="card">
+                    <h2 class="card-title">⚠️ Open</h2>
+                    <p class="card-value">{{ open_count }}</p>
+                    <p class="card-meta text-warning">Awaiting response or action</p>
+                </article>
+
+                <article class="card">
+                    <h2 class="card-title">⏳ In Progress</h2>
+                    <p class="card-value">{{ in_progress_count }}</p>
+                    <p class="card-meta">Being worked on</p>
+                </article>
+
+                <article class="card">
+                    <h2 class="card-title">✅ Resolved</h2>
+                    <p class="card-value">{{ resolved_count }}</p>
+                    <p class="card-meta text-success">Closed successfully</p>
+                </article>
+            </section>
+
+            <!-- Tickets List -->
+            <section class="tickets">
+                <div class="tickets-header">
+                    <h2 class="section-title">Tickets</h2>
+
+                    <div class="filters" id="ticketFilters">
+                        <button class="chip active" data-filter="all">All</button>
+                        <button class="chip" data-filter="open">Open</button>
+                        <button class="chip" data-filter="in-progress">In Progress</button>
+                        <button class="chip" data-filter="resolved">Resolved</button>
+                    </div>
+                </div>
+
+                <div class="tickets-list" id="ticketsList">
+                    {% for t in tickets %}
+                    <article class="ticket" data-status="{% if t.status == 'Open' %}open{% elif t.status == 'In Progress' %}in-progress{% elif t.status == 'Resolved' %}resolved{% else %}closed{% endif %}">
+                        <div>
+                            <h3 class="ticket-title">{{ t.title }}</h3>
+                            <p class="ticket-meta">{{ t.ticket_id }} · {{ t.priority }} · {{ t.created_at|timesince }} ago</p>
+                        </div>
+                        {% if t.status == 'Open' %}
+                            <span class="badge badge-open">Open</span>
+                        {% elif t.status == 'In Progress' %}
+                            <span class="badge badge-in-progress">In Progress</span>
+                        {% elif t.status == 'Resolved' %}
+                            <span class="badge badge-resolved">Resolved</span>
+                        {% else %}
+                            <span class="badge badge-closed">Closed</span>
+                        {% endif %}
+                    </article>
+                    {% empty %}
+                    <div class="empty-state">No tickets yet. Create one using the “New Ticket” button.</div>
+                    {% endfor %}
+                </div>
+            </section>
+
+        </section>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-content">© 2025 <a href="https://ultrakeyit.com/" target="_blank" rel="noopener noreferrer" class="text-decoration-none">Ultrakey It Solutions</a>. All rights reserved.</div>
+        </footer>
+ {% endblock %}
+    </main>
+
+</div>
+
+<!-- JS Files -->
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- <script src="{% static 'userdashboard/js/layout.js' %}"></script> -->
+<script src="{% static 'userdashboard/js/script.js' %}"></script>
+<script src="{% static 'userdashboard/js/app.js' %}"></script>
+
+<!-- Include Payment Modal -->
+{% include 'admin_payment_modal.html' %}
+
+</body>
+</html>

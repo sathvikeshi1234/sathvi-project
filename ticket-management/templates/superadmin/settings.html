@@ -1,0 +1,1378 @@
+{% extends 'superadmin/base.html' %}
+
+{% block title %}Settings · Super Admin{% endblock %}
+
+{% block content %}
+
+<main class="nxl-container">
+
+    <div class="nxl-content">
+
+        <!-- [Page Header] Start -->
+
+        <div class="page-header">
+
+            <div class="page-header-left d-flex align-items-center">
+
+                <div class="page-header-title">
+
+                    <h5 class="m-b-10">Settings</h5>
+
+                    <p class="mb-0">Manage your account settings and preferences</p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- [Page Header] End -->
+
+        <!-- Breadcrumb Navigation -->
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'superadmin:superadmin_dashboard' %}">Dashboard</a>
+                            </li>
+                            <li class="breadcrumb-item active">Settings</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- [Main Content] Start -->
+
+        <div class="main-content">
+
+            <form method="POST" id="settingsForm" enctype="multipart/form-data">
+
+                {% csrf_token %}
+
+                <div class="row g-4">
+
+                    <!-- Account Settings -->
+
+                    <div class="col-lg-4 col-md-6">
+
+                        <div class="settings-card card h-100">
+
+                            <div class="card-header">
+
+                                <div class="d-flex align-items-center">
+
+                                    <div class="settings-icon bg-primary">
+
+                                        <i class="feather-user"></i>
+
+                                    </div>
+
+                                    <h5 class="card-title mb-0">Account Settings</h5>
+
+                                </div>
+
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="row">
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">Full Name</label>
+
+                                            <input type="text" class="form-control" name="profile_name"
+
+                                                value="{{ site_settings.profile_name|default:request.user.get_full_name }}">
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">Email</label>
+
+                                            <input type="email" class="form-control" name="profile_email"
+
+                                                value="{{ site_settings.profile_email|default:request.user.email }}">
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">Phone</label>
+
+                                            <input type="tel" class="form-control" name="profile_phone"
+
+                                                value="{{ site_settings.profile_phone }}">
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">Two-Factor Authentication</label>
+
+                                            <div class="form-check form-switch mt-2">
+
+                                                <input class="form-check-input" type="checkbox"
+
+                                                    name="two_factor_enabled" {% if site_settings and site_settings.two_factor_enabled %}checked{% endif %}>
+
+                                                <label class="form-check-label" for="twoFactorSwitch">Enable
+
+                                                    2FA</label>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Notification Settings -->
+
+                    <div class="col-lg-4 col-md-6">
+
+                        <div class="settings-card card h-100">
+
+                            <div class="card-header">
+
+                                <div class="d-flex align-items-center">
+
+                                    <div class="settings-icon bg-warning">
+
+                                        <i class="feather-bell"></i>
+
+                                    </div>
+
+                                    <h5 class="card-title mb-0">Notification Settings</h5>
+
+                                </div>
+
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="settings-item">
+
+                                    <i class="feather-mail"></i>
+
+                                    <div class="settings-item-content">
+
+                                        <h6 class="settings-item-title">Email Notifications</h6>
+
+                                        <p class="settings-item-desc">Receive important updates via email</p>
+
+                                    </div>
+
+                                    <div class="form-check form-switch">
+
+                                        <input class="form-check-input" type="checkbox" name="email_notifications"
+
+                                            {% if site_settings and site_settings.email_notifications %}checked{% endif %}>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="settings-item">
+
+                                    <i class="feather-message-square"></i>
+
+                                    <div class="settings-item-content">
+
+                                        <h6 class="settings-item-title">In-App Notifications</h6>
+
+                                        <p class="settings-item-desc">Get notifications within the application</p>
+
+                                    </div>
+
+                                    <div class="form-check form-switch">
+
+                                        <input class="form-check-input" type="checkbox" name="in_app_notifications"
+
+                                            {% if site_settings and site_settings.in_app_notifications %}checked{% endif %}>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="settings-item">
+
+                                    <i class="feather-smartphone"></i>
+
+                                    <div class="settings-item-content">
+
+                                        <h6 class="settings-item-title">Push Notifications</h6>
+
+                                        <p class="settings-item-desc">Enable push notifications on your device</p>
+
+                                    </div>
+
+                                    <div class="form-check form-switch">
+
+                                        <input class="form-check-input" type="checkbox" name="push_notifications" {% if site_settings and site_settings.push_notifications %}checked{% endif %}>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- App Settings -->
+
+                    <div class="col-lg-4 col-md-6">
+
+                        <div class="settings-card card h-100">
+
+                            <div class="card-header">
+
+                                <div class="d-flex align-items-center">
+
+                                    <div class="settings-icon bg-info">
+
+                                        <i class="feather-settings"></i>
+
+                                    </div>
+
+                                    <h5 class="card-title mb-0">App Settings</h5>
+
+                                </div>
+
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="row">
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">Language</label>
+
+                                            <select class="form-select" name="language">
+
+                                                {% for code, name in LANGUAGE_CHOICES %}
+
+                                                <option value="{{ code }}" {% if site_settings.language == code %}selected{% endif %}>{{ name }}</option>
+
+                                                {% endfor %}
+
+                                            </select>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">Time Zone</label>
+
+                                            <select class="form-select" name="timezone">
+
+                                                {% for code, name in TIMEZONE_CHOICES %}
+
+                                                <option value="{{ code }}" {% if site_settings.timezone == code %}selected{% endif %}>{{ name }}</option>
+
+                                                {% endfor %}
+
+                                            </select>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">Currency</label>
+
+                                            <select class="form-select" name="currency">
+
+                                                {% for code, name in CURRENCY_CHOICES %}
+
+                                                <option value="{{ code }}" {% if site_settings.currency == code %}selected{% endif %}>{{ name }}</option>
+
+                                                {% endfor %}
+
+                                            </select>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">Theme</label>
+
+                                            <div class="form-check form-switch mt-2">
+
+                                                <input class="form-check-input" type="checkbox" name="dark_mode" {% if site_settings and site_settings.dark_mode %}checked{% endif %}>
+
+                                                <label class="form-check-label" for="darkModeSwitch">Dark
+
+                                                    Mode</label>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- System Settings -->
+
+                    <div class="col-lg-6 col-md-6">
+
+                        <div class="settings-card card h-100">
+
+                            <div class="card-header">
+
+                                <div class="d-flex align-items-center">
+
+                                    <div class="settings-icon bg-success">
+
+                                        <i class="feather-server"></i>
+
+                                    </div>
+
+                                    <h5 class="card-title mb-0">System Settings</h5>
+
+                                </div>
+
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="row">
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">Company Logo</label>
+
+                                            <div class="d-flex align-items-center gap-3">
+
+                                                <div class="logo-preview">
+
+                                                    {% if site_settings and site_settings.company_logo %}
+
+                                                        <img src="{{ site_settings.company_logo.url }}" alt="Company Logo" class="img-fluid rounded" style="max-height: 60px; max-width: 200px;">
+
+                                                    {% else %}
+
+                                                        <div class="no-logo-placeholder d-flex align-items-center justify-content-center bg-light rounded" style="width: 200px; height: 60px;">
+
+                                                            <i class="bi bi-image text-muted fs-4"></i>
+
+                                                        </div>
+
+                                                    {% endif %}
+
+                                                </div>
+
+                                                <div class="logo-controls">
+
+                                                    <input type="file" class="form-control" id="companyLogoInput" accept="image/*" style="display: none;">
+
+                                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('companyLogoInput').click()">
+
+                                                        <i class="bi bi-upload me-1"></i> Upload Logo
+
+                                                    </button>
+
+                                                    {% if site_settings and site_settings.company_logo %}
+
+                                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeLogo()">
+
+                                                            <i class="bi bi-trash me-1"></i> Remove
+
+                                                        </button>
+
+                                                    {% endif %}
+
+                                                </div>
+
+                                            </div>
+
+                                            <small class="text-muted">Recommended: Square logo, max 2MB. PNG, JPG, or GIF format.</small>
+
+                                            <input type="hidden" name="company_logo" id="companyLogoField" value="{% if site_settings.company_logo %}{{ site_settings.company_logo.url }}{% endif %}">
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                                <div class="form-check form-switch">
+
+                                                <input class="form-check-input" type="checkbox"
+
+                                                    name="collapsed_logo" {% if site_settings and site_settings.collapsed_logo %}checked{% endif %}>
+
+                                                <label class="form-check-label">Collapsed Logo (Sidebar)</label>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">Company Name</label>
+
+                                            <input type="text" class="form-control" name="company_name"
+
+                                                value="{{ site_settings.company_name }}">
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">Website URL</label>
+
+                                            <input type="url" class="form-control" name="website_url"
+
+                                                value="{{ site_settings.website_url }}">
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">Contact Email</label>
+
+                                            <input type="email" class="form-control" name="contact_email"
+
+                                                value="{{ site_settings.contact_email }}">
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">Contact Phone</label>
+
+                                            <input type="tel" class="form-control" name="contact_phone"
+
+                                                value="{{ site_settings.contact_phone }}">
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">Address</label>
+
+                                            <textarea class="form-control" name="address"
+
+                                                rows="2">{{ site_settings.address }}</textarea>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <div class="form-check form-switch">
+
+                                                <input class="form-check-input" type="checkbox"
+
+                                                    name="maintenance_mode" {% if site_settings and site_settings.maintenance_mode %}checked{% endif %}>
+
+                                                <label class="form-check-label">Maintenance Mode</label>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <div class="form-check form-switch">
+
+                                                <input class="form-check-input" type="checkbox"
+
+                                                    name="user_registration" {% if site_settings and site_settings.user_registration %}checked{% endif %}>
+
+                                                <label class="form-check-label">User Registration</label>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <div class="form-check form-switch">
+
+                                                <input class="form-check-input" type="checkbox"
+
+                                                    name="email_verification" {% if site_settings and site_settings.email_verification %}checked{% endif %}>
+
+                                                <label class="form-check-label">Email Verification</label>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Ticket Settings -->
+
+                    <div class="col-lg-6 col-md-6">
+
+                        <div class="settings-card card h-100">
+
+                            <div class="card-header">
+
+                                <div class="d-flex align-items-center">
+
+                                    <div class="settings-icon bg-danger">
+
+                                        <i class="feather-help-circle"></i>
+
+                                    </div>
+
+                                    <h5 class="card-title mb-0">Ticket Settings</h5>
+
+                                </div>
+
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="row">
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">Default Ticket Status</label>
+
+                                            <input type="text" class="form-control" name="default_ticket_status"
+
+                                                value="{{ site_settings.default_ticket_status }}">
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">Default Priority</label>
+
+                                            <select class="form-select" name="default_ticket_priority">
+
+                                                <option value="Low" {% if site_settings.default_ticket_priority == 'Low' %}selected{% endif %}>Low</option>
+
+                                                <option value="Medium" {% if site_settings.default_ticket_priority == 'Medium' %}selected{% endif %}>Medium</option>
+
+                                                <option value="High" {% if site_settings.default_ticket_priority == 'High' %}selected{% endif %}>High</option>
+
+                                                <option value="Critical" {% if site_settings.default_ticket_priority == 'Critical' %}selected{% endif %}>Critical</option>
+
+                                            </select>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">First Response (hours)</label>
+
+                                            <input type="number" class="form-control" name="first_response_hours"
+
+                                                value="{{ site_settings.first_response_hours }}">
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-12">
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">Resolution Time (hours)</label>
+
+                                            <input type="number" class="form-control" name="resolution_time_hours"
+
+                                                value="{{ site_settings.resolution_time_hours }}">
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="text-center mt-4">
+
+                    <button type="submit" class="btn btn-primary me-2">Save Changes</button>
+
+                    <button type="button" class="btn btn-outline-secondary"
+
+                        onclick="location.reload()">Cancel</button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <!-- [Main Content] End -->
+
+    </div>
+
+</main>
+
+<!-- [End] Main Content -->
+
+<!-- Footer -->
+<footer class="text-center py-3 mt-4 mb-2 text-muted small border-top">
+    <div class="d-flex justify-content-between align-items-center">
+        <span>&copy; 2024 Ultrakey IT Solutions</span>
+        <span>Settings Management</span>
+        <span>Support</span>
+    </div>
+</footer>
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script>
+
+    // Initialize tooltips
+
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+
+    });
+
+
+
+    // Form submission
+
+    document.getElementById('settingsForm').addEventListener('submit', function (e) {
+
+        e.preventDefault();
+
+
+
+        // Show loading state
+
+        const submitBtn = this.querySelector('button[type="submit"]');
+
+        const originalText = submitBtn.textContent;
+
+        submitBtn.disabled = true;
+
+        submitBtn.innerHTML = '<i class="feather-loader me-2"></i> Saving...';
+
+
+
+        // Submit form via AJAX or regular POST
+
+        this.submit();
+
+    });
+
+
+
+    // Logo upload functionality
+
+    document.getElementById('companyLogoInput').addEventListener('change', function(e) {
+
+        const file = e.target.files[0];
+
+        if (file) {
+
+            // Check file size (2MB limit)
+
+            if (file.size > 2 * 1024 * 1024) {
+
+                alert('File size must be less than 2MB');
+
+                e.target.value = '';
+
+                return;
+
+            }
+
+
+
+            // Check file type
+
+            if (!file.type.match('image.*')) {
+
+                alert('Please select an image file');
+
+                e.target.value = '';
+
+                return;
+
+            }
+
+
+
+            // Preview the image
+
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+
+                const preview = document.querySelector('.logo-preview img, .logo-preview .no-logo-placeholder');
+
+                if (preview) {
+
+                    if (preview.tagName === 'IMG') {
+
+                        preview.src = e.target.result;
+
+                    } else {
+
+                        // Replace placeholder with actual image
+
+                        const img = document.createElement('img');
+
+                        img.src = e.target.result;
+
+                        img.alt = 'Company Logo';
+
+                        img.className = 'img-fluid rounded';
+
+                        img.style.cssText = 'max-height: 60px; max-width: 200px;';
+
+                        preview.parentNode.replaceChild(img, preview);
+
+                    }
+
+                }
+
+                
+
+                // Update hidden field
+
+                document.getElementById('companyLogoField').value = e.target.result;
+
+            };
+
+            reader.readAsDataURL(file);
+
+        }
+
+    });
+
+
+
+    // Remove logo function
+
+    function removeLogo() {
+
+        if (confirm('Are you sure you want to remove the company logo?')) {
+
+            // Clear the preview and show placeholder
+
+            const preview = document.querySelector('.logo-preview');
+
+            if (preview) {
+
+                preview.innerHTML = `
+
+                    <div class="no-logo-placeholder d-flex align-items-center justify-content-center bg-light rounded" style="width: 200px; height: 60px;">
+
+                        <i class="bi bi-image text-muted fs-4"></i>
+
+                    </div>
+
+                `;
+
+            }
+
+            
+
+            // Clear the file input and hidden field
+
+            const fileInput = document.getElementById('companyLogoInput');
+
+            const hiddenField = document.getElementById('companyLogoField');
+
+            if (fileInput) fileInput.value = '';
+
+            if (hiddenField) hiddenField.value = '';
+
+            
+
+            // Hide remove button
+
+            const removeBtn = document.querySelector('.logo-controls .btn-outline-danger');
+
+            if (removeBtn) {
+
+                removeBtn.style.display = 'none';
+
+            }
+
+            
+
+            // Show success message
+
+            const alertDiv = document.createElement('div');
+
+            alertDiv.className = 'alert alert-success alert-dismissible fade show mt-3';
+
+            alertDiv.innerHTML = `
+
+                <i class="bi bi-check-circle me-2"></i>
+
+                Logo removed successfully! Click "Save Changes" to update.
+
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+
+            `;
+
+            
+
+            // Insert alert after logo controls
+
+            const logoControls = document.querySelector('.logo-controls');
+
+            if (logoControls && logoControls.parentNode) {
+
+                logoControls.parentNode.insertBefore(alertDiv, logoControls.nextSibling);
+
+                
+
+                // Auto-remove alert after 3 seconds
+
+                setTimeout(() => {
+
+                    if (alertDiv.parentNode) {
+
+                        alertDiv.parentNode.removeChild(alertDiv);
+
+                    }
+
+                }, 3000);
+
+            }
+
+        }
+
+    }
+
+</script>
+
+{% endblock %}
+
+
+
+<footer class="sa-footer mt-4 mb-2 text-muted small">
+
+    <div class="d-flex justify-content-between align-items-center">
+
+        <a href="https://ultrakeyit.com/" target="_blank" rel="noopener noreferrer"
+
+            class="text-muted text-decoration-none"> Ultrakey IT Solutions</a>
+
+        <span>System Settings</span>
+
+    </div>
+
+</footer>
+
+
+
+<style>
+
+    /* Settings Grid Layout */
+
+    .settings-card {
+
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+        border: 1px solid #e9ecef;
+
+    }
+
+    
+
+    .settings-card:hover {
+
+        transform: translateY(-2px);
+
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+    }
+
+    
+
+    .settings-card .card-header {
+
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+
+        border-bottom: 1px solid #dee2e6;
+
+        padding: 1rem 1.25rem;
+
+        cursor: default;
+
+    }
+
+    
+
+    .settings-icon {
+
+        width: 40px;
+
+        height: 40px;
+
+        border-radius: 8px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        margin-right: 12px;
+
+        color: white;
+
+        font-size: 18px;
+
+    }
+
+    
+
+    .settings-item {
+
+        display: flex;
+
+        align-items: center;
+
+        padding: 12px 0;
+
+        border-bottom: 1px solid #f1f3f4;
+
+    }
+
+    
+
+    .settings-item:last-child {
+
+        border-bottom: none;
+
+    }
+
+    
+
+    .settings-item i {
+
+        width: 32px;
+
+        height: 32px;
+
+        background: #f8f9fa;
+
+        border-radius: 6px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        margin-right: 12px;
+
+        color: #6c757d;
+
+        font-size: 14px;
+
+    }
+
+    
+
+    .settings-item-content {
+
+        flex: 1;
+
+    }
+
+    
+
+    .settings-item-title {
+
+        font-size: 14px;
+
+        font-weight: 600;
+
+        margin-bottom: 2px;
+
+        color: #495057;
+
+    }
+
+    
+
+    .settings-item-desc {
+
+        font-size: 12px;
+
+        color: #6c757d;
+
+        margin-bottom: 0;
+
+    }
+
+    
+
+    /* Responsive adjustments */
+
+    @media (max-width: 991.98px) {
+
+        .settings-card .card-body {
+
+            padding: 1rem;
+
+        }
+
+        
+
+        .settings-item {
+
+            padding: 10px 0;
+
+        }
+
+    }
+
+    
+
+    @media (max-width: 767.98px) {
+
+        .settings-card .card-header {
+
+            padding: 0.875rem 1rem;
+
+        }
+
+        
+
+        .settings-icon {
+
+            width: 36px;
+
+            height: 36px;
+
+            font-size: 16px;
+
+        }
+
+        
+
+        .settings-item i {
+
+            width: 28px;
+
+            height: 28px;
+
+            font-size: 12px;
+
+        }
+
+    }
+
+    
+
+    @media (max-width: 575.98px) {
+
+        .settings-card .card-body {
+
+            padding: 0.875rem;
+
+        }
+
+        
+
+        .settings-item {
+
+            flex-direction: column;
+
+            align-items: flex-start;
+
+            padding: 8px 0;
+
+        }
+
+        
+
+        .settings-item i {
+
+            margin-bottom: 8px;
+
+            margin-right: 0;
+
+        }
+
+        
+
+        .settings-item-content {
+
+            width: 100%;
+
+        }
+
+        
+
+        .form-check {
+
+            margin-top: 8px;
+
+        }
+
+    }
+
+    
+
+    /* Dark Mode Styles for Footer */
+
+    body.dark-layout .sa-footer,
+
+    body.dark-mode .sa-footer {
+
+        background: var(--bg-card, #262c36);
+
+        border-top: 1px solid var(--border-color, #30363d);
+
+    }
+
+
+
+    body.dark-layout .sa-footer a,
+
+    body.dark-mode .sa-footer a {
+
+        color: var(--text-muted, #6b7380) !important;
+
+    }
+
+
+
+    body.dark-layout .sa-footer span,
+
+    body.dark-mode .sa-footer span {
+
+        color: var(--text-muted, #6b7380) !important;
+
+    }
+
+    
+
+    /* Dark mode for settings cards */
+
+    body.dark-layout .settings-card,
+
+    body.dark-mode .settings-card {
+
+        background: #2d3748 !important;
+
+        border-color: #4a5568 !important;
+
+    }
+
+    
+
+    body.dark-layout .settings-card .card-header,
+
+    body.dark-mode .settings-card .card-header {
+
+        background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%) !important;
+
+        border-bottom-color: #4a5568 !important;
+
+    }
+
+    
+
+    body.dark-layout .settings-card .card-body,
+
+    body.dark-mode .settings-card .card-body {
+
+        background: #2d3748 !important;
+
+        color: #e2e8f0 !important;
+
+    }
+
+    
+
+    body.dark-layout .settings-item,
+
+    body.dark-mode .settings-item {
+
+        border-bottom-color: #4a5568 !important;
+
+        color: #e2e8f0 !important;
+
+    }
+
+    
+
+    body.dark-layout .settings-item i,
+
+    body.dark-mode .settings-item i {
+
+        background: #4a5568 !important;
+
+        color: #cbd5e0 !important;
+
+    }
+
+    
+
+    body.dark-layout .settings-item-title,
+
+    body.dark-mode .settings-item-title {
+
+        color: #e2e8f0 !important;
+
+    }
+
+    
+
+    body.dark-layout .settings-item-desc,
+
+    body.dark-mode .settings-item-desc {
+
+        color: #a0aec0 !important;
+
+    }
+
+    
+
+    body.dark-layout .settings-card .form-label,
+
+    body.dark-mode .settings-card .form-label {
+
+        color: #e2e8f0 !important;
+
+    }
+
+    
+
+    body.dark-layout .settings-card .card-title,
+
+    body.dark-mode .settings-card .card-title {
+
+        color: #e2e8f0 !important;
+
+    }
+
+</style>

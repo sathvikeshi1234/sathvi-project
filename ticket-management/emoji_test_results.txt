@@ -1,0 +1,4 @@
+Original text: Hello :)
+Stored text: Hello :)
+JSON result: Hello :)
+Test completed successfully

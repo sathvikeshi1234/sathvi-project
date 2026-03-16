@@ -1,0 +1,771 @@
+<!-- TOP NAVIGATION -->
+    {% load static %}
+<header class="top-header">
+    <div class="header-left">
+        <!-- Desktop sidebar toggle (hidden on mobile) -->
+        <button id="sidebar-toggle" class="btn-icon d-none d-md-flex">
+            <i class="bi bi-list"></i>
+        </button>
+        
+        <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input type="text" id="search-input" placeholder="Search tickets..." autocomplete="off">
+            <!-- Search Results Dropdown -->
+            <div id="search-results-dropdown" class="search-results-dropdown" style="display: none;">
+                <div id="search-results-list" class="search-results-list">
+                    <!-- Search results will be populated here -->
+                </div>
+                <div id="search-empty-state" class="search-empty-state" style="padding: 1rem; text-align: center; color: #9ca3af; font-size: 0.875rem;">
+                    <small>No results found</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-right">
+        <!-- Mobile menu dots (visible only on mobile) -->
+        <button class="mobile-menu-dots d-md-none">
+            <i class="bi bi-three-dots-vertical"></i>
+        </button>
+
+        <div class="notifications-container">
+            <button id="notifications-btn" class="btn-icon position-relative">
+                <i class="bi bi-bell"></i>
+                <span class="notification-badge" id="superadminNotificationBadge" style="display:none;">0</span>
+            </button>
+            <div id="notifications-dropdown" class="notifications-dropdown">
+                <div class="notifications-header">
+                    <h6>Notifications</h6>
+                    <a href="#" class="mark-all" onclick="markAllNotificationsRead()">Mark all as read</a>
+                </div>
+                <div class="notifications-list" id="superadminNotificationsList">
+                    <!-- Dynamic notifications will be loaded here -->
+                    <div class="notification-item" id="superadminNotificationsEmpty" style="display:none;">
+                        <div class="notification-content">
+                            <p>No notifications</p>
+                            <small></small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- View All Button -->
+                <div class="notifications-footer">
+                    <a href="{% url 'superadmin:superadmin_page' 'notifications.html' %}" class="view-all-btn">View All Notifications</a>
+                </div>
+            </div>
+        </div>
+
+        <button id="theme-toggle" class="btn-icon">
+            <i class="bi bi-moon-stars"></i>
+        </button>
+
+        <div class="profile-container position-relative">
+            <button id="profile-btn" class="btn-icon" style="padding: 0;">
+                <div class="profile-avatar" style="width: 32px; height: 32px; background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem;">{% if request.user.is_authenticated %}{{ request.user.get_full_name|default:request.user.username|slice:":1"|upper }}{% else %}S{% endif %}</div>
+            </button>
+            <div id="profile-dropdown" class="profile-dropdown" style="position: absolute; right: 0; top: 100%; margin-top: 5px; min-width: 240px; background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); border: 1px solid rgba(0, 0, 0, 0.05); z-index: 1000; display: none; font-size: 0.85rem;">
+                <div class="profile-header" style="background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%); padding: 0.8rem; color: white; border-radius: 8px 8px 0 0;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 36px; height: 36px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 600; color: white;">
+                            {% if request.user.is_authenticated %}{{ request.user.get_full_name|default:request.user.username|slice:":1"|upper }}{% else %}S{% endif %}
+                        </div>
+                        <div>
+                            <h6 style="margin: 0; font-weight: 600; font-size: 0.85rem; line-height: 1.2;">{% if request.user.is_authenticated %}{{ request.user.get_full_name|default:request.user.username }}{% else %}Super Admin{% endif %}</h6>
+                            <small style="opacity: 0.9; font-size: 0.75rem; display: block; margin-top: 2px;">{% if request.user.is_authenticated %}{{ request.user.email }}{% else %}superadmin@tickethub.com{% endif %}</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="padding: 4px 0;">
+                    <a href="{% url 'superadmin:superadmin_page' 'profile.html' %}" class="dropdown-item" data-action="view-profile" style="display: flex; align-items: center; padding: 0.4rem 0.8rem; color: #4a5568; text-decoration: none; transition: all 0.15s; font-size: 0.8rem;">
+                        <div style="width: 28px; height: 28px; background: rgba(25, 135, 84, 0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: 8px; color: #198754; font-size: 0.9rem;">
+                            <i class="bi bi-person-circle"></i>
+                        </div>
+                        <span>View Profile</span>
+                    </a>
+                    
+                    <a href="{% url 'superadmin:superadmin_page' 'settings.html' %}" class="dropdown-item" data-action="settings" style="display: flex; align-items: center; padding: 0.4rem 0.8rem; color: #4a5568; text-decoration: none; transition: all 0.15s; font-size: 0.8rem;">
+                        <div style="width: 28px; height: 28px; background: rgba(13, 202, 240, 0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: 8px; color: #0dcaf0; font-size: 0.9rem;">
+                            <i class="bi bi-gear"></i>
+                        </div>
+                        <span>Settings</span>
+                    </a>
+                    
+                </div>
+                
+                <hr style="margin: 0.15rem 0; opacity: 0.1; border: none; border-top: 1px solid rgba(0,0,0,0.05);">
+                
+                <div style="padding: 0 0 4px 0;">
+                    <a href="{% url 'superadmin:superadmin_logout' %}" class="dropdown-item text-danger" style="display: flex; align-items: center; padding: 0.4rem 0.8rem; color: #dc3545; text-decoration: none; transition: all 0.15s; font-size: 0.8rem;">
+                        <div style="width: 28px; height: 28px; background: rgba(220, 53, 69, 0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: 8px; color: #dc3545; font-size: 0.9rem;">
+                            <i class="bi bi-box-arrow-right"></i>
+                        </div>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<header class="top-mobile-header">
+    <div class="header-left">
+       
+        
+        <!-- Desktop sidebar toggle (hidden on mobile) -->
+        <button id="mobile-sidebar-toggle" class="btn-icon ">
+            <i class="bi bi-list"></i>
+        </button>
+        
+       
+    </div>
+
+
+
+<div class="sidebar-brand logo-brand-image">
+    {% if site_settings and site_settings.company_logo %}
+        <img src="{% if site_settings.company_logo %}{{ site_settings.company_logo.url }}{% endif %}" alt="">
+    {% else %}
+        <img src="{% static 'assets/images/logo.jpg' %}" alt="">
+    {% endif %}
+</div>
+
+    <div class="header-right position-relative">
+        <button id="mobile-menu-toggle" class="btn-icon" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-three-dots-vertical"></i>
+        </button>
+        <div class="dropdown-menu dropdown-menu-end shadow-lg" style="min-width: 260px; border: none; border-radius: 10px; overflow: hidden; border: 1px solid rgba(0,0,0,0.05);">
+            <!-- Profile Section -->
+            <div class="user-profile">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-lg me-3" style="width: 40px; height: 40px; background-color: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-person-fill" style="font-size: 1.2rem; color: white;"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">{% if request.user.is_authenticated %}{{ request.user.get_full_name|default:request.user.username }}{% else %}Alex Johnson{% endif %}</h6>
+                        <small>{% if request.user.is_authenticated %}{{ request.user.email }}{% else %}alex.johnson@example.com{% endif %}</small>
+                    </div>
+                </div>
+                <div class="mt-2 d-flex gap-2">
+                    <span class="badge bg-white text-primary">Admin</span>
+                    <span class="badge bg-white text-primary">Pro</span>
+                </div>
+            </div>
+            
+            <!-- Menu Items -->
+            <div class="p-2">
+                <!-- View Profile -->
+                <a href="{% url 'superadmin:superadmin_page' 'profile.html' %}" class="dropdown-item d-flex align-items-center px-2 py-1">
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <div class="icon-wrapper me-2" style="background: rgba(25, 135, 84, 0.1);">
+                            <i class="bi bi-person-circle" style="color: #198754;"></i>
+                        </div>
+                        <span>View Profile</span>
+                    </div>
+                </a>
+                
+                <!-- Dark Mode Toggle -->
+                <div class="dropdown-item d-flex align-items-center px-2 py-1">
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <div class="icon-wrapper me-2" style="background: rgba(110, 142, 251, 0.1);">
+                            <i class="bi bi-moon-stars" style="color: #6e8efb;"></i>
+                        </div>
+                        <span>Dark Mode</span>
+                    </div>
+                    <div class="form-check form-switch m-0">
+                        <input class="form-check-input" type="checkbox" id="darkModeSwitch" style="cursor: pointer; width: 2em; margin-left: 0;">
+                    </div>
+                </div>
+                
+                <!-- Notifications -->
+                <a href="{% url 'superadmin:superadmin_page' 'notifications.html' %}" class="dropdown-item d-flex align-items-center px-2 py-1">
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <div class="icon-wrapper me-2" style="background: rgba(255, 193, 7, 0.1);">
+                            <i class="bi bi-bell" style="color: #ffc107;"></i>
+                        </div>
+                        <span>Notifications</span>
+                    </div>
+                    <span class="badge bg-danger rounded-pill" style="font-size: 0.7em; padding: 0.2em 0.5em;">3</span>
+                </a>
+                
+                <!-- Settings -->
+                <a href="{% url 'superadmin:superadmin_page' 'settings.html' %}" class="dropdown-item d-flex align-items-center px-2 py-1">
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <div class="icon-wrapper me-2" style="background: rgba(13, 202, 240, 0.1);">
+                            <i class="bi bi-gear" style="color: #0dcaf0;"></i>
+                        </div>
+                        <span>Settings</span>
+                    </div>
+                </a>
+                
+
+                
+                <!-- Divider -->
+                <div class="dropdown-divider my-2"></div>
+                
+                <!-- Logout -->
+                <a class="dropdown-item d-flex align-items-center px-2 py-1 text-danger" href="{% url 'users:logout' %}">
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <div class="icon-wrapper me-2" style="background: rgba(220, 53, 69, 0.1);">
+                            <i class="bi bi-box-arrow-right" style="color: #dc3545;"></i>
+                        </div>
+                        <span>Logout</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</header>
+
+<style>
+/* Notifications/dropdown basics */
+.notifications-dropdown {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 5px;
+    min-width: 320px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+    max-height: 420px;
+    display: none;
+}
+
+.notifications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.notifications-header h6 { margin: 0; font-weight: 600; color: #374151; }
+.notifications-header a { color: var(--primary-color); text-decoration: none; font-size: 0.75rem; font-weight: 500; }
+.notifications-list { max-height: 300px; overflow-y: auto; }
+
+.notification-item { padding: 0.75rem 1rem; border-bottom: 1px solid #f3f4f6; transition: background 0.2s ease; display: flex; align-items: flex-start; gap: 0.75rem; }
+.notification-item.unread { background: rgba(110, 142, 251, 0.02); border-left: 3px solid var(--primary-color); }
+.notification-item:hover { background: rgba(110, 142, 251, 0.04); }
+.notification-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+.notification-content { flex: 1; min-width: 0; }
+.notification-content p { margin: 0 0 0.25rem 0; color: #374151; font-size: 0.875rem; font-weight: 500; line-height: 1.3; }
+.notification-content small { color: #6b7280; font-size: 0.75rem; line-height: 1.3; display: block; margin-bottom: 0.25rem; }
+.notification-time { color: #9ca3af !important; font-size: 0.7rem !important; margin: 0 !important; }
+.notification-status { width: 8px; height: 8px; background: var(--primary-color); border-radius: 50%; flex-shrink: 0; margin-top: 0.25rem; }
+.notifications-footer { padding: 0.75rem 1rem; border-top: 1px solid #e3e6f0; text-align: center; }
+.view-all-btn { color: var(--primary-color); text-decoration: none; font-size: 0.8rem; font-weight: 500; padding: 0.5rem 1rem; border-radius: 6px; transition: all 0.2s ease; display: inline-block; }
+.view-all-btn:hover { background: rgba(110, 142, 251, 0.1); text-decoration: none; color: var(--primary-color); }
+.notification-badge { position: absolute; top: -2px; right: -2px; background: var(--danger-color); color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 600; }
+
+.dropdown-item { display: flex; align-items: center; padding: 0.4rem 0.8rem; color: #4a5568; text-decoration: none; transition: all 0.15s ease; font-size: 0.8rem; }
+.dropdown-item:hover { background: rgba(110, 142, 251, 0.04); color: var(--primary-color); }
+
+/* Header spacing and responsive adjustments */
+.top-header { display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 1.25rem; gap: 1rem; }
+.top-header .header-left, .top-header .header-right { display: flex; align-items: center; gap: 1.25rem; }
+.top-header .header-left { flex: 1; }
+.top-header .header-right { flex: 0 0 auto; }
+
+.search-box { position: relative; }
+.search-box input { padding: 0.5rem 0.75rem 0.5rem 2rem; border-radius: 8px; border: 1px solid #e6e9f2; width: 280px; max-width: 40vw; }
+.search-box i { left: 0.9rem; }
+
+/* Search Results Dropdown */
+.search-results-dropdown { position: absolute; top: 100%; left: 0; margin-top: 8px; min-width: 360px; max-width: 500px; background: white; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 1px solid #e3e6f0; z-index: 1050; max-height: 500px; overflow-y: auto; }
+.search-results-list { }
+.search-result-item { padding: 0.75rem 1rem; border-bottom: 1px solid #f3f4f6; transition: all 0.15s ease; cursor: pointer; display: flex; align-items: flex-start; gap: 0.75rem; }
+.search-result-item:hover { background: rgba(110,142,251,0.05); }
+.search-result-item:last-child { border-bottom: none; }
+.search-result-icon { width: 32px; height: 32px; border-radius: 6px; background: rgba(110,142,251,0.1); display: flex; align-items: center; justify-content: center; color: var(--primary-color); font-size: 0.9rem; flex-shrink: 0; }
+.search-result-content { flex: 1; min-width: 0; }
+.search-result-title { font-weight: 600; color: #374151; font-size: 0.875rem; margin-bottom: 0.2rem; }
+.search-result-meta { color: #9ca3af; font-size: 0.75rem; }
+.search-result-badge { display: inline-block; margin-right: 0.5rem; }
+.search-empty-state { }
+
+/* Dark mode search dropdown */
+body.dark-layout .search-results-dropdown { background: #2d3748; border-color: #4a5568; }
+body.dark-layout .search-result-item { border-bottom-color: #4a5568; }
+body.dark-layout .search-result-item:hover { background: rgba(110,142,251,0.1); }
+body.dark-layout .search-result-title { color: #e2e8f0; }
+body.dark-layout .search-result-meta { color: #cbd5e0; }
+body.dark-layout .search-result-icon { background: rgba(110,142,251,0.2); }
+
+/* Mobile header tweaks */
+.top-mobile-header { display: none; align-items: center; justify-content: space-between; padding: 0.5rem 0.9rem; }
+.sidebar-brand { display: none; visibility: hidden; }
+.sidebar-brand img { max-width: 120px; height: auto; }
+
+@media (max-width: 768px) {
+    .header-left { gap: 0.6rem; }
+    .header-right { gap: 0.6rem; }
+
+    /* Hide desktop header on mobile */
+    .top-header { display: none; }
+    /* Show mobile header only on mobile */
+    .top-mobile-header { display: flex; }
+    /* Show logo only on mobile */
+    .sidebar-brand { display: flex; visibility: visible; align-items: center; gap: 0.5rem; }
+
+    /* Make dropdowns full width-ish on small screens */
+    .notifications-dropdown { right: 10px; left: 10px; min-width: auto; }
+    .notifications-dropdown, .dropdown-menu { width: calc(100% - 20px); }
+}
+
+@media (min-width: 769px) {
+    .top-mobile-header { display: none; }
+    .top-header { display: flex; }
+    .sidebar-brand { display: none; visibility: hidden; }
+}
+
+/* Dark Mode Styles */
+body.dark-layout { background: #1a1a1a; color: #ffffff; }
+body.dark-layout .top-header { background: #2d2d2d; border-bottom-color: #404040; }
+body.dark-layout .top-mobile-header { background: #2d2d2d; border-bottom-color: #404040; }
+body.dark-layout .sidebar-brand { background: #2d2d2d; }
+body.dark-layout .btn-icon { background: transparent; border-color: #404040; color: #b0b0b0; }
+body.dark-layout .btn-icon:hover { background: var(--primary-color); border-color: var(--primary-color); color: white; }
+body.dark-layout .search-box input { background: #2d2d2d; border-color: #404040; color: #ffffff; }
+body.dark-layout .search-box input:focus { border-color: var(--primary-color); }
+body.dark-layout .notifications-dropdown, body.dark-layout .profile-dropdown, body.dark-layout .dropdown-menu { background: #2d3748; border-color: #4a5568; }
+body.dark-layout .dropdown-item { color: #b0b0b0; }
+body.dark-layout .dropdown-item:hover { background: rgba(110, 142, 251, 0.1); color: var(--primary-color); }
+body.dark-layout .notification-item { border-bottom-color: #404040; }
+body.dark-layout .notification-item.unread { background: rgba(110, 142, 251, 0.05); }
+body.dark-layout .notification-item:hover { background: rgba(110, 142, 251, 0.1); }
+body.dark-layout .notification-content p { color: #ffffff; }
+body.dark-layout .notification-content small { color: #b0b0b0; }
+body.dark-layout .notification-time { color: #9ca3af !important; }
+body.dark-layout .notifications-footer { border-top-color: #404040; }
+body.dark-layout .view-all-btn { color: var(--primary-color); }
+body.dark-layout .view-all-btn:hover { background: rgba(110, 142, 251, 0.15); }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Profile dropdown toggle
+    const profileBtn = document.getElementById('profile-btn');
+    const profileDropdown = document.getElementById('profile-dropdown');
+    
+    if (profileBtn && profileDropdown) {
+        profileBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            profileDropdown.style.display = profileDropdown.style.display === 'none' ? 'block' : 'none';
+        });
+    }
+    
+    // Notifications dropdown toggle
+    const notificationsBtn = document.getElementById('notifications-btn');
+    const notificationsDropdown = document.getElementById('notifications-dropdown');
+    
+    if (notificationsBtn && notificationsDropdown) {
+        notificationsBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            notificationsDropdown.style.display = notificationsDropdown.style.display === 'none' ? 'block' : 'none';
+            
+            // Load notifications when dropdown opens
+            if (notificationsDropdown.style.display === 'block') {
+                loadNotifications();
+            }
+        });
+    }
+    
+    // Search functionality
+    const searchInput = document.getElementById('search-input');
+    const searchResultsDropdown = document.getElementById('search-results-dropdown');
+    const searchResultsList = document.getElementById('search-results-list');
+    const searchEmptyState = document.getElementById('search-empty-state');
+    let searchTimeout;
+    
+    if (searchInput && searchResultsDropdown) {
+        searchInput.addEventListener('input', function(e) {
+            const query = e.target.value.trim();
+            
+            // Clear previous timeout
+            clearTimeout(searchTimeout);
+            
+            if (query.length === 0) {
+                searchResultsDropdown.style.display = 'none';
+                return;
+            }
+            
+            // Debounce search to 300ms
+            searchTimeout = setTimeout(function() {
+                performSearch(query);
+            }, 300);
+        });
+        
+        // Close dropdown when clicking outside
+        searchInput.addEventListener('blur', function() {
+            setTimeout(function() {
+                searchResultsDropdown.style.display = 'none';
+            }, 200);
+        });
+        
+        searchInput.addEventListener('focus', function() {
+            if (searchInput.value.trim().length > 0) {
+                searchResultsDropdown.style.display = 'block';
+            }
+        });
+    }
+    
+    function performSearch(query) {
+        fetch(`/superadmin/tickets/search/?q=${encodeURIComponent(query)}&type=all`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.tickets.length > 0) {
+                displaySearchResults(data.tickets);
+                searchResultsDropdown.style.display = 'block';
+            } else {
+                searchResultsList.innerHTML = '';
+                searchEmptyState.style.display = 'block';
+                searchResultsDropdown.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Search error:', error);
+            searchEmptyState.style.display = 'block';
+            searchResultsDropdown.style.display = 'block';
+        });
+    }
+    
+    function displaySearchResults(tickets) {
+        searchEmptyState.style.display = 'none';
+        searchResultsList.innerHTML = '';
+        
+        tickets.forEach(ticket => {
+            const resultItem = document.createElement('div');
+            resultItem.className = 'search-result-item';
+            resultItem.innerHTML = `
+                <div class="search-result-icon">
+                    <i class="bi bi-ticket"></i>
+                </div>
+                <div class="search-result-content">
+                    <div class="search-result-title">${ticket.ticket_id}</div>
+                    <div class="search-result-meta">
+                        <span class="search-result-badge">
+                            <span class="badge ${ticket.status_class}">${ticket.status}</span>
+                        </span>
+                        <span>${ticket.title}</span>
+                    </div>
+                </div>
+            `;
+            
+            resultItem.addEventListener('click', function() {
+                window.location.href = ticket.url;
+            });
+            
+            searchResultsList.appendChild(resultItem);
+        });
+    }
+
+    
+    // Mobile sidebar toggle (in addition to desktop toggle in base.html)
+    const mobileSidebarToggle = document.getElementById('mobile-sidebar-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    const mainContainer = document.querySelector('.main-container');
+    
+    if (mobileSidebarToggle) {
+        mobileSidebarToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (sidebar && mainContainer) {
+                sidebar.classList.toggle('collapsed');
+                mainContainer.classList.toggle('expanded');
+                // For mobile, also toggle show class
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.toggle('show');
+                }
+            }
+        });
+    }
+    
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('theme-toggle');
+    const darkModeSwitch = document.getElementById('darkModeSwitch');
+    
+    // Check for saved theme preference or default to light mode
+    const currentTheme = localStorage.getItem('darkMode') || 'false';
+    if (currentTheme === 'true') {
+        document.body.classList.add('dark-layout');
+        if (themeToggle) {
+            themeToggle.innerHTML = '<i class="bi bi-sun"></i>';
+        }
+        if (darkModeSwitch) {
+            darkModeSwitch.checked = true;
+        }
+    }
+    
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-layout');
+        const isDarkMode = document.body.classList.contains('dark-layout');
+        
+        // Update theme toggle button icon
+        if (themeToggle) {
+            themeToggle.innerHTML = isDarkMode ? '<i class="bi bi-sun"></i>' : '<i class="bi bi-moon-stars"></i>';
+        }
+        
+        // Update mobile dark mode switch
+        if (darkModeSwitch) {
+            darkModeSwitch.checked = isDarkMode;
+        }
+        
+        // Save theme preference (using same key as base template)
+        localStorage.setItem('darkMode', isDarkMode ? 'true' : 'false');
+    }
+    
+    // Theme toggle button click handler
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleDarkMode();
+        });
+    }
+    
+    // Mobile dark mode switch click handler
+    if (darkModeSwitch) {
+        darkModeSwitch.addEventListener('change', function() {
+            toggleDarkMode();
+        });
+    }
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function() {
+        if (profileDropdown) profileDropdown.style.display = 'none';
+        if (notificationsDropdown) notificationsDropdown.style.display = 'none';
+    });
+    
+    // Load notifications from backend
+    function loadNotifications() {
+        fetch('/superadmin/notifications/api/', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderNotifications(data.notifications);
+                updateNotificationBadge(data.unread_count);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading notifications:', error);
+            showEmptyState();
+        });
+    }
+    
+    // Render notifications in dropdown
+    function renderNotifications(notifications) {
+        const notificationsList = document.getElementById('superadminNotificationsList');
+        const emptyState = document.getElementById('superadminNotificationsEmpty');
+        
+        if (!notificationsList) return;
+        
+        // Clear existing notifications
+        notificationsList.innerHTML = '';
+        
+        if (notifications.length === 0) {
+            showEmptyState();
+            return;
+        }
+        
+        notifications.forEach(notification => {
+            const notificationEl = createNotificationElement(notification);
+            notificationsList.appendChild(notificationEl);
+        });
+        
+        emptyState.style.display = 'none';
+    }
+    
+    // Create notification element
+    function createNotificationElement(notification) {
+        const div = document.createElement('div');
+        div.className = `notification-item ${!notification.is_read ? 'unread' : ''}`;
+        div.dataset.notificationId = notification.id;
+        
+        // Get icon and color based on type
+        const iconConfig = getNotificationIcon(notification.notification_type);
+        
+        div.innerHTML = `
+            <div class="notification-icon" style="background: ${iconConfig.bg}; color: ${iconConfig.color};">
+                <i class="bi ${iconConfig.icon}"></i>
+            </div>
+            <div class="notification-content">
+                <p><strong>${notification.title}</strong></p>
+                <small>${notification.message}</small>
+                <span class="notification-time">${formatTime(notification.created_at)}</span>
+            </div>
+            <div class="notification-status"></div>
+        `;
+        
+        // Add click handler to mark as read
+        div.addEventListener('click', function() {
+            if (!notification.is_read) {
+                markNotificationRead(notification.id);
+            }
+            
+            // Navigate to action URL if available
+            if (notification.action_url) {
+                window.location.href = notification.action_url;
+            }
+        });
+        
+        return div;
+    }
+    
+    // Get notification icon configuration
+    function getNotificationIcon(type) {
+        const icons = {
+            'system': { icon: 'bi-gear', bg: 'rgba(13, 202, 240, 0.1)', color: '#0dcaf0' },
+            'payment': { icon: 'bi-credit-card', bg: 'rgba(255, 193, 7, 0.1)', color: '#ffc107' },
+            'subscription': { icon: 'bi-boxes', bg: 'rgba(111, 66, 193, 0.1)', color: '#6f42c1' },
+            'user': { icon: 'bi-people', bg: 'rgba(25, 135, 84, 0.1)', color: '#198754' },
+            'info': { icon: 'bi-info-circle', bg: 'rgba(13, 202, 240, 0.1)', color: '#0dcaf0' },
+            'success': { icon: 'bi-check-circle', bg: 'rgba(25, 135, 84, 0.1)', color: '#198754' },
+            'warning': { icon: 'bi-exclamation-triangle', bg: 'rgba(255, 193, 7, 0.1)', color: '#ffc107' },
+            'error': { icon: 'bi-x-circle', bg: 'rgba(220, 53, 69, 0.1)', color: '#dc3545' }
+        };
+        return icons[type] || icons['info'];
+    }
+    
+    // Format time relative to now
+    function formatTime(timestamp) {
+        const now = new Date();
+        const time = new Date(timestamp);
+        const diff = Math.floor((now - time) / 1000); // seconds
+        
+        if (diff < 60) return 'Just now';
+        if (diff < 3600) return `${Math.floor(diff / 60)} minutes ago`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
+        if (diff < 604800) return `${Math.floor(diff / 86400)} days ago`;
+        return time.toLocaleDateString();
+    }
+    
+    // Update notification badge
+    function updateNotificationBadge(count) {
+        const badge = document.getElementById('superadminNotificationBadge');
+        if (badge) {
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+    }
+    
+    // Show empty state
+    function showEmptyState() {
+        const notificationsList = document.getElementById('superadminNotificationsList');
+        const emptyState = document.getElementById('superadminNotificationsEmpty');
+        
+        if (notificationsList && emptyState) {
+            notificationsList.innerHTML = '';
+            notificationsList.appendChild(emptyState);
+            emptyState.style.display = 'block';
+        }
+    }
+    
+    // Mark notification as read
+    function markNotificationRead(notificationId) {
+        fetch(`/superadmin/notifications/${notificationId}/mark-read/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update UI
+                const notificationEl = document.querySelector(`[data-notification-id="${notificationId}"]`);
+                if (notificationEl) {
+                    notificationEl.classList.remove('unread');
+                }
+                
+                // Update badge count
+                const badge = document.getElementById('superadminNotificationBadge');
+                if (badge) {
+                    const currentCount = parseInt(badge.textContent) || 0;
+                    updateNotificationBadge(Math.max(0, currentCount - 1));
+                }
+            }
+        })
+        .catch(error => console.error('Error marking notification as read:', error));
+    }
+    
+    // Mark all notifications as read
+    window.markAllNotificationsRead = function() {
+        fetch('/superadmin/notifications/mark-all-read/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update UI
+                document.querySelectorAll('.notification-item.unread').forEach(item => {
+                    item.classList.remove('unread');
+                });
+                updateNotificationBadge(0);
+            }
+        })
+        .catch(error => console.error('Error marking all notifications as read:', error));
+    };
+    
+    // Get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Auto-refresh notifications every 30 seconds
+    setInterval(() => {
+        if (notificationsDropdown.style.display === 'block') {
+            loadNotifications();
+        }
+    }, 30000);
+    
+    // Load initial badge count
+    fetch('/superadmin/notifications/api/', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateNotificationBadge(data.unread_count);
+        }
+    })
+    .catch(error => console.error('Error loading initial notifications:', error));
+});
+</script>

@@ -1,0 +1,2189 @@
+{% extends 'superadmin/base.html' %}
+
+{% block title %}Subscriptions & Payments · Super Admin{% endblock %}
+
+{% block content %}
+
+<main class="nxl-container">
+
+    <div class="nxl-content">
+
+        <!-- [Page Header] Start -->
+
+        <div class="page-header d-flex justify-content-between align-items-center">
+            <div class="page-header-left">
+                <div class="page-header-title">
+                    <h5 class="m-b-10">Subscriptions & Payments</h5>
+                    <p class="mb-0">Manage subscriptions and track payments</p>
+                </div>
+            </div>
+            <div class="page-header-right">
+                <button class="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#paymentModal" style="min-width: 150px; font-weight: 700; letter-spacing: 0.5px;">
+                    <i class="bi bi-credit-card me-2"></i> Record Payment
+                </button>
+            </div>
+        </div>
+
+        <!-- [Page Header] End -->
+
+        <!-- Breadcrumb Navigation -->
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'superadmin:superadmin_dashboard' %}">Dashboard</a>
+                            </li>
+                            <li class="breadcrumb-item active">Subscriptions</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- [Main Content] Start -->
+
+        <div class="main-content">
+
+            <div class="row">
+
+                <!-- Stats Cards -->
+
+                <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
+
+                    <div class="card modern-stat-card">
+
+                        <div class="card-body">
+
+                            <div class="d-flex justify-content-between align-items-center">
+
+                                <div>
+
+                                    <h6 class="text-muted mb-1">Active Subscriptions</h6>
+
+                                    <h3 class="mb-0">{{ active_subscriptions }}</h3>
+
+                                    <p class="mb-0 text-success"><i class="bi bi-arrow-up"></i> {{ total_subscriptions }} total</p>
+
+                                </div>
+
+                                <div class="avatar bg-light-success p-2">
+
+                                    <i class="bi bi-people fs-3"></i>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
+
+                    <div class="card modern-stat-card">
+
+                        <div class="card-body">
+
+                            <div class="d-flex justify-content-between align-items-center">
+
+                                <div>
+
+                                    <h6 class="text-muted mb-1">Monthly Revenue</h6>
+
+                                    <h3 class="mb-0">{{ currency_symbol }}{{ monthly_revenue|floatformat:2 }}</h3>
+
+                                    <p class="mb-0 text-success"><i class="bi bi-arrow-up"></i> Current month</p>
+
+                                </div>
+
+                                <div class="avatar bg-light-primary p-2">
+
+                                    <i class="bi bi-currency-dollar fs-3"></i>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
+
+                    <div class="card modern-stat-card">
+
+                        <div class="card-body">
+
+                            <div class="d-flex justify-content-between align-items-center">
+
+                                <div>
+
+                                    <h6 class="text-muted mb-1">MRR</h6>
+
+                                    <h3 class="mb-0">{{ currency_symbol }}{{ mrr|floatformat:2}}</h3>
+
+                                    <p class="mb-0 text-success"><i class="bi bi-arrow-up"></i> Monthly recuring</p>
+
+                                </div>
+
+                                <div class="avatar bg-light-primary p-2">
+
+                                    <i class="bi bi-currency-dollar fs-3"></i>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
+
+                    <div class="card modern-stat-card">
+
+                        <div class="card-body">
+
+                            <div class="d-flex justify-content-between align-items-center">
+
+                                <div>
+
+                                    <h6 class="text-muted mb-1">Churn Rate</h6>
+
+                                    <h3 class="mb-0">{{ churn_rate }}%</h3>
+
+                                    <p class="mb-0 text-danger"><i class="bi bi-arrow-down"></i> This month</p>
+
+                                </div>
+
+                                <div class="avatar bg-light-danger p-2">
+
+                                    <i class="bi bi-exclamation-triangle fs-3"></i>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="row mt-4">
+
+                <!-- Active Subscriptions -->
+
+                <div class="col-xxl-8">
+
+                    <div class="card">
+
+                        <div class="card-header d-flex justify-content-between align-items-center">
+
+                            <h5 class="card-title mb-0">Active Subscriptions</h5>
+
+                            <div class="d-flex align-items-center">
+
+                                
+
+                                <div class="dropdown">
+
+                                    <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+
+                                        Filter
+
+                                    </button>
+
+                                    <ul class="dropdown-menu dropdown-menu-end">
+
+                                        <li><a class="dropdown-item" href="#">All Plans</a></li>
+
+                                        <li><a class="dropdown-item" href="#">Basic</a></li>
+
+                                        <li><a class="dropdown-item" href="#">Standard</a></li>
+
+                                        <li><a class="dropdown-item" href="#">Premium</a></li>
+
+                                        <li><a class="dropdown-item" href="#">Enterprise</a></li>
+
+                                    </ul>
+
+                                </div>
+
+
+
+                                <button class="btn btn-sm btn-outline-primary me-2" onclick="viewAllSubscriptions()">
+
+                                    View All
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <div class="card-body p-0">
+
+                            <div class="table-responsive">
+
+                                <table class="table table-hover mb-0">
+
+                                    <thead class="table-light">
+
+                                        <tr>
+
+                                            <th>Subscription ID</th>
+
+                                            <th>Plan</th>
+
+                                            <th>Billing Cycle</th>
+
+                                            <th>Amount</th>
+
+                                            <th>Next Billing</th>
+
+                                            <th>Status</th>
+
+                                            <th>Actions</th>
+
+                                        </tr>
+
+                                    </thead>
+
+                                    <tbody>
+
+                                        {% for subscription in all_subscriptions_list|slice:":5" %}
+
+                                        <tr>
+
+                                            <td>
+
+                                                <div class="fw-medium">#SUB-{{ subscription.id|stringformat:"04d" }}</div>
+
+                                                <div class="text-muted small">ID: {{ subscription.id }}</div>
+
+                                            </td>
+
+                                            <td><span class="badge bg-primary">{{ subscription.plan.name }}</span></td>
+
+                                            <td>{{ subscription.get_billing_cycle_display }}</td>
+
+                                            <td>{{ currency_symbol }}{{ subscription.total_amount|floatformat:2 }}</td>
+
+                                            <td>
+
+                                                <div class="fw-medium">{{ subscription.next_billing_date|date:"M d, Y" }}</div>
+
+                                                <div class="text-muted small">
+
+                                                    {% if subscription.is_billing_due %}
+
+                                                        <span class="text-danger"><i class="bi bi-exclamation-triangle"></i> Due soon</span>
+
+                                                    {% else %}
+
+                                                        {{ subscription.days_until_billing }} days
+
+                                                    {% endif %}
+
+                                                </div>
+
+                                            </td>
+
+                                            <td>
+
+                                                {% if subscription.status == 'active' %}
+
+                                                    <span class="badge bg-success-subtle text-success">Active</span>
+
+                                                {% elif subscription.status == 'trial' %}
+
+                                                    <span class="badge bg-info-subtle text-info">Trial ({{ subscription.trial_days_remaining }} days left)</span>
+
+                                                {% elif subscription.status == 'expired' %}
+
+                                                    <span class="badge bg-danger-subtle text-danger">Expired</span>
+
+                                                {% elif subscription.status == 'cancelled' %}
+
+                                                    <span class="badge bg-danger-subtle text-danger">Cancelled</span>
+
+                                                {% elif subscription.status == 'suspended' %}
+
+                                                    <span class="badge bg-warning-subtle text-warning">Suspended</span>
+
+                                                {% else %}
+
+                                                    <span class="badge bg-info-subtle text-info">{{ subscription.get_status_display }}</span>
+
+                                                {% endif %}
+
+                                            </td>
+
+                                            <td>
+
+                                                <div class="dropdown">
+
+                                                    <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
+
+                                                        <i class="bi bi-three-dots-vertical"></i>
+
+                                                    </button>
+
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+
+                                                        <li><a class="dropdown-item" href="#" onclick="viewSubscription({{ subscription.id }})"><i class="bi bi-eye me-2"></i>View</a></li>
+
+                                                        <li><a class="dropdown-item" href="#" onclick="upgradeDowngradeSubscription({{ subscription.id }})"><i class="bi bi-arrow-up-down me-2"></i>Upgrade/Downgrade</a></li>
+
+                                                        <!-- DEBUG: Subscription Status = {{ subscription.status }} -->
+                                                        {% if subscription.status == 'active' %}
+
+                                                            <li><a class="dropdown-item" href="#" onclick="renewSubscription({{ subscription.id }})"><i class="bi bi-arrow-clockwise me-2"></i>Renew Subscription</a></li>
+
+                                                            <li><a class="dropdown-item" href="#" onclick="suspendSubscription({{ subscription.id }})"><i class="bi bi-pause me-2"></i>Suspend</a></li>
+
+                                                        {% endif %}
+
+                                                        <li><a class="dropdown-item text-danger" href="#" onclick="cancelSubscription({{ subscription.id }})"><i class="bi bi-trash me-2"></i>Cancel</a></li>
+
+                                                    </ul>
+
+                                                </div>
+
+                                            </td>
+
+                                        </tr>
+
+                                        {% empty %}
+
+                                        <tr>
+
+                                            <td colspan="7" class="text-center py-4">
+
+                                                <div class="text-muted">
+
+                                                    <i class="bi bi-inbox fs-2"></i>
+
+                                                    <p class="mb-0">No active subscriptions found</p>
+
+                                                </div>
+
+                                            </td>
+
+                                        </tr>
+
+                                        {% endfor %}
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Recent Transactions -->
+
+                <div class="col-xxl-4">
+
+                    <div class="card">
+
+                        <div class="card-header d-flex justify-content-between align-items-center">
+
+                            <h5 class="card-title mb-0">Recent Transactions</h5>
+
+                            <div class="d-flex align-items-center">
+
+                                
+
+                                <div class="dropdown">
+
+                                    <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+
+                                        Filter
+
+                                    </button>
+
+                                    <ul class="dropdown-menu dropdown-menu-end">
+
+                                        <li><a class="dropdown-item" href="#">All Types</a></li>
+
+                                        <li><a class="dropdown-item" href="#">Subscription</a></li>
+
+                                        <li><a class="dropdown-item" href="#">Setup Fee</a></li>
+
+                                        <li><a class="dropdown-item" href="#">Upgrade</a></li>
+
+                                        <li><a class="dropdown-item" href="#">Refund</a></li>
+
+                                    </ul>
+
+                                </div>
+
+                                <button class="btn btn-sm btn-outline-primary me-2" onclick="viewAllTransactions()">
+
+                                    View All
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="transaction-list">
+
+                                {% for payment in recent_payments|slice:":5" %}
+
+                                <div class="transaction-item d-flex align-items-center mb-3">
+
+                                      <div class="avatar avatar-sm {% if payment.status == 'completed' %}bg-success rounded-circle{% elif payment.status == 'pending' %}bg-warning rounded-circle{% elif payment.status == 'failed' %}bg-danger rounded-circle{% elif payment.payment_type == 'refund' %}bg-danger rounded-circle{% elif payment.payment_type == 'upgrade' %}bg-warning rounded-circle{% else %}bg-secondary rounded-circle{% endif %} me-3 text-white">
+
+                                        {% if payment.status == 'completed' %}
+
+                                            <i class="bi bi-check-circle"></i>
+
+                                        {% elif payment.status == 'pending' %}
+
+                                            <i class="bi bi-clock"></i>
+
+                                        {% elif payment.status == 'failed' %}
+
+                                            <i class="bi bi-x-circle"></i>
+
+                                        {% else %}
+
+                                            <i class="bi bi-pause-circle"></i>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                    <div class="flex-grow-1">
+
+                                        <div class="fw-medium">
+
+                                            {% if payment.subscription %}
+
+                                                {{ payment.get_payment_type_display }} - {{ payment.subscription.plan.name }}
+
+                                            {% else %}
+
+                                                {{ payment.get_payment_type_display }}
+
+                                            {% endif %}
+
+                                        </div>
+
+                                        <div class="text-muted small">
+
+                                            {{ payment.company.name }} • {{ payment.get_payment_method_display }} • {{ payment.payment_date|date:"M d, Y" }}
+
+                                        </div>
+
+                                        {% if payment.transaction_id %}
+
+                                        <div class="text-muted small">ID: {{ payment.transaction_id }}</div>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                    <div class="text-end">
+
+                                        <div class="{% if payment.status == 'failed' %}text-danger{% elif payment.payment_type == 'refund' %}text-danger{% elif payment.payment_type == 'upgrade' %}text-warning{% else %}text-success{% endif %} fw-medium">
+
+                                            {% if payment.payment_type == 'refund' %}-{{ currency_symbol }}{{ payment.amount|floatformat:2 }}{% else %}+{{ currency_symbol }}{{ payment.amount|floatformat:2 }}{% endif %}
+
+                                        </div>
+
+                                       
+
+                                    </div>
+
+                                </div>
+
+                                {% empty %}
+
+                                <div class="text-center py-4">
+
+                                    <div class="text-muted">
+
+                                        <i class="bi bi-inbox fs-2"></i>
+
+                                        <p class="mb-0">No transactions found</p>
+
+                                        <small class="text-muted">Payment transactions will appear here</small>
+
+                                    </div>
+
+                                </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- [Main Content] End -->
+
+    </div>
+
+</main>
+
+
+
+<!-- New Subscription Modal removed - subscriptions should be created automatically during company signup or when plan is assigned from Companies page -->
+
+
+
+<!-- Payment Modal -->
+
+<div class="modal fade" id="paymentModal" tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">Record Payment</h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <form>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">Company</label>
+
+                        <select class="form-select" name="company">
+
+                            <option value="">Select Company</option>
+
+                            {% for company in companies %}
+
+                            <option value="{{ company.id }}">{{ company.name }}</option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">Amount</label>
+
+                        <input type="number" class="form-control" name="amount" placeholder="0.00" step="0.01">
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">Payment Date</label>
+
+                        <input type="date" class="form-control" name="payment_date">
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">Payment Method</label>
+
+                        <select class="form-select" name="payment_method">
+
+                            <option value="">Select Method</option>
+
+                            <option value="bank_transfer">Bank Transfer</option>
+
+                            <option value="credit_card">Credit Card</option>
+
+                            <option value="paypal">PayPal</option>
+
+                            <option value="stripe">Stripe</option>
+
+                            <option value="razorpay">Razorpay</option>
+
+                            <option value="check">Check</option>
+
+                            <option value="cash">Cash</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">Payment Type</label>
+
+                        <select class="form-select" name="payment_type">
+
+                            <option value="">Select Type</option>
+
+                            <option value="subscription">Subscription</option>
+
+                            <option value="setup_fee">Setup Fee</option>
+
+                            <option value="upgrade">Upgrade</option>
+
+                            <option value="refund">Refund</option>
+
+                            <option value="credit">Credit</option>
+
+                            <option value="penalty">Penalty</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">Notes</label>
+
+                        <textarea class="form-control" rows="3" name="notes" placeholder="Payment notes..."></textarea>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                <button type="button" class="btn btn-primary" onclick="submitPayment()">Record Payment</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- Include Admin Payment Modal for transaction functionality -->
+
+{% include "admin_payment_modal.html" %}
+
+
+
+<!-- Subscription View Modal -->
+
+<div class="modal fade" id="viewSubscriptionModal" tabindex="-1">
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">Subscription Details</h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div id="subscriptionDetails">
+
+                    <!-- Subscription details will be loaded here -->
+
+                </div>
+
+                
+
+                <hr>
+
+                
+
+                <h6>Payment History</h6>
+
+                <div class="table-responsive">
+
+                    <table class="table table-sm">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Date</th>
+
+                                <th>Type</th>
+
+                                <th>Method</th>
+
+                                <th>Amount</th>
+
+                                <th>Status</th>
+
+                                <th>Transaction ID</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="paymentHistory">
+
+                            <!-- Payment history will be loaded here -->
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- Subscription Edit Modal -->
+
+<div class="modal fade" id="editSubscriptionModal" tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">Edit Subscription</h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <form id="editSubscriptionForm">
+
+                    <div class="mb-3">
+
+                        <label class="form-label">Company</label>
+
+                        <input type="text" class="form-control" id="editCompany" readonly>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">Plan</label>
+
+                        <select class="form-select" id="editPlan" name="plan">
+
+                            <option value="">Select Plan</option>
+
+                            {% for plan in plans %}
+
+                            <option value="{{ plan.id }}">{{ plan.name }} - ₹{{ plan.price|floatformat:2 }}/{{ plan.get_billing_cycle_display }}</option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">Billing Cycle</label>
+
+                        <select class="form-select" id="editBillingCycle" name="billing_cycle">
+
+                            <option value="monthly">Monthly</option>
+
+                            <option value="quarterly">Quarterly</option>
+
+                            <option value="yearly">Yearly</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">Amount</label>
+
+                        <input type="number" class="form-control" id="editAmount" name="amount" step="0.01" placeholder="0.00">
+
+                    </div>
+
+                    <input type="hidden" id="editSubscriptionId" name="subscription_id">
+
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                <button type="button" class="btn btn-primary" onclick="saveSubscriptionChanges()">Save Changes</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<footer class="text-center py-3 mt-4 mb-2 text-muted small border-top">
+    <div class="d-flex justify-content-between align-items-center">
+        <span>&copy; 2024 Ultrakey IT Solutions</span>
+        <span>Subscriptions Management</span>
+        <span>Support</span>
+    </div>
+</footer>
+
+
+
+<!-- Upgrade/Downgrade Modal -->
+
+<div class="modal fade" id="upgradeDowngradeModal" tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">Upgrade/Downgrade Subscription</h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <form id="upgradeDowngradeForm">
+
+                    <div class="mb-3">
+
+                        <label class="form-label">Current Plan</label>
+
+                        <div class="form-control-plaintext">
+
+                            <strong id="currentPlan">-</strong>
+
+                            <span class="text-muted ms-2">(<span id="currentAmount">-</span>)</span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">Select New Plan</label>
+
+                        <select class="form-select" id="newPlan" name="new_plan" required>
+
+                            <option value="">Choose a plan...</option>
+
+                            <option value="basic">Basic - ₹199/month</option>
+
+                            <option value="standard">Standard - ₹499/month</option>
+
+                            <option value="premium">Premium - ₹999/month</option>
+
+                            <option value="enterprise">Enterprise - ₹1999/month</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">Billing Cycle</label>
+
+                        <select class="form-select" id="newBillingCycle" name="new_billing_cycle" required>
+
+                            <option value="monthly">Monthly</option>
+
+                            <option value="quarterly">Quarterly</option>
+
+                            <option value="yearly">Yearly</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">Effective Date</label>
+
+                        <input type="date" class="form-control" id="effectiveDate" name="effective_date" required>
+
+                    </div>
+
+                    <div class="alert alert-info">
+
+                        <i class="bi bi-info-circle me-2"></i>
+
+                        <strong>Note:</strong> The plan change will be effective from the selected date. Any billing adjustments will be calculated automatically.
+
+                    </div>
+
+                    <input type="hidden" id="upgradeSubscriptionId" name="subscription_id">
+
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                <button type="button" class="btn btn-primary" onclick="processPlanChange()">Change Plan</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Renew Subscription Modal -->
+<div class="modal fade" id="renewSubscriptionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-arrow-clockwise me-2"></i>Renew Subscription
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="renewSubscriptionForm">
+                    <div class="mb-3">
+                        <label class="form-label">Current Subscription Details</label>
+                        <div class="card bg-light">
+                            <div class="card-body p-3">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <strong>Plan:</strong> <span id="renewCurrentPlan">-</span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Billing Cycle:</strong> <span id="renewCurrentBillingCycle">-</span>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-6">
+                                        <strong>Amount:</strong> <span id="renewCurrentAmount">-</span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Next Billing:</strong> <span id="renewCurrentNextBilling">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Renewal Period</label>
+                        <select class="form-select" id="renewBillingCycle" name="billing_cycle" required>
+                            <option value="">Select renewal period...</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="quarterly">Quarterly (3 months)</option>
+                            <option value="yearly">Yearly (12 months)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Renewal Date</label>
+                        <input type="date" class="form-control" id="renewalDate" name="renewal_date" required>
+                        <div class="form-text">The new billing cycle will start from this date.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Payment Method</label>
+                        <select class="form-select" name="payment_method" required>
+                            <option value="">Select payment method...</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                            <option value="credit_card">Credit Card</option>
+                            <option value="paypal">PayPal</option>
+                            <option value="stripe">Stripe</option>
+                            <option value="razorpay">Razorpay</option>
+                            <option value="check">Check</option>
+                            <option value="cash">Cash</option>
+                        </select>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Note:</strong> The subscription will be renewed for the selected period starting from the renewal date. The next billing date will be updated accordingly.
+                    </div>
+
+                    <input type="hidden" id="renewSubscriptionId" name="subscription_id">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="processRenewal()">Renew Subscription</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+function submitPayment() {
+
+    const form = document.querySelector('#paymentModal form');
+
+    const company = form.querySelector('select[name="company"]').value;
+
+    const amount = form.querySelector('input[name="amount"]').value;
+
+    const paymentDate = form.querySelector('input[name="payment_date"]').value;
+
+    const paymentMethod = form.querySelector('select[name="payment_method"]').value;
+
+    const paymentType = form.querySelector('select[name="payment_type"]').value;
+
+    const notes = form.querySelector('textarea[name="notes"]').value;
+
+    
+
+    console.log('Payment data:', {company, amount, paymentDate, paymentMethod, paymentType, notes});
+
+    
+
+    if (!company || !amount || !paymentDate || !paymentMethod || !paymentType) {
+
+        alert('Please fill in all required fields.');
+
+        return;
+
+    }
+
+    
+
+    // Get CSRF token
+
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+
+                     getCookie('csrftoken');
+
+    
+
+    console.log('CSRF token:', csrfToken);
+
+    
+
+    if (!csrfToken) {
+
+        alert('Security token missing. Please refresh the page and try again.');
+
+        return;
+
+    }
+
+    
+
+    // Create form data
+
+    const formData = new FormData();
+
+    formData.append('company', company);
+
+    formData.append('amount', amount);
+
+    formData.append('payment_date', paymentDate);
+
+    formData.append('payment_method', paymentMethod);
+
+    formData.append('payment_type', paymentType);
+
+    formData.append('notes', notes);
+
+    formData.append('csrfmiddlewaretoken', csrfToken);
+
+    
+
+    // Submit payment
+    fetch('/superadmin/payments/create/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Payment recorded successfully! Transaction ID: ' + data.transaction_id);
+            // Close modal and reset form
+            const modal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+            modal.hide();
+            form.reset();
+            // Reload page to show new payment
+            window.location.reload();
+        } else {
+            alert('Error: ' + (data.error || 'Failed to record payment'));
+        }
+    })
+    .catch(error => {
+        console.error('Payment submission error:', error);
+        alert('Error: Failed to record payment. Please try again.');
+    });
+
+}
+
+// Function to renew subscription
+function renewSubscription(subscriptionId) {
+    // Find the subscription data from the page
+    const subscriptionRow = document.querySelector(`tr:has([onclick*="${subscriptionId}"])`);
+    
+    if (!subscriptionRow) {
+        alert('Subscription not found. Please refresh the page and try again.');
+        return;
+    }
+    
+    // Extract subscription data from the row
+    const cells = subscriptionRow.querySelectorAll('td');
+    const planElement = cells[1].querySelector('.badge');
+    const billingCycleElement = cells[2];
+    const amountElement = cells[3];
+    const nextBillingElement = cells[4];
+    
+    if (!planElement || !billingCycleElement || !amountElement || !nextBillingElement) {
+        alert('Unable to extract subscription data. Please refresh the page and try again.');
+        return;
+    }
+    
+    const currentPlan = planElement.textContent.trim();
+    const currentBillingCycle = billingCycleElement.textContent.trim();
+    const currentAmount = amountElement.textContent.trim();
+    const currentNextBilling = nextBillingElement.querySelector('.fw-medium')?.textContent.trim() || '';
+    
+    // Populate modal with current subscription info
+    document.getElementById('renewSubscriptionId').value = subscriptionId;
+    document.getElementById('renewCurrentPlan').textContent = currentPlan;
+    document.getElementById('renewCurrentBillingCycle').textContent = currentBillingCycle;
+    document.getElementById('renewCurrentAmount').textContent = currentAmount;
+    document.getElementById('renewCurrentNextBilling').textContent = currentNextBilling;
+    
+    // Set default renewal period to current billing cycle
+    document.getElementById('renewBillingCycle').value = currentBillingCycle.toLowerCase().replace(' ', '');
+    
+    // Calculate next billing date based on current date
+    const today = new Date();
+    const nextDate = new Date(today);
+    
+    // Add months based on billing cycle
+    if (currentBillingCycle.toLowerCase().includes('monthly')) {
+        nextDate.setMonth(today.getMonth() + 1);
+    } else if (currentBillingCycle.toLowerCase().includes('quarterly')) {
+        nextDate.setMonth(today.getMonth() + 3);
+    } else if (currentBillingCycle.toLowerCase().includes('yearly')) {
+        nextDate.setFullYear(today.getFullYear() + 1);
+    }
+    
+    // Set default renewal date
+    document.getElementById('renewalDate').value = nextDate.toISOString().split('T')[0];
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('renewSubscriptionModal'));
+    modal.show();
+}
+
+
+function processRenewal() {
+    const form = document.getElementById('renewSubscriptionForm');
+    const subscriptionId = document.getElementById('renewSubscriptionId').value;
+    const billingCycle = document.getElementById('renewBillingCycle').value;
+    const renewalDate = document.getElementById('renewalDate').value;
+    const paymentMethod = form.querySelector('select[name="payment_method"]').value;
+    
+    if (!billingCycle || !renewalDate || !paymentMethod) {
+        alert('Please fill in all required fields.');
+        return;
+    }
+    
+    // Get CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+                     getCookie('csrftoken');
+    
+    if (!csrfToken) {
+        alert('Security token missing. Please refresh the page and try again.');
+        return;
+    }
+    
+    // Create form data
+    const formData = new FormData();
+    formData.append('billing_cycle', billingCycle);
+    formData.append('renewal_date', renewalDate);
+    formData.append('payment_method', paymentMethod);
+    formData.append('csrfmiddlewaretoken', csrfToken);
+    
+    // Submit renewal
+    fetch(`/superadmin/subscriptions/${subscriptionId}/renew/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Subscription renewed successfully! New billing date: ' + data.new_billing_date);
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('renewSubscriptionModal'));
+            modal.hide();
+            // Reload page to show updated data
+            location.reload();
+        } else {
+            alert('Error renewing subscription: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error renewing subscription. Please try again.');
+    });
+}
+
+
+function cancelSubscription(subscriptionId) {
+
+    if (confirm('Are you sure you want to cancel this subscription? This action cannot be undone.')) {
+
+        // Get CSRF token
+
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+
+                         getCookie('csrftoken');
+
+        
+
+        if (!csrfToken) {
+
+            alert('Security token missing. Please refresh the page and try again.');
+
+            return;
+
+        }
+
+        
+
+        // Create form data
+
+        const formData = new FormData();
+
+        formData.append('subscription_id', subscriptionId);
+
+        formData.append('action', 'cancel');
+
+        formData.append('csrfmiddlewaretoken', csrfToken);
+
+        
+
+        // Submit cancellation
+
+        // Bulk subscription action disabled
+        alert('Subscription cancellation is currently disabled. Please implement the bulk_subscription_action view function to enable this feature.');
+        return;
+
+    }
+
+}
+
+
+
+// Helper function to get CSRF token from cookies
+
+function getCookie(name) {
+
+    let cookieValue = null;
+
+    if (document.cookie && document.cookie !== '') {
+
+        const cookies = document.cookie.split(';');
+
+        for (let i = 0; i < cookies.length; i++) {
+
+            const cookie = cookies[i].trim();
+
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+
+                break;
+
+            }
+
+        }
+
+    }
+
+    return cookieValue;
+
+}
+
+
+
+// Set today's date as default for payment date
+
+document.addEventListener('DOMContentLoaded', function() {
+
+    const dateInput = document.querySelector('input[name="payment_date"]');
+
+    if (dateInput) {
+
+        const today = new Date().toISOString().split('T')[0];
+
+        dateInput.value = today;
+
+    }
+
+    
+
+    // Debug: Log that script loaded
+
+    console.log('Subscriptions page script loaded successfully');
+
+});
+
+
+
+// Function to add transaction to recent transactions list (called from payment modal)
+
+function addTransactionToRecentList(planName, amount, paymentMethod = 'Credit Card') {
+
+    console.log('addTransactionToRecentList called with:', planName, amount, paymentMethod);
+
+    
+
+    try {
+
+        // Check if we have the transaction list
+
+        const transactionList = document.querySelector('.transaction-list');
+
+        if (!transactionList) {
+
+            console.log('Transaction list not found');
+
+            return;
+
+        }
+
+        
+
+        console.log('Transaction list found, creating transaction...');
+
+        
+
+        // Create new transaction element
+
+        const newTransaction = document.createElement('div');
+
+        newTransaction.className = 'transaction-item d-flex align-items-center mb-3';
+
+        newTransaction.style.opacity = '0';
+
+        newTransaction.style.transform = 'translateY(-10px)';
+
+        
+
+        // Get current date and format it
+
+        const today = new Date();
+
+        const formattedDate = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+        
+
+        // Generate transaction ID
+
+        const transactionId = 'TXN' + Date.now();
+
+        
+
+        newTransaction.innerHTML = `
+
+          <div class="avatar bg-success text-white me-3">
+
+            <i class="bi bi-arrow-down"></i>
+
+          </div>
+
+          <div class="flex-grow-1">
+
+            <div class="fw-medium">
+
+              Subscription - ${planName}
+
+            </div>
+
+            <div class="text-muted small">
+
+              {{ request.user.get_full_name|default:request.user.username }} Company • ${paymentMethod} • ${formattedDate}
+
+            </div>
+
+            <div class="text-muted small">ID: ${transactionId}</div>
+
+          </div>
+
+          <div class="text-end">
+
+            <div class="text-success fw-medium">+₹${amount}.00</div>
+
+            <div class="text-muted small">
+
+              <span class="badge bg-success-subtle text-success">Completed</span>
+
+            </div>
+
+          </div>
+
+        `;
+
+        
+
+        // Add to top of the list
+
+        transactionList.insertBefore(newTransaction, transactionList.firstChild);
+
+        
+
+        // Remove "No transactions found" message if it exists
+
+        const noTransactionsMsg = transactionList.querySelector('.text-center.py-4');
+
+        if (noTransactionsMsg) {
+
+            noTransactionsMsg.remove();
+
+        }
+
+        
+
+        // Animate the new transaction
+
+        setTimeout(() => {
+
+            newTransaction.style.transition = 'all 0.5s ease';
+
+            newTransaction.style.opacity = '1';
+
+            newTransaction.style.transform = 'translateY(0)';
+
+        }, 100);
+
+        
+
+        // Limit to 10 most recent transactions
+
+        const transactions = transactionList.querySelectorAll('.transaction-item');
+
+        if (transactions.length > 10) {
+
+            transactions[transactions.length - 1].remove();
+
+        }
+
+        
+
+        console.log('Transaction added to recent list successfully');
+
+        
+
+    } catch (e) {
+
+        console.error('Error adding transaction to recent list:', e);
+
+    }
+
+}
+
+
+
+// Test function to manually add a transaction (for testing)
+
+function testAddTransaction() {
+
+    console.log('Testing transaction addition...');
+
+    addTransactionToRecentList('Basic Plan', '199', 'Credit Card');
+
+}
+
+
+
+// Function to view all subscriptions
+
+function viewAllSubscriptions() {
+
+    // Navigate to the all subscriptions page
+
+    window.location.href = '{% url "superadmin:superadmin_page" "all_subscriptions" %}';
+
+}
+
+
+
+// Function to view all transactions
+
+function viewAllTransactions() {
+
+    // Navigate to the all transactions page
+
+    window.location.href = '{% url "superadmin:superadmin_page" "all_transactions" %}';
+
+}
+
+
+
+// Function to view subscription details
+
+function viewSubscription(subscriptionId) {
+
+    // Navigate to subscription details page
+
+    window.location.href = `/superadmin/subscriptions/${subscriptionId}/view/`;
+
+}
+
+
+
+// Function to edit subscription
+
+function editSubscription(subscriptionId) {
+
+    // Navigate to subscription edit page
+
+    window.location.href = `/superadmin/subscriptions/${subscriptionId}/edit/`;
+
+}
+
+
+
+        // Function to upgrade/downgrade subscription
+
+function upgradeDowngradeSubscription(subscriptionId) {
+
+    // Find the subscription data from the page
+
+    const subscriptionRow = document.querySelector(`tr:has([onclick*="${subscriptionId}"])`);
+
+    if (!subscriptionRow) {
+
+        alert('Subscription not found. Please refresh the page and try again.');
+
+        return;
+
+    }
+
+    
+
+    // Extract subscription data from the row
+
+    const cells = subscriptionRow.querySelectorAll('td');
+
+    const planElement = cells[1].querySelector('.badge');
+
+    const amountElement = cells[3];
+
+    
+
+    if (!planElement || !amountElement) {
+
+        alert('Unable to extract subscription data. Please refresh the page and try again.');
+
+        return;
+
+    }
+
+    
+
+    const currentPlan = planElement.textContent.trim();
+
+    const currentAmount = amountElement.textContent.trim();
+
+    
+
+    // Populate modal with current subscription info
+
+    document.getElementById('upgradeSubscriptionId').value = subscriptionId;
+
+    document.getElementById('currentPlan').textContent = currentPlan;
+
+    document.getElementById('currentAmount').textContent = currentAmount;
+
+    
+
+    // Set today's date as default effective date
+
+    const today = new Date().toISOString().split('T')[0];
+
+    document.getElementById('effectiveDate').value = today;
+
+    
+
+    // Show modal
+
+    const modal = new bootstrap.Modal(document.getElementById('upgradeDowngradeModal'));
+
+    modal.show();
+
+}
+
+
+
+// Function to process plan change
+
+function processPlanChange() {
+
+    const form = document.getElementById('upgradeDowngradeForm');
+
+    const subscriptionId = document.getElementById('upgradeSubscriptionId').value;
+
+    const newPlan = document.getElementById('newPlan').value;
+
+    const newBillingCycle = document.getElementById('newBillingCycle').value;
+
+    const effectiveDate = document.getElementById('effectiveDate').value;
+
+    
+
+    if (!newPlan || !newBillingCycle || !effectiveDate) {
+
+        alert('Please fill in all required fields.');
+
+        return;
+
+    }
+
+    
+
+    // Get CSRF token
+
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+
+                     getCookie('csrftoken');
+
+    
+
+    if (!csrfToken) {
+
+        alert('Security token missing. Please refresh the page and try again.');
+
+        return;
+
+    }
+
+    
+
+    // Create form data
+
+    const formData = new FormData();
+
+    formData.append('new_plan', newPlan);
+
+    formData.append('new_billing_cycle', newBillingCycle);
+
+    formData.append('effective_date', effectiveDate);
+
+    formData.append('csrfmiddlewaretoken', csrfToken);
+
+    
+
+    // Submit plan change
+
+    fetch(`/superadmin/subscriptions/${subscriptionId}/change-plan/`, {
+
+        method: 'POST',
+
+        headers: {
+
+            'X-Requested-With': 'XMLHttpRequest'
+
+        },
+
+        body: formData
+
+    })
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        if (data.success) {
+
+            alert('Plan changed successfully!');
+
+            // Close modal
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('upgradeDowngradeModal'));
+
+            modal.hide();
+
+            // Reload page to show updated data
+
+            location.reload();
+
+        } else {
+
+            alert('Error changing plan: ' + (data.message || 'Unknown error'));
+
+        }
+
+    })
+
+    .catch(error => {
+
+        console.error('Error:', error);
+
+        alert('Error changing plan. Please try again.');
+
+    });
+
+}
+
+
+
+// Function to suspend subscription
+
+function suspendSubscription(subscriptionId) {
+
+    if (confirm('Are you sure you want to suspend this subscription? The user will lose access to services.')) {
+
+        // Get CSRF token
+
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+
+                         getCookie('csrftoken');
+
+        
+
+        if (!csrfToken) {
+
+            alert('Security token missing. Please refresh the page and try again.');
+
+            return;
+
+        }
+
+        
+
+        // Create form data
+
+        const formData = new FormData();
+
+        formData.append('csrfmiddlewaretoken', csrfToken);
+
+        
+
+        // Submit suspension
+
+        // Subscription suspension disabled
+        alert('Subscription suspension is currently disabled. Please implement the subscription_suspend view function to enable this feature.');
+        return;
+
+    }
+
+}
+
+</script>
+
+
+
+<style>
+
+/* Modern Stats Cards */
+
+.modern-stat-card {
+
+    background: white;
+
+    border-radius: 12px;
+
+    padding: 1.25rem;
+
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    border: 1px solid #e5e7eb;
+
+    transition: all 0.3s ease;
+
+    height: 110px;
+
+    min-height: 110px;
+
+    max-height: 110px;
+
+}
+
+
+
+.modern-stat-card:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+
+    border-color: #3b82f6;
+
+}
+
+
+
+.modern-stat-card .card-body {
+
+    padding: 0.75rem;
+
+    height: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+}
+
+
+
+.modern-stat-card h3 {
+
+    font-size: 1.625rem;
+
+    font-weight: 700;
+
+    color: #1f2937;
+
+    margin: 0.125rem 0;
+
+}
+
+
+
+.modern-stat-card h6 {
+
+    font-size: 0.75rem;
+
+    font-weight: 500;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.05em;
+
+    margin-bottom: 0.125rem;
+
+}
+
+
+
+.modern-stat-card p {
+
+    font-size: 0.6875rem;
+
+    margin: 0;
+
+}
+
+
+
+.modern-stat-card .avatar {
+
+    width: 45px;
+
+    height: 45px;
+
+    border-radius: 10px;
+
+    font-size: 1.125rem;
+
+}
+
+
+
+/* Responsive Design */
+
+@media (max-width: 768px) {
+
+    .modern-stat-card {
+
+        height: 95px;
+
+        min-height: 95px;
+
+        max-height: 95px;
+
+        padding: 1rem;
+
+    }
+
+    
+
+    .modern-stat-card h3 {
+
+        font-size: 1.375rem;
+
+    }
+
+    
+
+    .modern-stat-card .avatar {
+
+        width: 40px;
+
+        height: 40px;
+
+        font-size: 1rem;
+
+    }
+
+    
+
+    .modern-stat-card h6 {
+
+        font-size: 0.6875rem;
+
+    }
+
+    
+
+    .modern-stat-card p {
+
+        font-size: 0.625rem;
+
+    }
+
+}
+
+
+
+@media (max-width: 576px) {
+
+    .modern-stat-card {
+
+        height: 90px;
+
+        min-height: 90px;
+
+        max-height: 90px;
+
+        padding: 0.875rem;
+
+    }
+
+    
+
+    .modern-stat-card h3 {
+
+        font-size: 1.25rem;
+
+    }
+
+    
+
+    .modern-stat-card .avatar {
+
+        width: 35px;
+
+        height: 35px;
+
+        font-size: 0.875rem;
+
+    }
+
+    
+
+    .modern-stat-card h6 {
+
+        font-size: 0.625rem;
+
+    }
+
+    
+
+    .modern-stat-card p {
+
+        font-size: 0.5625rem;
+
+    }
+
+}
+
+
+
+.transaction-item {
+
+    transition: background 0.2s ease;
+
+    border-radius: 8px;
+
+    padding: 8px;
+
+}
+
+
+
+.transaction-item:hover {
+
+    background: rgba(110, 142, 251, 0.04);
+
+}
+
+
+
+.avatar {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-weight: 600;
+
+    color: white;
+
+    width: 40px;
+
+    height: 40px;
+
+    border-radius: 50%;
+
+    flex-shrink: 0;
+
+}
+
+
+
+.avatar-sm {
+
+    width: 40px;
+
+    height: 40px;
+
+    font-size: 0.875rem;
+
+}
+
+
+
+.bg-success {
+
+    background-color: #10b981 !important;
+
+}
+
+
+
+.bg-warning {
+
+    background-color: #f6c23e !important;
+
+}
+
+
+
+.bg-danger {
+
+    background-color: #dc3545 !important;
+
+}
+
+
+
+.bg-secondary {
+
+    background-color: #6c757d !important;
+
+}
+
+
+
+.text-white {
+
+    color: white !important;
+
+}
+
+
+
+/* Dark Mode Styles for Footer */
+
+body.dark-layout .sa-footer {
+
+    background: var(--bg-card, #262c36);
+
+    border-top: 1px solid var(--border-color, #30363d);
+
+}
+
+
+
+body.dark-layout .sa-footer a {
+
+    color: var(--text-muted, #6b7380) !important;
+
+}
+
+
+
+body.dark-layout .sa-footer span {
+
+    color: var(--text-muted, #6b7380) !important;
+
+}
+
+</style>
+
+
+
+{% endblock %}
+

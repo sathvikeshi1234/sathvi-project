@@ -1,0 +1,251 @@
+{% extends "superadmin/base.html" %}
+
+{% block title %}Companies{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+
+    <!-- Page header -->
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <div class="text-uppercase small opacity-75">Management</div>
+            <h4 class="mb-0">Companies</h4>
+        </div>
+        <a href="{% url 'superadmin:company_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i> Add Company
+        </a>
+    </div>
+
+    <!-- Companies table -->
+    <div class="card sa-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">All Companies</h5>
+            <div class="input-group" style="width: 300px; position: relative;">
+                <i class="bi bi-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); z-index: 10; color: #6c757d;"></i>
+                <input type="text" class="form-control" id="companySearch" placeholder="Search companies..." style="padding-left: 35px;">
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="companiesTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Company Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Status</th>
+                            <th>Plan</th>
+                            <th>Plan Expiry</th>
+                            <th>Subscription</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for company in companies %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-sm bg-light-primary rounded-circle me-2">
+                                        {{ company.name|slice:":1"|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-medium">{{ company.name }}</div>
+                                        <small class="text-muted">ID: {{ company.id }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-envelope text-muted me-2"></i>
+                                    {{ company.email }}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-telephone text-muted me-2"></i>
+                                    {{ company.phone|default:"—" }}
+                                </div>
+                            </td>
+                            <td>
+                                {% if company.subscription_status == 'trial' %}
+                                    <span class="badge bg-warning">Trial</span>
+                                {% elif company.subscription_status == 'active' %}
+                                    <span class="badge bg-success">Active</span>
+                                {% elif company.subscription_status == 'expired' %}
+                                    <span class="badge bg-danger">Expired</span>
+                                {% elif company.subscription_status == 'cancelled' %}
+                                    <span class="badge bg-secondary">Cancelled</span>
+                                {% else %}
+                                    {% if company.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if company.plan %}
+                                    {% if company.subscription_status == 'trial' %}
+                                        <span class="badge bg-success">🎯 Free Trial</span>
+                                    {% else %}
+                                        <span class="badge bg-info">{{ company.plan.name }}</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">No Plan</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if company.plan_expiry_date %}
+                                    <div class="d-flex flex-column">
+                                        <span>{{ company.plan_expiry_date|date:"M d, Y" }}</span>
+                                        {% if company.plan_expiry_date < today|date:"Y-m-d" %}
+                                            <span class="badge bg-danger mt-1">Expired</span>
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">Not Set</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if company.has_active_subscription %}
+                                    <span class="badge bg-success">Active ({{ company.active_subscription_count }})</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">No Active Subscription</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" href="{% url 'superadmin:company_edit' company.id %}">
+                                            <i class="bi bi-pencil me-2"></i>Edit
+                                        </a></li>
+                                        <li><a class="dropdown-item" href="{% url 'superadmin:company_detail' company.id %}">
+                                            <i class="bi bi-eye me-2"></i>View Details
+                                        </a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-danger" href="{% url 'superadmin:company_delete' company.id %}"
+                                           onclick="return confirm('Are you sure you want to delete this company?');">
+                                            <i class="bi bi-trash me-2"></i>Delete
+                                        </a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="bi bi-inbox fs-1"></i>
+                                    <p class="mb-0 mt-2">No companies found</p>
+                                    <small>Start by adding your first company</small>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<footer class="text-center py-3 mt-4 mb-2 text-muted small border-top">
+    <div class="d-flex justify-content-between align-items-center">
+        <span>© 2024 Ultrakey IT Solutions</span>
+        <span>Version 1.5</span>
+        <span>Support</span>
+    </div>
+</footer>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Search functionality
+    const searchInput = document.getElementById('companySearch');
+    const table = document.getElementById('companiesTable');
+    const tbody = table.querySelector('tbody');
+    
+    if (searchInput && tbody) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = tbody.querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+</script>
+
+<style>
+    .dropdown-toggle::after{
+        content: none !important;
+    }
+.avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: white;
+    text-transform: uppercase;
+}
+
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+}
+
+.bg-light-primary {
+    background: rgba(110, 142, 251, 0.1) !important;
+    color: #6e8efb !important;
+}
+
+.table thead th {
+    background: #f8f9fc;
+    border-bottom: 2px solid #e3e6f0;
+    color: #374151;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.table tbody tr:hover {
+    background: rgba(110, 142, 251, 0.04);
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background: rgba(110, 142, 251, 0.04);
+    color: var(--primary-color);
+}
+
+.dropdown-item i {
+    width: 16px;
+    text-align: center;
+}
+</style>
+{% endblock %}

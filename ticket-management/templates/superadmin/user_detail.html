@@ -1,0 +1,163 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}{{ user.get_full_name|default:user.username }} - User Details - SuperAdmin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'superadmin:users_list' %}">Users</a>
+                            </li>
+                            <li class="breadcrumb-item active">User Details</li>
+                        </ol>
+                    </nav>
+                    <h1 class="h3 mb-0">User Details</h1>
+                    <p class="text-muted mb-0">{{ user.get_full_name|default:user.username }}</p>
+                </div>
+                <div>
+                    <a href="{% url 'superadmin:users_list' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Users
+                    </a>
+                    <a href="{% url 'superadmin:user_edit' user.id %}" class="btn btn-primary">
+                        <i class="bi bi-pencil me-2"></i>Edit User
+                    </a>
+                </div>
+            </div>
+
+            <!-- User Details Card -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card sa-card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">User Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">First Name</label>
+                                        <p class="form-control-plaintext">{{ user.first_name|default:"-" }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Last Name</label>
+                                        <p class="form-control-plaintext">{{ user.last_name|default:"-" }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Username</label>
+                                        <p class="form-control-plaintext">{{ user.username }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Email</label>
+                                        <p class="form-control-plaintext">{{ user.email }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Role</label>
+                                        <p class="form-control-plaintext">
+                                            {% if user.userprofile.role %}
+                                                <span class="badge bg-info">{{ user.userprofile.role.name }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">No Role</span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Status</label>
+                                        <p class="form-control-plaintext">
+                                            {% if user.is_active %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Inactive</span>
+                                            {% endif %}
+                                            {% if user.is_superuser %}
+                                                <span class="badge bg-warning ms-1">SuperAdmin</span>
+                                            {% elif user.is_staff %}
+                                                <span class="badge bg-info ms-1">Staff</span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Date Joined</label>
+                                        <p class="form-control-plaintext">{{ user.date_joined|date:"M d, Y H:i" }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Last Login</label>
+                                        <p class="form-control-plaintext">
+                                            {% if user.last_login %}
+                                                {{ user.last_login|date:"M d, Y H:i" }}
+                                            {% else %}
+                                                <span class="text-muted">Never</span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Statistics Card -->
+                <div class="col-md-4">
+                    <div class="card sa-card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">User Statistics</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">User ID</label>
+                                <p class="form-control-plaintext">#{{ user.id }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Account Status</label>
+                                <p class="form-control-plaintext">
+                                    {% if user.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactive</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Staff Status</label>
+                                <p class="form-control-plaintext">
+                                    {% if user.is_superuser %}
+                                        <span class="badge bg-warning">SuperAdmin</span>
+                                    {% elif user.is_staff %}
+                                        <span class="badge bg-info">Staff</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Regular User</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Account Age</label>
+                                <p class="form-control-plaintext">{{ user.date_joined|timesince }} ago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

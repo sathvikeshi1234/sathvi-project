@@ -1,0 +1,100 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tickets</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body { background: #f6f7fb; }
+    .page-shell { max-width: 1100px; margin: 0 auto; }
+    .page-title { font-weight: 700; letter-spacing: -0.02em; }
+    .table thead th { font-size: .82rem; text-transform: uppercase; letter-spacing: .06em; color: #64748b; background: #f8fafc; }
+    .table td, .table th { vertical-align: middle; }
+    .ticket-id { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: .85rem; }
+    .actions { display: inline-flex; gap: .4rem; flex-wrap: wrap; }
+    .badge-soft { border: 1px solid rgba(2,6,23,.08); }
+    .badge-open { background: rgba(59,130,246,.12); color: #1d4ed8; }
+    .badge-progress { background: rgba(234,179,8,.16); color: #92400e; }
+    .badge-resolved { background: rgba(34,197,94,.14); color: #166534; }
+    .badge-closed { background: rgba(148,163,184,.22); color: #334155; }
+    .badge-low { background: rgba(148,163,184,.18); color: #334155; }
+    .badge-medium { background: rgba(59,130,246,.12); color: #1d4ed8; }
+    .badge-high { background: rgba(249,115,22,.14); color: #9a3412; }
+    .badge-critical { background: rgba(239,68,68,.14); color: #991b1b; }
+  </style>
+</head>
+<body class="p-3 p-md-4">
+  <div class="page-shell">
+    <div class="d-flex align-items-start align-items-sm-center justify-content-between gap-3 mb-3">
+      <div>
+        <div class="page-title fs-3">Tickets</div>
+        <div class="text-secondary">View and manage your support requests</div>
+      </div>
+      <a href="{% url 'tickets:ticket_create' %}" class="btn btn-primary">
+        + New Ticket
+      </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th class="ps-4">Ticket ID</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Created</th>
+                <th class="text-end pe-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for t in tickets %}
+              <tr>
+                <td class="ps-4"><span class="ticket-id">{{ t.ticket_id }}</span></td>
+                <td class="fw-semibold">{{ t.title }}</td>
+                <td>
+                  <span class="badge badge-soft rounded-pill
+                    {% if t.status == 'Open' %}badge-open
+                    {% elif t.status == 'In Progress' %}badge-progress
+                    {% elif t.status == 'Resolved' %}badge-resolved
+                    {% elif t.status == 'Closed' %}badge-closed
+                    {% else %}badge-closed{% endif %}
+                  ">
+                    {{ t.status }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge badge-soft rounded-pill
+                    {% if t.priority == 'Low' %}badge-low
+                    {% elif t.priority == 'Medium' %}badge-medium
+                    {% elif t.priority == 'High' %}badge-high
+                    {% elif t.priority == 'Critical' %}badge-critical
+                    {% else %}badge-low{% endif %}
+                  ">
+                    {{ t.priority }}
+                  </span>
+                </td>
+                <td class="text-secondary">{{ t.created_at|date:"Y-m-d H:i" }}</td>
+                <td class="text-end pe-4">
+                  <div class="actions justify-content-end">
+                    <a href="{% url 'tickets:ticket_edit' t.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <a href="{% url 'tickets:ticket_delete' t.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="6" class="text-center text-secondary py-4">No tickets found.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html> -->

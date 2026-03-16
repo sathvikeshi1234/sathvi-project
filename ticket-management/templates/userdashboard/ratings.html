@@ -1,0 +1,301 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TicketHub - Ticket Management System</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <!-- User Dashboard CSS -->
+  <link rel="stylesheet" href="{% static 'userdashboard/css/styles.css' %}">
+  <link rel="stylesheet" href="{% static 'userdashboard/css/ratings.css' %}">
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const ratings = {
+        'bar-5': '{{ percent_5|default:0 }}%',
+        'bar-4': '{{ percent_4|default:0 }}%',
+        'bar-3': '{{ percent_3|default:0 }}%',
+        'bar-2': '{{ percent_2|default:0 }}%',
+        'bar-1': '{{ percent_1|default:0 }}%'
+      };
+      for (const id in ratings) {
+        const el = document.getElementById(id);
+        if (el) el.style.width = ratings[id];
+      }
+    });
+  </script>
+</head>
+
+<body class="app-body" data-page="dashboard">
+
+  <div class="app-root">
+
+    <!-- Include Sidebar -->
+    {% include 'userdashboard/partials/sidebar.html' %}
+
+    <!-- Main Content -->
+    <main class="main">
+
+      <!-- Inject Header -->
+      <!-- Include Header -->
+      {% include 'userdashboard/partials/header.html' %}
+
+      {% block content %}
+
+      <section class="page">
+        <section class="cards-grid">
+          <article class="card">
+            <h2 class="card-title">Average Rating</h2>
+            <p class="card-value">{{ avg_rating|default:"0.0"|floatformat:1 }}</p>
+            <p class="card-meta">Based on {{ total_reviews|default:"0" }} reviews</p>
+          </article>
+          <article class="card">
+            <h2 class="card-title">Rated Tickets</h2>
+            <p class="card-value">{{ total_reviews|default:"0" }}</p>
+            <p class="card-meta">Tickets with user feedback</p>
+          </article>
+        </section>
+
+        <section class="tickets rating-overview">
+          <div class="rating-summary">
+            <div class="rating-score">
+              <div class="score-number">{{ avg_rating|default:"0.0" }}</div>
+
+              <div class="rating-stars-large">
+                {% with avg=avg_rating|default:0 %}
+                {% for i in "12345" %}
+                {% if forloop.counter <= avg|floatformat:0 %} <span class="star filled">★</span>
+                  {% else %}
+                  <span class="star">★</span>
+                  {% endif %}
+                  {% endfor %}
+                  {% endwith %}
+              </div>
+              <div class="rating-count">Based on {{ total_reviews|default:"0" }} reviews</div>
+
+            </div>
+            <div class="rating-bars">
+              <div class="rating-bar-item">
+                <span class="bar-label">5 ★</span>
+                <div class="bar-container">
+                  <div id="bar-5" class="bar-fill"></div>
+                </div>
+                <span class="bar-count">{{ count_5|default:"0" }}</span>
+              </div>
+              <div class="rating-bar-item">
+                <span class="bar-label">4 ★</span>
+                <div class="bar-container">
+                  <div id="bar-4" class="bar-fill"></div>
+                </div>
+                <span class="bar-count">{{ count_4|default:"0" }}</span>
+              </div>
+              <div class="rating-bar-item">
+                <span class="bar-label">3 ★</span>
+                <div class="bar-container">
+                  <div id="bar-3" class="bar-fill"></div>
+                </div>
+                <span class="bar-count">{{ count_3|default:"0" }}</span>
+              </div>
+              <div class="rating-bar-item">
+                <span class="bar-label">2 ★</span>
+                <div class="bar-container">
+                  <div id="bar-2" class="bar-fill"></div>
+                </div>
+                <span class="bar-count">{{ count_2|default:"0" }}</span>
+              </div>
+              <div class="rating-bar-item">
+                <span class="bar-label">1 ★</span>
+                <div class="bar-container">
+                  <div id="bar-1" class="bar-fill"></div>
+                </div>
+                <span class="bar-count">{{ count_1|default:"0" }}</span>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <section class="tickets">
+          <h3>Write a Review</h3>
+          <form id="ratingForm" class="review-form" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="overall_rating" id="overall_rating" value="0">
+
+            <div class="form-group">
+              <label>Overall Rating</label>
+              <div class="star-rating" id="starRating">
+                <span class="star" data-rating="1">☆</span>
+                <span class="star" data-rating="2">☆</span>
+                <span class="star" data-rating="3">☆</span>
+                <span class="star" data-rating="4">☆</span>
+                <span class="star" data-rating="5">☆</span>
+              </div>
+              <div class="rating-label" id="ratingLabel">Please select a rating</div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="reviewTitle">Review Title</label>
+                <input type="text" id="reviewTitle" name="title" placeholder="Summarize your experience" required>
+
+              </div>
+              <div class="form-group">
+                <label for="ticketSelect">Related Ticket</label>
+                <select id="ticketSelect" name="ticket">
+                  <option value="">Select a ticket...</option>
+                  {% if user_tickets %}
+                  {% for t in user_tickets %}
+                  <option value="{{ t.ticket_id }}">#{{ t.ticket_id }} - {{ t.title }}</option>
+                  {% endfor %}
+                  {% else %}
+                  <option value="" disabled>No tickets found</option>
+                  {% endif %}
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="reviewText">Your Review</label>
+              <textarea id="reviewText" name="content" rows="5"
+                placeholder="Tell us about your experience with our support service..." required></textarea>
+
+            </div>
+
+            <div class="form-group">
+              <label>Service Categories</label>
+              <div class="category-ratings">
+                <div class="category-item">
+                  <span class="category-name">Response Time</span>
+                  <div class="mini-stars" data-category="response">
+                    <span class="mini-star" data-value="1">☆</span>
+                    <span class="mini-star" data-value="2">☆</span>
+                    <span class="mini-star" data-value="3">☆</span>
+                    <span class="mini-star" data-value="4">☆</span>
+                    <span class="mini-star" data-value="5">☆</span>
+                  </div>
+                </div>
+                <div class="category-item">
+                  <span class="category-name">Resolution Quality</span>
+                  <div class="mini-stars" data-category="resolution">
+                    <span class="mini-star" data-value="1">☆</span>
+                    <span class="mini-star" data-value="2">☆</span>
+                    <span class="mini-star" data-value="3">☆</span>
+                    <span class="mini-star" data-value="4">☆</span>
+                    <span class="mini-star" data-value="5">☆</span>
+                  </div>
+                </div>
+                <div class="category-item">
+                  <span class="category-name">Communication</span>
+                  <div class="mini-stars" data-category="communication">
+                    <span class="mini-star" data-value="1">☆</span>
+                    <span class="mini-star" data-value="2">☆</span>
+                    <span class="mini-star" data-value="3">☆</span>
+                    <span class="mini-star" data-value="4">☆</span>
+                    <span class="mini-star" data-value="5">☆</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="recommend">Would you recommend our service?</label>
+              <div class="recommend-options">
+                <label class="radio-option">
+                  <input type="radio" name="recommend" value="yes" required>
+                  <span class="radio-custom"></span>
+                  <span>Yes, I would recommend</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="recommend" value="no">
+                  <span class="radio-custom"></span>
+                  <span>No, I would not recommend</span>
+                </label>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit Review</button>
+          </form>
+        </section>
+
+        <section class="tickets">
+          <div class="recent-review-list">
+            <h3>Recent Reviews</h3>
+            <div class="reviews-filter">
+              <select id="sortReviews" class="filter-select">
+                <option value="recent">Most Recent</option>
+                <option value="helpful">Most Helpful</option>
+                <option value="high">Highest Rating</option>
+                <option value="low">Lowest Rating</option>
+              </select>
+              <select id="filterRating" class="filter-select">
+                <option value="all">All Ratings</option>
+                <option value="5">5 Stars</option>
+                <option value="4">4 Stars</option>
+                <option value="3">3 Stars</option>
+                <option value="2">2 Stars</option>
+                <option value="1">1 Star</option>
+              </select>
+            </div>
+          </div>
+          <div class="reviews-list" id="reviewsList">
+            {% if ratings %}
+            {% for r in ratings %}
+            <div class="review-item" data-rating="{{ r.rating }}" data-created="{{ r.created_at|date:'c' }}">
+              <div class="review-header">
+                <div class="reviewer-info">
+                  <img class="reviewer-avatar" src="{% static 'userdashboard/assets/cute-woman-avatar.avif' %}"
+                    alt="User Avatar" />
+                  <div class="reviewer-avatar">{{ r.user.username|first|upper }}</div>
+                  <div class="reviewer-details">
+                    <div class="reviewer-name">{{ r.user.get_full_name|default:r.user.username }}</div>
+                    <div class="review-date">{{ r.created_at|date:"M d, Y" }}</div>
+                  </div>
+                </div>
+                <div class="review-rating">
+                  {% for i in "12345" %}
+                  <span class="star {% if forloop.counter <= r.rating %}filled{% endif %}">★</span>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="review-title">{{ r.title }}</div>
+              {% if r.ticket_reference %}
+              <div class="review-ticket">Related to: {{ r.ticket_reference }}</div>
+              {% endif %}
+              <div class="review-content">{{ r.content }}</div>
+              <div class="review-footer">
+                <div class="recommendation {% if r.recommend %}positive{% else %}negative{% endif %}">
+                  {% if r.recommend %}👍 Recommended{% else %}👎 Not Recommended{% endif %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p class="no-reviews">No reviews yet. Be the first to share your experience!</p>
+            {% endif %}
+          </div>
+
+        </section>
+      </section>
+
+      <!-- Footer -->
+      <footer class="app-footer">
+        <div class="footer-content">© 2025 <a href="https://ultrakeyit.com/" target="_blank" rel="noopener noreferrer"
+            class="text-decoration-none">Ultrakey It Solutions</a>. All rights reserved.</div>
+      </footer>
+
+      {% endblock %}
+    </main>
+
+  </div>
+
+  <!-- JS Files -->
+  <!-- <script src="{% static 'userdashboard/js/layout.js' %}"></script> -->
+  <script src="{% static 'userdashboard/js/script.js' %}"></script>
+  <script src="{% static 'userdashboard/js/app.js' %}"></script>
+
+</body>
+
+</html>

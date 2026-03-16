@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minimal Login Test</title>
+</head>
+<body>
+    <h1>Minimal Agent Login Test</h1>
+    <p>Use this form to test login without JavaScript issues</p>
+    
+    <form method="post" action="/agent-login/">
+        <input type="hidden" name="csrfmiddlewaretoken" value="TEST_TOKEN">
+        
+        <label>
+            Username:<br>
+            <input type="text" name="username" autocomplete="username" required><br><br>
+        </label>
+        
+        <label>
+            Password:<br>
+            <input type="password" name="password" autocomplete="current-password" required><br><br>
+        </label>
+        
+        <button type="submit">Login</button>
+    </form>
+    
+    <p><strong>Test Credentials:</strong></p>
+    <ul>
+        <li>Username: <code>browsertest</code></li>
+        <li>Password: <code>simple123</code></li>
+    </ul>
+    
+    <script>
+        // Get CSRF token from page
+        fetch('/agent-login/')
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const csrfInput = doc.querySelector('input[name="csrfmiddlewaretoken"]');
+                if (csrfInput) {
+                    document.querySelector('form input[name="csrfmiddlewaretoken"]').value = csrfInput.value;
+                }
+            });
+    </script>
+</body>
+</html>
+    

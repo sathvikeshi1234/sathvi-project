@@ -1,0 +1,247 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}{{ company.name }} - Company Details - SuperAdmin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Company Details</h1>
+                    <p class="text-muted mb-0">{{ company.name }}</p>
+                </div>
+                <div>
+                    <a href="{% url 'superadmin:companies_list' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Companies
+                    </a>
+                    <a href="{% url 'superadmin:company_edit' company.id %}" class="btn btn-primary">
+                        <i class="bi bi-pencil"></i> Edit Company
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Company Information -->
+                <div class="col-md-6">
+                    <div class="card sa-card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Company Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Company Name</label>
+                                <p class="form-control-plaintext">{{ company.name }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <p class="form-control-plaintext">{{ company.email }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Phone</label>
+                                <p class="form-control-plaintext">{{ company.phone|default:"-" }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Address</label>
+                                <p class="form-control-plaintext">{{ company.address|default:"-" }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <p class="form-control-plaintext">
+                                    {% if company.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactive</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Created</label>
+                                <p class="form-control-plaintext">{{ company.created_at|date:"M d, Y H:i" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subscription Information -->
+                <div class="col-md-6">
+                    <div class="card sa-card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Subscription Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Current Plan</label>
+                                <p class="form-control-plaintext">
+                                    {% if company.plan %}
+                                        <span class="badge bg-info">{{ company.plan.name }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">No Plan</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Subscription Status</label>
+                                <p class="form-control-plaintext">
+                                    {% if company.subscription_status == 'active' %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% elif company.subscription_status == 'trial' %}
+                                        <span class="badge bg-primary">Trial</span>
+                                    {% elif company.subscription_status == 'expired' %}
+                                        <span class="badge bg-danger">Expired</span>
+                                    {% elif company.subscription_status == 'cancelled' %}
+                                        <span class="badge bg-warning">Cancelled</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ company.subscription_status|title }}</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            {% if company.plan_expiry_date %}
+                            <div class="mb-3">
+                                <label class="form-label">Plan Expiry Date</label>
+                                <p class="form-control-plaintext">{{ company.plan_expiry_date|date:"M d, Y" }}</p>
+                            </div>
+                            {% endif %}
+                            {% if company.subscription_start_date %}
+                            <div class="mb-3">
+                                <label class="form-label">Subscription Start Date</label>
+                                <p class="form-control-plaintext">{{ company.subscription_start_date|date:"M d, Y" }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subscriptions History -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card sa-card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Subscription History</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if subscriptions %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Plan</th>
+                                                <th>Status</th>
+                                                <th>Start Date</th>
+                                                <th>End Date</th>
+                                                <th>Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for subscription in subscriptions %}
+                                            <tr>
+                                                <td>
+                                                    {% if subscription.plan %}
+                                                        <span class="badge bg-info">{{ subscription.plan.name }}</span>
+                                                    {% else %}
+                                                        <span class="badge bg-secondary">No Plan</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if subscription.status == 'active' %}
+                                                        <span class="badge bg-success">Active</span>
+                                                    {% elif subscription.status == 'trial' %}
+                                                        <span class="badge bg-primary">Trial</span>
+                                                    {% elif subscription.status == 'expired' %}
+                                                        <span class="badge bg-danger">Expired</span>
+                                                    {% elif subscription.status == 'cancelled' %}
+                                                        <span class="badge bg-warning">Cancelled</span>
+                                                    {% else %}
+                                                        <span class="badge bg-secondary">{{ subscription.status|title }}</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ subscription.start_date|date:"M d, Y"|default:"-" }}</td>
+                                                <td>{{ subscription.end_date|date:"M d, Y"|default:"-" }}</td>
+                                                <td>${{ subscription.total_amount|default:"0.00" }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="bi bi-clock-history text-muted" style="font-size: 3rem;"></i>
+                                    <h5 class="text-muted mt-3">No Subscription History</h5>
+                                    <p class="text-muted">This company doesn't have any subscription records yet.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Company Users -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card sa-card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Company Users</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if users %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>User</th>
+                                                <th>Email</th>
+                                                <th>Role</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for user_profile in users %}
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="avatar-sm bg-primary text-white rounded d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px ; border-radius: 50%;">
+                                                            {{ user_profile.user.username.0|upper }}
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-medium">{{ user_profile.user.get_full_name|default:user_profile.user.username }}</div>
+                                                            <small class="text-muted">@{{ user_profile.user.username }}</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>{{ user_profile.user.email }}</td>
+                                                <td>
+                                                    {% if user_profile.role %}
+                                                        <span class="badge bg-info">{{ user_profile.role.name }}</span>
+                                                    {% else %}
+                                                        <span class="badge bg-secondary">No Role</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if user_profile.user.is_active %}
+                                                        <span class="badge bg-success">Active</span>
+                                                    {% else %}
+                                                        <span class="badge bg-danger">Inactive</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
+                                    <h5 class="text-muted mt-3">No Users Found</h5>
+                                    <p class="text-muted">This company doesn't have any assigned users yet.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

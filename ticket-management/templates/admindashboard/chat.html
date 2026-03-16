@@ -1,0 +1,2004 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Chat</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'admindashboard/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'admindashboard/css/chats.css' %}">
+    <link rel="stylesheet" href="{% static 'admindashboard/css/dropdown.css' %}">
+</head>
+<body data-current-user-id="{{ request.user.id|default:'null' }}">
+    <div id="app">
+        <!-- Include Sidebar -->
+        <div id="sidebar-container">
+            <!-- Content will be loaded by JavaScript -->
+        </div>
+
+        <div class="main-container">
+            <!-- Include Header -->
+            <div id="header-container">
+                <!-- Content will be loaded by JavaScript -->
+            </div>
+
+            <!-- Main Content -->
+            <main class="content-area">
+                <!-- CHAT PAGE CONTENT -->
+                <div id="chat" class="page-content active">
+                    <!-- Breadcrumbs -->
+                    <nav aria-label="breadcrumb" class="mb-3">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="/dashboard/admin-dashboard/">
+                                    <i class="bi bi-house-door"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                Chat
+                            </li>
+                        </ol>
+                    </nav>
+                    
+                    <div class="chat-container">
+                        <!-- Mobile Navigation Controls -->
+                        <div class="mobile-nav-controls">
+                            <button class="back-button" id="back-to-contacts">
+                                <i class="bi bi-arrow-left"></i>
+                            </button>
+                            <button class="back-button" id="back-to-chat" style="display: none;">
+                                <i class="bi bi-arrow-left"></i>
+                            </button>
+                            <h5 id="mobile-title">Chats</h5>
+                            <button class="info-button" id="toggle-info">
+                                <i class="bi bi-info-circle"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- LEFT SIDEBAR: CONTACTS LIST -->
+                        <div class="chat-sidebar-left" id="contacts-sidebar">
+                            <div class="chat-header-left">
+                                <h5>Messages</h5>
+                                <button class="btn-icon" data-bs-toggle="modal" data-bs-target="#newChatModal">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="chat-search">
+                                <div class="search-box">
+                                    <i class="bi bi-search"></i>
+                                    <input type="text" id="contact-search-input" placeholder="Search messages...">
+                                </div>
+                            </div>
+                            
+                            <div class="contact-list" id="contact-list">
+                                <!-- Contact items rendered from backend -->
+                                {% for c in contacts %}
+                                <div class="contact-item{% if active_contact and c.id == active_contact.id %} active{% endif %}{% if c.unread_count %} unread{% endif %}"
+                                     data-contact='{"id": {{ c.id }}, "name": "{{ c.name|escapejs }}", "avatar": "{{ c.initials|default:c.name|first|upper }}", "status": "{{ c.status|escapejs }}", "ticketId": "{{ c.latest_ticket_id|escapejs }}", "lastMessage": "{{ c.last_message|escapejs }}", "time": "{{ c.time|escapejs }}"}'>
+                                    <div class="contact-avatar">
+                                        <span>{{ c.initials|default:c.name|first|upper }}</span>
+                                    </div>
+                                    <div class="contact-info">
+                                        <h6>{% if c.latest_ticket_id %}{{ c.latest_ticket_id }}{% else %}No Ticket{% endif %}</h6>
+                                        <p class="text-muted small">{{ c.last_message }}</p>
+                                    </div>
+                                    <div class="contact-time">
+                                        <span class="text-muted small">{{ c.time }}</span>
+                                        {% if c.unread_count %}
+                                            <span class="unread-badge">{{ c.unread_count }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="text-muted small px-3 py-2">No contacts available.</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- CHAT MESSAGES AREA -->
+                        <div class="chat-messages" id="chat-messages-container">
+                            <div class="chat-messages-header">
+                                <div class="chat-with" onclick="openRightSidebar()" style="cursor: pointer;">
+                                    <div class="chat-avatar" id="chat-avatar">
+                                        <span>{% if active_contact %}{{ active_contact.initials|default:active_contact.name|first|upper }}{% else %}--{% endif %}</span>
+                                    </div>
+                                    <div class="chat-with-info ms-3" id="chat-with-info" style="cursor: pointer;">
+                                        <h6>
+                                            {% if active_contact %}{{ active_contact.latest_ticket_id }}{% else %}Select a contact{% endif %}
+                                            <i class="bi bi-chevron-down small"></i>
+                                        </h6>
+                                        <span class="text-muted small" id="chat-status">
+                                            {% if active_contact %}{{ active_contact.status }}{% else %}&nbsp;{% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="chat-actions">
+                                    <button class="btn btn-sm btn-outline-secondary" id="info-button" onclick="openRightSidebar()">
+                                        <i class="bi bi-info-circle"></i> 
+                                    </button>
+                                    <div class="dropdown">
+                                        <button class="btn-icon" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a class="dropdown-item" href="#"><i class="bi bi-mute me-2"></i>Mute</a></li>
+                                            <li><a class="dropdown-item" href="#"><i class="bi bi-trash me-2"></i>Clear Chat</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-x-circle me-2"></i>Block</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="chat-messages-body" id="chat-messages">
+                                {% if messages %}
+                                    <div class="message-date">Today</div>
+                                    {% for m in messages %}
+                                    <div class="message {{ m.direction }}">
+                                        {% if m.direction == 'received' %}
+                                        <div class="message-avatar">
+                                            {% if active_contact %}{{ active_contact.initials|default:active_contact.name|first|upper }}{% else %}--{% endif %}
+                                        </div>
+                                        {% endif %}
+                                        <div class="message-content">
+                                            <p>{{ m.text }}</p>
+                                            <div class="message-time">{{ m.time }}</div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="text-muted small px-3 py-2">No messages yet. Start the conversation.</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="chat-messages-footer">
+                                <div class="message-input">
+                                    <div class="position-relative">
+                                        <button class="btn-options" type="button" id="emoji-picker-button">
+                                            <i class="bi bi-emoji-smile"></i>
+                                        </button>
+                                        <div id="emoji-picker" style="position: absolute; bottom: 100%; left: 0; margin-bottom: 10px; display: none;">
+                                            <emoji-picker></emoji-picker>
+                                        </div>
+                                    </div>
+                                    
+                                    <input type="text" class="form-control" id="message-input" placeholder="Type a message...">
+                                    
+                                    <div class="position-relative">
+                                        <button class="btn-options" type="button" id="file-upload-button">
+                                            <i class="bi bi-paperclip"></i>
+                                            <input type="file" id="file-upload" style="display: none;" multiple>
+                                        </button>
+                                    </div>
+                                    
+                                    <button class="btn-send" type="button" id="send-button">
+                                        <i class="bi bi-send"></i>
+                                    </button>
+                                </div>
+                                <div id="file-preview" class=""></div>
+                            </div>
+                        </div>
+                        
+                        <!-- RIGHT SIDEBAR: CHAT INFO -->
+                        <div class="chat-sidebar-right">
+                            <div class="contact-detail-panel">
+                                <div class="contact-detail-header">
+                                    <div class="d-flex align-items-center">
+                                        <div class="contact-avatar-wrapper me-3">
+                                            <div class="contact-detail-avatar" id="detail-avatar">
+                                                <span id="avatar-initials">
+                                                    {% if active_contact %}{{ active_contact.initials|default:active_contact.name|first|upper }}{% else %}--{% endif %}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="contact-detail-info">
+                                            <h5 class="mb-1">
+                                                {% if active_contact %}{{ active_contact.name }}{% else %}No contact selected{% endif %}
+                                            </h5>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                         <button type="button" class="btn btn-sm btn-outline-secondary p-1 me-2" aria-label="Close" onclick="closeRightSidebar()" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="bi bi-x" style="font-size: 0.9rem;"></i>
+                                        </button>
+                                        <div class="dropdown">
+                                            
+                                            <button class="btn btn-sm btn-outline-secondary  p-1" type="button" id="contactMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="bi bi-three-dots-vertical" style="font-size: 0.9rem;"></i>
+                                            </button>
+                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="contactMenuButton">
+    <li><a class="dropdown-item" href="#" data-action="edit-contact"><i class="bi bi-pencil me-2"></i>Edit Contact</a></li>
+    <li><a class="dropdown-item" href="#" data-action="archive-chat"><i class="bi bi-archive me-2"></i>Archive Chat</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item text-danger" href="#" data-action="delete-chat"><i class="bi bi-trash me-2"></i>Delete Chat</a></li>
+</ul>    
+                                        </div>
+                                       
+                                    </div>
+                                </div>
+                                
+                                <div class="contact-detail-body">
+                                    <!-- Avatar and name moved to header -->
+                                    
+                                    <div class="detail-section">
+                                        <h6><i class="bi bi-info-circle me-2"></i>Contact Information</h6>
+                                        <div class="contact-info-item">
+                                            <i class="bi bi-envelope"></i>
+                                            <span id="detail-email">{% if active_contact %}{{ active_contact.email }}{% else %}--{% endif %}</span>
+                                        </div>
+                                        <div class="contact-info-item">
+                                            <i class="bi bi-telephone"></i>
+                                            <span id="detail-phone">{% if active_contact %}{{ active_contact.phone }}{% else %}--{% endif %}</span>
+                                        </div>
+                                        <div class="contact-info-item">
+                                            <i class="bi bi-geo-alt"></i>
+                                            <span id="detail-location">{% if active_contact %}{{ active_contact.location }}{% else %}--{% endif %}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="detail-section">
+                                        <h6><i class="bi bi-person-lines-fill me-2"></i>Customer Details</h6>
+                                        <div class="contact-info-item">
+                                            <i class="bi bi-calendar"></i>
+                                            <div>
+                                                <div class="file-name">Member since</div>
+                                                <div class="file-size">{% if active_contact %}{{ active_contact.member_since }}{% else %}--{% endif %}</div>
+                                            </div>
+                                        </div>
+                                        <div class="contact-info-item">
+                                            <i class="bi bi-ticket"></i>
+                                            <div>
+                                                <div class="file-name">Total tickets</div>
+                                                <div class="file-size">{% if active_contact %}{{ active_contact.total_tickets }}{% else %}--{% endif %}</div>
+                                            </div>
+                                        </div>
+                                        <div class="contact-info-item">
+                                            <i class="bi bi-clock"></i>
+                                            <div>
+                                                <div class="file-name">Last active</div>
+                                                <div class="file-size">{% if active_contact %}{{ active_contact.last_active }}{% else %}--{% endif %}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="detail-section">
+                                        <h6><i class="bi bi-folder2-open me-2"></i>Shared Files</h6>
+                                        <div class="shared-files">
+                                            <div class="file-item">
+                                                <i class="bi bi-file-earmark-pdf"></i>
+                                                <div class="file-info">
+                                                    <div class="file-name">Document.pdf</div>
+                                                    <div class="file-size">2.4 MB</div>
+                                                </div>
+                                                <a href="#" class="ms-auto"><i class="bi bi-download"></i></a>
+                                            </div>
+                                            <div class="file-item">
+                                                <i class="bi bi-file-earmark-image"></i>
+                                                <div class="file-info">
+                                                    <div class="file-name">Screenshot.png</div>
+                                                    <div class="file-size">1.1 MB</div>
+                                                </div>
+                                                <a href="#" class="ms-auto"><i class="bi bi-download"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="contact-detail-footer">
+                                    <!-- Call and chat action buttons removed as requested -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="dashboard-footer mt-4 mb-2 text-muted small">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>© Ultrakey IT Solutions</span>
+                        <span>All systems operational</span>
+                    </div>
+                </footer>
+            </main>
+        </div>
+    </div>
+
+    <!-- Include Modals -->
+    <div id="modals-container">
+        <!-- Content will be loaded by JavaScript -->
+    </div>
+
+    <!-- Chat Action Modals -->
+    <div class="modal fade" id="editContactModal" tabindex="-1" aria-labelledby="editContactModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editContactModalLabel">Edit Contact</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="edit-contact-name" class="form-label">Full name</label>
+              <input type="text" class="form-control" id="edit-contact-name" placeholder="Enter contact name">
+            </div>
+            <div class="mb-3">
+              <label for="edit-contact-email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="edit-contact-email" placeholder="Enter email">
+            </div>
+            <div class="mb-0">
+              <label for="edit-contact-phone" class="form-label">Phone</label>
+              <input type="text" class="form-control" id="edit-contact-phone" placeholder="Enter phone number">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="edit-contact-confirm">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="archiveChatModal" tabindex="-1" aria-labelledby="archiveChatModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="archiveChatModalLabel">Archive Chat</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Archive this chat? You can still start a new conversation with this contact later.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-warning" id="archive-chat-confirm">Archive</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="deleteChatModal" tabindex="-1" aria-labelledby="deleteChatModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteChatModalLabel">Delete Chat</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p class="mb-0">Delete this chat history permanently? This action cannot be undone.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger" id="delete-chat-confirm">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <!-- Emoji Picker -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.13.0/dist/index.js"></script>
+    <div class="overlay"></div>
+    
+    
+    
+
+    <!-- Core JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Utility function for loading components -->
+    <script>
+        // Function to load HTML content into an element
+        function loadComponent(url, elementId) {
+            return fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        element.innerHTML = html;
+                        
+                        // If loading the sidebar, set the active nav item
+                        if (url.includes('sidebar.html')) {
+                            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                            const pageName = currentPage.replace('.html', '') || 'dashboard';
+                            const activeNavItem = document.querySelector(`.nav-item[data-page="${pageName}"]`);
+                            if (activeNavItem) {
+                                // Remove active class from all nav items
+                                document.querySelectorAll('.nav-item').forEach(item => {
+                                    item.classList.remove('active');
+                                });
+                                activeNavItem.classList.add('active');
+                            }
+                        }
+                        
+                        // If loading the header, initialize it after a short delay
+                        if (url.includes('header.html') && window.initializeHeader) {
+                            setTimeout(() => {
+                                window.initializeHeader();
+                            }, 50);
+                        }
+                        
+                        return true;
+                    }
+                    return false;
+                })
+                .catch(error => {
+                    console.error('Error loading component:', error);
+                    return false;
+                });
+        }
+        
+        // Initialize components when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get current user ID from data attribute
+            currentUserId = document.body.getAttribute('data-current-user-id');
+            if (currentUserId === 'null') {
+                currentUserId = null;
+            } else {
+                currentUserId = parseInt(currentUserId);
+            }
+            
+            // Load header if container exists
+            if (document.getElementById('header-container')) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/header.html" %}', 'header-container');
+            }
+            
+            // Load sidebar if container exists
+            if (document.getElementById('sidebar-container')) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/sidebar.html" %}', 'sidebar-container');
+            }
+            
+            // Load modals if container exists
+            if (document.getElementById('modals-container')) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/modals.html" %}', 'modals-container');
+            }
+            
+            // Listen for navigation events (for single-page navigation)
+            document.body.addEventListener('click', function(e) {
+                // Check if the click was on a navigation link
+                const navLink = e.target.closest('a[data-page]');
+                if (navLink) {
+                    // Re-initialize header after a short delay to allow the page to update
+                    setTimeout(() => {
+                        if (window.initializeHeader) {
+                            window.initializeHeader();
+                        }
+                    }, 100);
+                }
+            });
+            
+            // Initialize search functionality
+            initializeContactSearch();
+        });
+        
+        // Search functionality for contacts
+        function initializeContactSearch() {
+            const searchInput = document.getElementById('contact-search-input');
+            const contactList = document.getElementById('contact-list');
+            
+            if (!searchInput || !contactList) {
+                console.log('Search elements not found');
+                return;
+            }
+            
+            // Store original contacts for filtering
+            const originalContacts = Array.from(contactList.children);
+            
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase().trim();
+                
+                // Filter contacts based on search term
+                originalContacts.forEach(contact => {
+                    if (contact.classList.contains('text-muted')) {
+                        // Skip "No contacts available" message
+                        return;
+                    }
+                    
+                    // Get contact data
+                    const contactData = contact.getAttribute('data-contact');
+                    if (contactData) {
+                        try {
+                            const data = JSON.parse(contactData);
+                            const ticketId = (data.ticketId || '').toLowerCase();
+                            const lastMessage = (data.lastMessage || '').toLowerCase();
+                            const name = (data.name || '').toLowerCase();
+                            
+                            // Check if search term matches any field
+                            const matches = ticketId.includes(searchTerm) || 
+                                          lastMessage.includes(searchTerm) || 
+                                          name.includes(searchTerm);
+                            
+                            // Show/hide contact based on match
+                            contact.style.display = matches ? 'flex' : 'none';
+                        } catch (error) {
+                            console.error('Error parsing contact data:', error);
+                            // Fallback to text content search
+                            const textContent = contact.textContent.toLowerCase();
+                            contact.style.display = textContent.includes(searchTerm) ? 'flex' : 'none';
+                        }
+                    } else {
+                        // Fallback to text content search
+                        const textContent = contact.textContent.toLowerCase();
+                        contact.style.display = textContent.includes(searchTerm) ? 'flex' : 'none';
+                    }
+                });
+                
+                // Show/hide "no results" message
+                const visibleContacts = originalContacts.filter(contact => 
+                    contact.style.display !== 'none' && !contact.classList.contains('text-muted')
+                );
+                
+                let noResultsMsg = contactList.querySelector('.no-search-results');
+                if (visibleContacts.length === 0 && searchTerm) {
+                    if (!noResultsMsg) {
+                        noResultsMsg = document.createElement('div');
+                        noResultsMsg.className = 'no-search-results text-muted small px-3 py-2';
+                        noResultsMsg.textContent = 'No contacts found matching your search.';
+                        contactList.appendChild(noResultsMsg);
+                    }
+                } else if (noResultsMsg) {
+                    noResultsMsg.remove();
+                }
+            });
+        }
+    </script>
+    
+    <!-- Application Scripts -->
+    <script src="{% static 'admindashboard/js/script.js' %}"></script>
+    <script src="{% static 'admindashboard/js/header.js' %}"></script>
+    
+    <!-- Chat-specific JavaScript -->
+    <script>
+        // Track currently selected contact (customer) for admin replies
+        let currentContactId = null;
+        let currentTicketId = null;
+        let currentUserId = null; // Will be set from data attribute
+
+        // File type to icon mapping
+        const fileIcons = {
+            'pdf': 'bi bi-file-pdf',
+            'doc': 'bi bi-file-word',
+            'docx': 'bi bi-file-word',
+            'xls': 'bi bi-file-excel',
+            'xlsx': 'bi bi-file-excel',
+            'ppt': 'bi bi-file-ppt',
+            'pptx': 'bi bi-file-ppt',
+            'zip': 'bi bi-file-zip',
+            'rar': 'bi bi-file-zip',
+            'txt': 'bi bi-file-text',
+            'csv': 'bi bi-file-spreadsheet',
+            'jpg': 'bi bi-file-image',
+            'jpeg': 'bi bi-file-image',
+            'png': 'bi bi-file-image',
+            'gif': 'bi bi-file-image',
+            'default': 'bi bi-file'
+        };
+        
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // Get file icon class
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            return fileIcons[ext] || fileIcons['default'];
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function formatTime(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return dateString; // Return as is if invalid date
+            
+            return date.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
+        function updateMessageTimes() {
+            const timeElements = document.querySelectorAll('.message-time');
+            timeElements.forEach(el => {
+                const timestamp = el.getAttribute('data-timestamp');
+                if (timestamp) {
+                    el.textContent = formatTime(timestamp);
+                }
+            });
+        }
+
+        // Update times every minute
+        setInterval(updateMessageTimes, 60000);
+
+        function appendMessage(msg) {
+            const chatMessages = document.getElementById('chat-messages');
+            if (!chatMessages) return;
+
+            const messageElement = document.createElement('div');
+            
+            // Determine message direction - if sender is current user, it's sent, otherwise received
+            const isSent = msg.sender_id === currentUserId || msg.direction === 'sent';
+            console.log('appendMessage - msg:', msg, 'isSent:', isSent, 'currentUserId:', currentUserId); // Debug log
+            
+            messageElement.className = `message ${isSent ? 'sent' : 'received'}`;
+            
+            if (msg.id) {
+                messageElement.setAttribute('data-message-id', msg.id);
+            }
+
+            if (!isSent) {
+                const avatarDiv = document.createElement('div');
+                avatarDiv.className = 'message-avatar';
+                avatarDiv.textContent = (msg.avatar || '').toUpperCase();
+                messageElement.appendChild(avatarDiv);
+            }
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            // Build message content with text and attachments
+            let messageContent = '';
+            
+            // Add text content if present
+            if (msg.text) {
+                const textParagraph = document.createElement('p');
+                textParagraph.textContent = msg.text; // Use textContent to properly display emojis
+                contentDiv.appendChild(textParagraph);
+            }
+            
+            // Add attachments if present
+            if (msg.attachments && msg.attachments.length > 0) {
+                const attachmentsDiv = document.createElement('div');
+                attachmentsDiv.className = 'message-attachments';
+                
+                msg.attachments.forEach(att => {
+                    const fileIcon = getFileIcon(att.filename);
+                    const attachmentItem = document.createElement('div');
+                    attachmentItem.className = 'attachment-item';
+                    attachmentItem.innerHTML = `
+                        <i class="${fileIcon}"></i>
+                        <div class="attachment-info">
+                            <span class="attachment-filename">${att.filename}</span>
+                            <span class="attachment-size">${formatFileSize(att.filesize)}</span>
+                        </div>
+                        <a href="${att.url}" target="_blank" class="attachment-download">
+                            <i class="bi bi-download"></i>
+                        </a>
+                    `;
+                    attachmentsDiv.appendChild(attachmentItem);
+                });
+                
+                contentDiv.appendChild(attachmentsDiv);
+            }
+            
+            // Add time inside content div to match template structure
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'message-time';
+            
+            // Generate status ticks based on message direction and read status
+            let statusTicks = '';
+            if (isSent) {
+                // WhatsApp-style status progression:
+                // 1. Single tick (gray) - Message sent
+                // 2. Double tick (gray) - Message delivered  
+                // 3. Double tick (blue) - Message read
+                
+                if (msg.is_read) {
+                    statusTicks = '<span class="message-status"><span class="tick double read">✓✓</span></span>';
+                    console.log('Adding READ status (double blue tick)'); // Debug log
+                } else {
+                    // Check if message was delivered (has been processed by server)
+                    // For now, assume sent messages are delivered after 2 seconds
+                    const messageAge = msg.created_at ? (Date.now() - new Date(msg.created_at).getTime()) : 0;
+                    const isDelivered = messageAge > 2000; // 2 seconds old = delivered
+                    
+                    if (isDelivered) {
+                        statusTicks = '<span class="message-status"><span class="tick double delivered">✓✓</span></span>';
+                        console.log('Adding DELIVERED status (double gray tick)'); // Debug log
+                    } else {
+                        statusTicks = '<span class="message-status"><span class="tick sending">✓</span></span>';
+                        console.log('Adding SENT status (single gray tick)'); // Debug log
+                    }
+                }
+            } else {
+                console.log('No status ticks for received message'); // Debug log
+            }
+            
+            console.log('Final statusTicks:', statusTicks); // Debug log
+            
+            timeDiv.innerHTML = `
+                <span>${formatTime(msg.time)}</span>
+                ${statusTicks}
+            `;
+            
+            if (msg.created_at) {
+                timeDiv.setAttribute('data-timestamp', msg.created_at);
+            } else if (msg.time) {
+                timeDiv.setAttribute('data-timestamp', msg.time);
+            }
+            
+            contentDiv.appendChild(timeDiv);
+            messageElement.appendChild(contentDiv);
+
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Auto-update message status from sent -> delivered after 2 seconds
+            if (isSent && !msg.is_read) {
+                setTimeout(() => {
+                    const timeDiv = messageElement.querySelector('.message-time');
+                    if (timeDiv) {
+                        const newStatusTicks = '<span class="message-status"><span class="tick double delivered">✓✓</span></span>';
+                        timeDiv.innerHTML = `
+                            <span>${formatTime(msg.time)}</span>
+                            ${newStatusTicks}
+                        `;
+                        console.log('Auto-updated to DELIVERED status for message:', msg.id);
+                    }
+                }, 2000); // 2 seconds delay
+            }
+        }
+        
+        // Function to update message status (sent -> delivered -> read)
+        function updateMessageStatus(messageId, newStatus) {
+            const messageElement = document.querySelector(`.message[data-message-id="${messageId}"]`);
+            if (!messageElement) return;
+            
+            const timeDiv = messageElement.querySelector('.message-time');
+            if (!timeDiv) return;
+            
+            let statusTicks = '';
+            switch (newStatus) {
+                case 'delivered':
+                    statusTicks = '<span class="message-status"><span class="tick double delivered">✓✓</span></span>';
+                    console.log('Updated to DELIVERED for message:', messageId);
+                    break;
+                case 'read':
+                    statusTicks = '<span class="message-status"><span class="tick double read">✓✓</span></span>';
+                    console.log('Updated to READ for message:', messageId);
+                    break;
+                default:
+                    statusTicks = '<span class="message-status"><span class="tick sending">✓</span></span>';
+                    console.log('Updated to SENT for message:', messageId);
+            }
+            
+            timeDiv.innerHTML = `
+                <span>${timeDiv.querySelector('span').textContent}</span>
+                ${statusTicks}
+            `;
+        }
+        
+        function renderMessages(messages) {
+            const chatMessages = document.getElementById('chat-messages');
+            if (!chatMessages) return;
+
+            console.log('Rendering messages:', messages); // Debug log
+
+            chatMessages.innerHTML = '';
+
+            if (!messages.length) {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.className = 'text-muted small px-3 py-2';
+                emptyDiv.textContent = 'No messages yet. Start the conversation.';
+                chatMessages.appendChild(emptyDiv);
+                return;
+            }
+
+            const dateDiv = document.createElement('div');
+            dateDiv.className = 'message-date';
+            dateDiv.textContent = 'Today';
+            chatMessages.appendChild(dateDiv);
+
+            messages.forEach(m => {
+                console.log('Processing message:', m); // Debug log
+                // Ensure each message has a created_at timestamp
+                if (!m.created_at && m.time) {
+                    m.created_at = m.time;
+                }
+                appendMessage(m);
+            });
+            
+            // Update times immediately after rendering
+            updateMessageTimes();
+        }
+
+        function loadMessagesForCurrentContact() {
+            if (!currentContactId) return;
+            const chatMessages = document.getElementById('chat-messages');
+            if (chatMessages) {
+                chatMessages.innerHTML = '<div class="text-muted small px-3 py-2">Loading messages...</div>';
+            }
+
+            const url = currentTicketId
+                ? `/api/chat/messages/?contact_id=${currentContactId}&ticket_id=${encodeURIComponent(currentTicketId)}`
+                : `/api/chat/messages/?contact_id=${currentContactId}`;
+
+            fetch(url, { credentials: 'same-origin' })
+                .then(res => {
+                    if (!res.ok) {
+                        const contentType = res.headers.get('content-type') || '';
+                        if (contentType.includes('application/json')) {
+                            return res.json().then(data => {
+                                throw new Error(data.detail || 'Failed to load messages');
+                            });
+                        }
+                        return res.text().then(text => {
+                            throw new Error('Failed to load messages: ' + text.substring(0, 200));
+                        });
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    const resolvedTicketId = (data && typeof data.ticket_id === 'string') ? data.ticket_id.trim() : '';
+                    currentTicketId = resolvedTicketId ? String(resolvedTicketId) : null;
+
+                    renderMessages(data.results || []);
+
+                    if (!currentTicketId) {
+                        const chatMessages = document.getElementById('chat-messages');
+                        if (chatMessages) {
+                            chatMessages.insertAdjacentHTML(
+                                'afterbegin',
+                                '<div class="text-muted small px-3 py-2">No ticket found for this customer. Create/select a ticket to start chat.</div>'
+                            );
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error('Error loading messages', err);
+                    if (chatMessages) {
+                        chatMessages.innerHTML = '<div class="text-danger small px-3 py-2">Failed to load messages.</div>';
+                    }
+                });
+        }
+
+        async function handleEditContact(newName, newEmail, newPhone){
+            if(!currentContactId){
+                alert('No contact selected.');
+                return;
+            }
+            if(!newName){ return; }
+            const parts = newName.trim().split(' ');
+            const first_name = parts.slice(0, -1).join(' ') || parts[0];
+            const last_name = parts.length > 1 ? parts[parts.length - 1] : '';
+
+            const csrftoken = getCookie('csrftoken');
+            try{
+                const res = await fetch(`/api/users/${currentContactId}/`,{
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken || ''
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ first_name, last_name, email: newEmail || undefined, phone: newPhone || undefined })
+                });
+                if(!res.ok){ throw new Error('Failed to update contact'); }
+                const data = await res.json();
+                const fullName = `${data.first_name || ''} ${data.last_name || ''}`.trim() || data.username || newName;
+                const chatName = document.querySelector('.chat-with h6');
+                const detailName = document.getElementById('detail-name');
+                if(chatName){ chatName.textContent = fullName; }
+                if(detailName){ detailName.textContent = fullName; }
+                // Update active contact item label
+                const activeItem = document.querySelector('.contact-item.active .contact-info h6');
+                if(activeItem){ activeItem.textContent = fullName; }
+                // Optionally you can show a toast here instead of alert
+            }catch(err){
+                console.error(err);
+                alert('Could not update contact.');
+            }
+        }
+
+        async function handleArchiveChat(){
+            if(!currentContactId){
+                alert('No contact selected.');
+                return;
+            }
+            const csrftoken = getCookie('csrftoken');
+            try{
+                const res = await fetch(`/api/chat/thread/${currentContactId}/`,{
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken || ''
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ action: 'archive' })
+                });
+                if(!res.ok){ throw new Error('Failed to archive chat'); }
+                // Hide the contact from the list for this session
+                const activeItem = document.querySelector('.contact-item.active');
+                if(activeItem){ activeItem.remove(); }
+                document.getElementById('chat-messages').innerHTML = '<div class="text-muted small px-3 py-2">Chat archived.</div>';
+            }catch(err){
+                console.error(err);
+                alert('Could not archive chat.');
+            }
+        }
+
+        async function handleDeleteChat(){
+            if(!currentContactId){
+                alert('No contact selected.');
+                return;
+            }
+            const csrftoken = getCookie('csrftoken');
+            try{
+                const res = await fetch(`/api/chat/thread/${currentContactId}/`,{
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': csrftoken || ''
+                    },
+                    credentials: 'same-origin'
+                });
+                if(!res.ok && res.status !== 204){ throw new Error('Failed to delete chat'); }
+                const chatMessages = document.getElementById('chat-messages');
+                if(chatMessages){
+                    chatMessages.innerHTML = '<div class="text-muted small px-3 py-2">Chat deleted.</div>';
+                }
+            }catch(err){
+                console.error(err);
+                alert('Could not delete chat.');
+            }
+        }
+
+        // Helper function to update message status when read
+        function updateMessageStatus(messageId, status) {
+            const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (!messageElement) return;
+            
+            const statusElement = messageElement.querySelector('.message-status');
+            if (!statusElement) return;
+            
+            switch(status) {
+                case 'sending':
+                    statusElement.innerHTML = '<span class="tick sending">✓</span>';
+                    break;
+                case 'sent':
+                    statusElement.innerHTML = '<span class="tick double sending">✓✓</span>';
+                    break;
+                case 'delivered':
+                    statusElement.innerHTML = '<span class="tick double delivered">✓✓</span>';
+                    break;
+                case 'read':
+                    statusElement.innerHTML = '<span class="tick double read">✓✓</span>';
+                    break;
+                case 'error':
+                    statusElement.innerHTML = '<span class="tick" style="color: #ef4444;">✗</span>';
+                    break;
+            }
+        }
+
+        // Function to send a message only in the currently selected contact
+        function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput ? messageInput.value.trim() : '';
+            const fileInput = document.getElementById('file-upload');
+            
+            if (!currentContactId) {
+                alert('Please select a contact first.');
+                return;
+            }
+            if (message === '' && (!fileInput || !fileInput.files || fileInput.files.length === 0)) return;
+            if (!currentTicketId) {
+                alert('Cannot send message: no ticket selected/found for this customer.');
+                return;
+            }
+
+            let timeString;
+            if (message.time) {
+                // If time is already a string, try to parse it
+                const date = new Date(message.time);
+                if (!isNaN(date.getTime())) {
+                    // If it's a valid date, format it
+                    timeString = date.toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                    });
+                } else {
+                    // If it's not a valid date, use as is
+                    timeString = message.time;
+                }
+            } else {
+                // If no time provided, use current time
+                timeString = new Date().toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+            }
+
+            const csrftoken = getCookie('csrftoken');
+
+            // Show message immediately with "sending" status
+            const tempMessageId = 'temp-' + Date.now();
+            const tempMsg = {
+                direction: 'sent',
+                text: message || '',
+                time: timeString,
+                id: tempMessageId
+            };
+            appendMessage(tempMsg);
+
+            // Update status to "sending" with double tick after 500ms
+            setTimeout(() => {
+                const tempMsgElement = document.querySelector(`[data-message-id="${tempMessageId}"] .message-status`);
+                if (tempMsgElement) {
+                    tempMsgElement.innerHTML = '<span class="tick double sending">✓✓</span>';
+                }
+            }, 500);
+
+            // Check if we have files to upload
+            const hasFiles = fileInput && fileInput.files && fileInput.files.length > 0;
+            
+            if (hasFiles) {
+                // Use FormData for file upload
+                const formData = new FormData();
+                formData.append('contact_id', currentContactId);
+                if (message) {
+                    formData.append('text', message);
+                }
+                if (currentTicketId) {
+                    formData.append('ticket_id', currentTicketId);
+                }
+                
+                // Add files
+                Array.from(fileInput.files).forEach(file => {
+                    formData.append('files', file);
+                });
+
+                fetch('/api/chat/messages/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken || ''
+                        // Don't set Content-Type header when using FormData
+                    },
+                    credentials: 'same-origin',
+                    body: formData,
+                })
+                    .then(res => {
+                        if (!res.ok) {
+                            const contentType = res.headers.get('content-type') || '';
+                            if (contentType.includes('application/json')) {
+                                return res.json().then(data => {
+                                    throw new Error(data.detail || 'Failed to send message');
+                                });
+                            }
+                            return res.text().then(text => {
+                                throw new Error('Failed to send message: ' + text.substring(0, 200));
+                            });
+                        }
+                        return res.json();
+                    })
+                    .then(data => {
+                        // Update status to "delivered" on success
+                        const tempMsgElement = document.querySelector(`[data-message-id="${tempMessageId}"] .message-status`);
+                        if (tempMsgElement) {
+                            tempMsgElement.innerHTML = '<span class="tick double delivered">✓✓</span>';
+                        }
+                        
+                        // Handle attachments in the response
+                        let messageText = data.text || message;
+                        
+                        // Add attachment info to message if present
+                        if (data.attachments && data.attachments.length > 0) {
+                            const attachmentNames = data.attachments.map(att => att.filename).join(', ');
+                            messageText += `\n\n📎 Attachments: ${attachmentNames}`;
+                        }
+                        
+                        const msg = {
+                            direction: 'sent',
+                            text: messageText,
+                            time: data.time || timeString,
+                            id: data.id // Use real message ID from server
+                        };
+                        
+                        // Remove temp message and add real one
+                        const tempElement = document.querySelector(`[data-message-id="${tempMessageId}"]`);
+                        if (tempElement) tempElement.remove();
+                        appendMessage(msg);
+                        
+                        // Clear inputs
+                        if (messageInput) {
+                            messageInput.value = '';
+                        }
+                        if (fileInput) {
+                            fileInput.value = '';
+                        }
+                        const filePreview = document.getElementById('file-preview');
+                        if (filePreview) {
+                            filePreview.innerHTML = '';
+                        }
+                        
+                        // Reload messages after 1 second to get proper status
+                        setTimeout(() => {
+                            loadMessages();
+                        }, 1000);
+                    })
+                    .catch(err => {
+                        console.error('Error sending message with files', err);
+                        // Show error status
+                        const tempMsgElement = document.querySelector(`[data-message-id="${tempMessageId}"] .message-status`);
+                        if (tempMsgElement) {
+                            tempMsgElement.innerHTML = '<span class="tick" style="color: #ef4444;">✗</span>';
+                        }
+                        alert(err.message || 'Failed to send message.');
+                    });
+            } else {
+                // Use JSON for text-only messages
+                const payload = {
+                    contact_id: currentContactId,
+                    text: message,
+                };
+
+                // If we know the ticket, include it; otherwise let backend pick a default thread
+                if (currentTicketId) {
+                    payload.ticket_id = currentTicketId;
+                }
+
+                fetch('/api/chat/messages/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken || ''
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify(payload),
+                })
+                    .then(res => {
+                        if (!res.ok) {
+                            const contentType = res.headers.get('content-type') || '';
+                            if (contentType.includes('application/json')) {
+                                return res.json().then(data => {
+                                    throw new Error(data.detail || 'Failed to send message');
+                                });
+                            }
+                            return res.text().then(text => {
+                                throw new Error('Failed to send message: ' + text.substring(0, 200));
+                            });
+                        }
+                        return res.json();
+                    })
+                    .then(data => {
+                        // Update status to "delivered" on success
+                        const tempMsgElement = document.querySelector(`[data-message-id="${tempMessageId}"] .message-status`);
+                        if (tempMsgElement) {
+                            tempMsgElement.innerHTML = '<span class="tick double delivered">✓✓</span>';
+                        }
+                        
+                        const msg = {
+                            direction: 'sent',
+                            text: data.text || message,
+                            time: data.time || timeString,
+                            id: data.id // Use real message ID from server
+                        };
+                        
+                        // Remove temp message and add real one
+                        const tempElement = document.querySelector(`[data-message-id="${tempMessageId}"]`);
+                        if (tempElement) tempElement.remove();
+                        appendMessage(msg);
+                        
+                        if (messageInput) {
+                            messageInput.value = '';
+                        }
+                        
+                        // Reload messages after 1 second to get proper status
+                        setTimeout(() => {
+                            loadMessages();
+                        }, 1000);
+                    })
+                    .catch(err => {
+                        console.error('Error sending message', err);
+                        // Show error status
+                        const tempMsgElement = document.querySelector(`[data-message-id="${tempMessageId}"] .message-status`);
+                        if (tempMsgElement) {
+                            tempMsgElement.innerHTML = '<span class="tick" style="color: #ef4444;">✗</span>';
+                        }
+                        alert(err.message || 'Failed to send message.');
+                    });
+            }
+        }
+
+        // Function to open/close the right sidebar
+        function openRightSidebar() {
+            console.log('openRightSidebar called');
+            const rightSidebar = document.querySelector('.chat-sidebar-right');
+            const overlay = document.querySelector('.chat-sidebar-overlay') || document.createElement('div');
+            
+            console.log('rightSidebar found:', !!rightSidebar);
+            console.log('rightSidebar classes:', rightSidebar ? rightSidebar.className : 'not found');
+            
+            if (!overlay.isConnected) {
+                overlay.className = 'chat-sidebar-overlay';
+                document.body.appendChild(overlay);
+                // Force reflow to ensure the element is in the DOM before adding active class
+                void overlay.offsetWidth;
+            }
+            
+            if (rightSidebar) {
+                rightSidebar.classList.add('active');
+                overlay.classList.add('active');
+                
+                console.log('Added active class. New classes:', rightSidebar.className);
+                console.log('Computed display:', window.getComputedStyle(rightSidebar).display);
+                
+                // Close when clicking outside on mobile
+                overlay.onclick = function() {
+                    closeRightSidebar();
+                };
+                
+                // Add escape key listener
+                document.addEventListener('keydown', handleEscapeKey);
+            } else {
+                console.error('Right sidebar element not found!');
+            }
+        }
+
+        // Function to close the right sidebar
+        function closeRightSidebar() {
+            const rightSidebar = document.querySelector('.chat-sidebar-right');
+            const overlay = document.querySelector('.chat-sidebar-overlay');
+            
+            if (rightSidebar) {
+                rightSidebar.classList.remove('active');
+            }
+            
+            if (overlay) {
+                overlay.classList.remove('active');
+                // Remove overlay after transition
+                setTimeout(() => {
+                    if (overlay && overlay.parentNode) {
+                        overlay.parentNode.removeChild(overlay);
+                    }
+                }, 300); // Match this with your CSS transition time
+            }
+            
+            // Remove escape key listener
+            document.removeEventListener('keydown', handleEscapeKey);
+        }
+        
+        // Handle escape key press
+        function handleEscapeKey(event) {
+            if (event.key === 'Escape') {
+                closeRightSidebar();
+            }
+        }
+
+        // Mobile Navigation Logic
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile view elements
+            const backToContactsBtn = document.getElementById('back-to-contacts');
+            const backToChatBtn = document.getElementById('back-to-chat');
+            const toggleInfoBtn = document.getElementById('toggle-info');
+            const contactsSidebar = document.getElementById('contacts-sidebar');
+            const chatMessages = document.getElementById('chat-messages-container');
+            const chatSidebarRight = document.querySelector('.chat-sidebar-right');
+            const mobileTitle = document.getElementById('mobile-title');
+            const mobileNavControls = document.querySelector('.mobile-nav-controls');
+            
+            // Check if we're on mobile
+            function isMobileView() {
+                return window.innerWidth < 992;
+            }
+            
+            // Toggle mobile controls visibility
+            function updateMobileUI() {
+                if (isMobileView()) {
+                    document.querySelector('.mobile-nav-controls').style.display = 'flex';
+                    backToContactsBtn.style.display = 'none';
+                    backToChatBtn.style.display = 'none';
+                    toggleInfoBtn.style.display = 'flex';
+                    
+                    // Show/hide back buttons based on current view
+                    if (chatMessages.classList.contains('active')) {
+                        backToContactsBtn.style.display = 'flex';
+                        backToChatBtn.style.display = 'none';
+                        mobileTitle.textContent = 'Chat';
+                    } else if (chatSidebarRight.classList.contains('active')) {
+                        backToContactsBtn.style.display = 'none';
+                        backToChatBtn.style.display = 'flex';
+                        mobileTitle.textContent = 'Contact Info';
+                    } else {
+                        backToContactsBtn.style.display = 'none';
+                        backToChatBtn.style.display = 'none';
+                        mobileTitle.textContent = 'Chats';
+                    }
+                } else {
+                    document.querySelector('.mobile-nav-controls').style.display = 'none';
+                    contactsSidebar.classList.remove('hidden');
+                    chatMessages.classList.remove('active');
+                    chatSidebarRight.classList.remove('active');
+                }
+            }
+            
+            // Event Listeners for mobile navigation
+            if (backToContactsBtn) {
+                backToContactsBtn.addEventListener('click', function() {
+                    chatMessages.classList.remove('active');
+                    contactsSidebar.classList.remove('hidden');
+                    updateMobileUI();
+                });
+            }
+            
+            if (backToChatBtn) {
+                backToChatBtn.addEventListener('click', function() {
+                    chatSidebarRight.classList.remove('active');
+                    updateMobileUI();
+                });
+            }
+            
+            if (toggleInfoBtn) {
+                toggleInfoBtn.addEventListener('click', function() {
+                    chatSidebarRight.classList.toggle('active');
+                    updateMobileUI();
+                });
+            }
+            
+            // Handle contact item click (open chat and switch conversation)
+            document.querySelectorAll('.contact-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    // Remove active class from all contact items
+                    document.querySelectorAll('.contact-item').forEach(i => i.classList.remove('active'));
+                    // Add active class to clicked item
+                    this.classList.add('active');
+                    
+                    if (isMobileView()) {
+                        // On mobile, show chat messages and hide contacts
+                        contactsSidebar.classList.add('hidden');
+                        chatMessages.style.display = 'flex';
+                        chatMessages.classList.add('active');
+                        chatSidebarRight.classList.remove('active');
+                        
+                        // Force reflow to ensure the transition works
+                        void chatMessages.offsetWidth;
+                    } else {
+                        // On desktop, ensure chat messages are visible
+                        chatMessages.style.display = 'flex';
+                        chatMessages.style.flex = '1';
+                        chatMessages.classList.add('active');
+                    }
+                    
+                    // Update chat content with contact information
+                    const contactData = JSON.parse(this.getAttribute('data-contact') || '{}');
+                    if (contactData.id) {
+                        currentContactId = String(contactData.id);
+                    }
+                    currentTicketId = contactData.ticketId ? String(contactData.ticketId) : null;
+                    if (contactData.name) {
+                        const chatAvatar = document.getElementById('chat-avatar');
+                        const chatName = document.querySelector('.chat-with h6');
+                        const detailAvatar = document.getElementById('detail-avatar');
+                        const detailName = document.getElementById('detail-name');
+                        const detailStatus = document.getElementById('detail-status');
+                        
+                        if (chatAvatar) chatAvatar.innerHTML = `<span>${contactData.avatar || contactData.name.charAt(0)}</span>`;
+                        if (chatName) chatName.textContent = contactData.name;
+                        if (detailAvatar) detailAvatar.innerHTML = `<span>${contactData.avatar || contactData.name.charAt(0)}</span>`;
+                        if (detailName) detailName.textContent = contactData.name;
+                        if (detailStatus) {
+                            detailStatus.textContent = contactData.status || 'Offline';
+                            detailStatus.className = contactData.status === 'Online' ? 'status-online' : 'status-offline';
+                        }
+                    }
+                    
+                    // After switching contact, render only that contact's messages
+                    loadMessagesForCurrentContact();
+
+                    updateMobileUI();
+                });
+            });
+            
+            // Handle window resize
+            function handleResize() {
+                updateMobileUI();
+            }
+            
+            window.addEventListener('resize', handleResize);
+            
+            // Initialize
+            updateMobileUI();
+            // If there is an active contact rendered by the backend, pick it and load its messages
+            const initiallyActive = document.querySelector('.contact-item.active');
+            if (initiallyActive) {
+                const initialData = JSON.parse(initiallyActive.getAttribute('data-contact') || '{}');
+                if (initialData.id) {
+                    currentContactId = String(initialData.id);
+                    currentTicketId = initialData.ticketId ? String(initialData.ticketId) : null;
+                    loadMessagesForCurrentContact();
+                }
+            }
+            
+            // Close sidebar when clicking the close button
+            // Handle send button click
+            const sendButton = document.getElementById('send-button');
+            if (sendButton) {
+                sendButton.addEventListener('click', sendMessage);
+            }
+            
+            // Handle Enter key in message input
+            const messageInput = document.getElementById('message-input');
+            if (messageInput) {
+                messageInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
+            }
+
+            // File upload button & preview
+            const fileUploadButton = document.getElementById('file-upload-button');
+            const fileInput = document.getElementById('file-upload');
+            const filePreview = document.getElementById('file-preview');
+
+            if (fileUploadButton && fileInput) {
+                fileUploadButton.addEventListener('click', function () {
+                    fileInput.click();
+                });
+
+                fileInput.addEventListener('change', function () {
+                    if (!filePreview) return;
+                    const files = Array.from(fileInput.files || []);
+                    if (!files.length) {
+                        filePreview.innerHTML = '';
+                        return;
+                    }
+                    const items = files.map(f => {
+                        const sizeKB = f.size ? (f.size / 1024).toFixed(1) : 0;
+                        return `<div class="small text-muted">${f.name} (${sizeKB} KB)</div>`;
+                    }).join('');
+                    filePreview.innerHTML = items;
+                });
+            }
+            // Handle close button click
+            const closeBtn = document.querySelector('.chat-sidebar-right .btn-close-sidebar');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    closeRightSidebar();
+                });
+            }
+
+            // Prepare Bootstrap modals for chat actions
+            const editContactModalEl = document.getElementById('editContactModal');
+            const archiveChatModalEl = document.getElementById('archiveChatModal');
+            const deleteChatModalEl = document.getElementById('deleteChatModal');
+            const editContactModal = (window.bootstrap && editContactModalEl) ? new bootstrap.Modal(editContactModalEl) : null;
+            const archiveChatModal = (window.bootstrap && archiveChatModalEl) ? new bootstrap.Modal(archiveChatModalEl) : null;
+            const deleteChatModal = (window.bootstrap && deleteChatModalEl) ? new bootstrap.Modal(deleteChatModalEl) : null;
+
+            // Handle contact actions (edit, archive, delete) via modals
+            const rightSidebar = document.querySelector('.chat-sidebar-right');
+            if(rightSidebar){
+                rightSidebar.addEventListener('click', function(e){
+                    const actionEl = e.target.closest('[data-action]');
+                    if(!actionEl) return;
+                    const action = actionEl.getAttribute('data-action');
+                    if(action === 'edit-contact'){
+                        e.preventDefault();
+                        if(editContactModal){
+                            const nameInput = document.getElementById('edit-contact-name');
+                            const emailInput = document.getElementById('edit-contact-email');
+                            const phoneInput = document.getElementById('edit-contact-phone');
+                            // Pre-fill from current UI where possible
+                            const currentNameEl = document.querySelector('.chat-with h6');
+                            if(nameInput && currentNameEl){
+                                nameInput.value = currentNameEl.textContent.trim();
+                            }
+                            if(emailInput){
+                                const emailEl = document.getElementById('detail-email');
+                                emailInput.value = emailEl ? emailEl.textContent.trim() : '';
+                            }
+                            if(phoneInput){
+                                const phoneEl = document.getElementById('detail-phone');
+                                phoneInput.value = phoneEl ? phoneEl.textContent.trim() : '';
+                            }
+                            // Also fetch freshest data from backend
+                            if(currentContactId){
+                                fetch(`/api/users/${currentContactId}/`, { credentials: 'same-origin' })
+                                    .then(res => res.ok ? res.json() : null)
+                                    .then(data => {
+                                        if(!data) return;
+                                        const fullName = `${data.first_name || ''} ${data.last_name || ''}`.trim() || data.username || '';
+                                        if(nameInput && fullName){ nameInput.value = fullName; }
+                                        if(emailInput && typeof data.email === 'string'){ emailInput.value = data.email; }
+                                        if(phoneInput && typeof data.phone === 'string'){ phoneInput.value = data.phone; }
+                                    })
+                                    .catch(err => console.error('Failed to load contact details', err));
+                            }
+                            editContactModal.show();
+                        }
+                    } else if(action === 'archive-chat'){
+                        e.preventDefault();
+                        if(archiveChatModal){
+                            archiveChatModal.show();
+                        }
+                    } else if(action === 'delete-chat'){
+                        e.preventDefault();
+                        if(deleteChatModal){
+                            deleteChatModal.show();
+                        }
+                    }
+                });
+            }
+
+            // Modal confirm buttons
+            const editConfirmBtn = document.getElementById('edit-contact-confirm');
+            if(editConfirmBtn){
+                editConfirmBtn.addEventListener('click', async function(){
+                    const nameInput = document.getElementById('edit-contact-name');
+                    const emailInput = document.getElementById('edit-contact-email');
+                    const phoneInput = document.getElementById('edit-contact-phone');
+                    const newName = nameInput ? nameInput.value.trim() : '';
+                    const newEmail = emailInput ? emailInput.value.trim() : '';
+                    const newPhone = phoneInput ? phoneInput.value.trim() : '';
+                    if(!newName){ return; }
+                    editConfirmBtn.disabled = true;
+                    try{
+                        await handleEditContact(newName, newEmail, newPhone);
+                        editContactModal && editContactModal.hide();
+                    }finally{
+                        editConfirmBtn.disabled = false;
+                    }
+                });
+            }
+
+            const archiveConfirmBtn = document.getElementById('archive-chat-confirm');
+            if(archiveConfirmBtn){
+                archiveConfirmBtn.addEventListener('click', async function(){
+                    archiveConfirmBtn.disabled = true;
+                    try{
+                        await handleArchiveChat();
+                        archiveChatModal && archiveChatModal.hide();
+                    }finally{
+                        archiveConfirmBtn.disabled = false;
+                    }
+                });
+            }
+
+            const deleteConfirmBtn = document.getElementById('delete-chat-confirm');
+            if(deleteConfirmBtn){
+                deleteConfirmBtn.addEventListener('click', async function(){
+                    deleteConfirmBtn.disabled = true;
+                    try{
+                        await handleDeleteChat();
+                        deleteChatModal && deleteChatModal.hide();
+                    }finally{
+                        deleteConfirmBtn.disabled = false;
+                    }
+                });
+            }
+
+            // Emoji Picker functionality
+            console.log('Initializing emoji picker...');
+            
+            const emojiPickerButton = document.getElementById('emoji-picker-button');
+            const emojiPicker = document.getElementById('emoji-picker');
+            const messageInputEl = document.getElementById('message-input');
+            
+            console.log('Elements found:', {
+                emojiPickerButton: !!emojiPickerButton,
+                emojiPicker: !!emojiPicker,
+                messageInputEl: !!messageInputEl
+            });
+            
+            if (emojiPickerButton && emojiPicker && messageInputEl) {
+                console.log('All emoji picker elements found, setting up functionality...');
+                
+                // Simple click handler first
+                emojiPickerButton.addEventListener('click', (e) => {
+                    console.log('Emoji button clicked!');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const isVisible = emojiPicker.style.display !== 'none';
+                    emojiPicker.style.display = isVisible ? 'none' : 'block';
+                    console.log('Emoji picker toggled, now visible:', !isVisible);
+                });
+                
+                // Create simple emoji grid
+                const basicEmojis = ['😀', '😃', '😄', '😁', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔', '🤐', '🤨', '😐', '😑', '😶', '😏', '😒', '🙄', '😬', '🤥', '😔', '😪', '🤤', '😴', '😷', '🤒', '🤕', '🤢', '🤮', '🤧', '🥵', '🥶', '🥴', '😵', '🤯', '🤠', '🥳', '😎', '🤓', '🧐'];
+                
+                const emojiGrid = document.createElement('div');
+                emojiGrid.style.cssText = `
+                    display: grid;
+                    grid-template-columns: repeat(8, 1fr);
+                    gap: 5px;
+                    padding: 10px;
+                    max-height: 200px;
+                    overflow-y: auto;
+                    background: white;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                `;
+                
+                basicEmojis.forEach(emoji => {
+                    const emojiBtn = document.createElement('button');
+                    emojiBtn.textContent = emoji;
+                    emojiBtn.style.cssText = `
+                        font-size: 20px;
+                        padding: 5px;
+                        border: none;
+                        background: transparent;
+                        cursor: pointer;
+                        border-radius: 4px;
+                        transition: background 0.2s;
+                    `;
+                    emojiBtn.addEventListener('click', () => {
+                        const currentValue = messageInputEl.value || '';
+                        messageInputEl.value = currentValue + emoji;
+                        messageInputEl.focus();
+                        emojiPicker.style.display = 'none';
+                    });
+                    emojiBtn.addEventListener('mouseenter', () => {
+                        emojiBtn.style.background = '#f0f0f0';
+                    });
+                    emojiBtn.addEventListener('mouseleave', () => {
+                        emojiBtn.style.background = 'transparent';
+                    });
+                    emojiGrid.appendChild(emojiBtn);
+                });
+                
+                emojiPicker.innerHTML = '';
+                emojiPicker.appendChild(emojiGrid);
+                
+                console.log('Simple emoji picker created successfully');
+                
+                // Close when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!emojiPicker.contains(e.target) && e.target !== emojiPickerButton) {
+                        emojiPicker.style.display = 'none';
+                    }
+                });
+            } else {
+                console.error('Emoji picker elements not found');
+            }
+
+            // Remove duplicate contact item click handler
+            // The functionality has been moved to the first handler
+
+            // Periodically check for message read status updates
+            setInterval(() => {
+                if (currentContactId && currentTicketId) {
+                    // Check if any sent messages have been read
+                    const sentMessages = document.querySelectorAll('.message.sent[data-message-id]');
+                    sentMessages.forEach(msgElement => {
+                        const messageId = msgElement.getAttribute('data-message-id');
+                        if (messageId && !messageId.startsWith('temp-')) {
+                            const statusElement = msgElement.querySelector('.message-status .tick');
+                            if (statusElement) {
+                                // WhatsApp-style progression:
+                                // 1. Start with single tick (sending)
+                                // 2. Auto-update to double tick (delivered) after 2 seconds  
+                                // 3. Update to blue double tick when recipient reads message
+                                
+                                if (statusElement.classList.contains('sending')) {
+                                    // Auto-update to delivered after 2 seconds
+                                    const messageAge = Date.now() - parseInt(msgElement.getAttribute('data-timestamp') || '0');
+                                    if (messageAge > 2000) {
+                                        updateMessageStatus(messageId, 'delivered');
+                                    }
+                                } else if (statusElement.classList.contains('delivered')) {
+                                    // Simulate read status based on user activity or time
+                                    // In real app, this would come from WebSocket when recipient reads message
+                                    const messageAge = Date.now() - parseInt(msgElement.getAttribute('data-timestamp') || '0');
+                                    if (messageAge > 10000) { // 10 seconds = simulate read
+                                        updateMessageStatus(messageId, 'read');
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }, 3000); // Check every 3 seconds
+        });
+    </script>
+    
+    <style>
+        /* Message input styles */
+        .message-input {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .message-input .form-control {
+            border: 1px solid #e9ecef;
+            border-radius: 20px;
+            padding: 8px 45px 8px 15px;
+            margin: 0 10px;
+            box-shadow: none;
+        }
+        
+        .message-input .form-control:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.25);
+        }
+        
+        .btn-send {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-send:hover {
+            background: #4338ca;
+            transform: scale(1.05);
+        }
+        
+        /* Search functionality styles */
+        .chat-search .search-box {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        
+        .chat-search .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        
+        .chat-search .search-box input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.25);
+        }
+        
+        .chat-search .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .no-search-results {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        .btn-send:active {
+            transform: translateY(0);
+        }
+        
+        /* File attachment styles */
+        .message-attachments {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .attachment-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .attachment-item i {
+            font-size: 1.2rem;
+            color: #4f46e5;
+            margin-right: 10px;
+            min-width: 20px;
+        }
+        
+        .attachment-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .attachment-filename {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #333;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .attachment-size {
+            font-size: 0.75rem;
+            color: #666;
+            display: block;
+        }
+        
+        .attachment-download {
+            color: #4f46e5;
+            text-decoration: none;
+            padding: 4px 6px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .attachment-download:hover {
+            background: rgba(79, 70, 229, 0.1);
+            color: #4338ca;
+        }
+        
+        /* File preview styles */
+        #file-preview {
+            margin-top: 5px;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        /* Add overlay style for mobile */
+        .chat-sidebar-overlay {
+            display: none;
+        }
+        
+        @media (max-width: 991.98px) {
+            .chat-sidebar-overlay {
+                display: block;
+            }
+            
+            .chat-sidebar-right {
+                transition: right 0.3s ease-in-out;
+            }
+        }
+        
+        /* Enhanced right sidebar and overlay styling */
+        .chat-sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .chat-sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        /* Ensure right sidebar works on all screen sizes */
+        .chat-sidebar-right {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 350px;
+            height: 100%;
+            z-index: 1050;
+            transition: right 0.3s ease;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            background: white;
+            display: flex !important;
+            flex-direction: column;
+        }
+        
+        .chat-sidebar-right.active {
+            right: 0;
+        }
+        
+        /* Desktop override */
+        @media (min-width: 992px) {
+            .chat-sidebar-right {
+                position: fixed;
+                right: -350px;
+                width: 350px;
+                border-left: 1px solid #e2e8f0;
+            }
+            
+            .chat-sidebar-right.active {
+                right: 0;
+            }
+        }
+        
+        /* Enhanced message avatar styling */
+        .message-avatar {
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 50% !important;
+            background: #e9ecef !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 0.8rem !important;
+            font-weight: 600 !important;
+            color: #495057 !important;
+            margin-right: 12px !important;
+            flex-shrink: 0 !important;
+            margin-top: auto !important;
+            border: 2px solid #f8f9fa !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+        }
+
+        .message.sent .message-avatar {
+            display: none !important;
+        }
+        
+        /* Ensure message structure is correct */
+        .message {
+            display: flex !important;
+            align-items: flex-end !important;
+            margin-bottom: 1rem !important;
+            max-width: 80% !important;
+            position: relative !important;
+        }
+
+        .message.received {
+            align-self: flex-start !important;
+            margin-right: auto !important;
+        }
+
+        .message.sent {
+            align-self: flex-end !important;
+            flex-direction: row-reverse !important;
+            margin-left: auto !important;
+        }
+        
+        /* Status indicators */
+        .status-online {
+            color: #10b981;
+            font-size: 0.75rem;
+        }
+        
+        .status-offline {
+            color: #6b7280;
+            font-size: 0.75rem;
+        }
+    </style>
+    <script src="{% static 'admindashboard/js/dropdown.js' %}"></script>
+</body>
+</html>

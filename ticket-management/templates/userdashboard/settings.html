@@ -1,0 +1,526 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Settings</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- User Dashboard CSS -->
+    <link rel="stylesheet" href="{% static 'userdashboard/css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'userdashboard/css/settings.css' %}">
+</head>
+
+<body class="app-body" data-page="dashboard">
+
+<div class="app-root">
+
+     <!-- Include Sidebar -->
+  {% include 'userdashboard/partials/sidebar.html' %}
+
+    <!-- Main Content -->
+    <main class="main">
+
+        <!-- Include Header -->
+  {% include 'userdashboard/partials/header.html' %}
+
+       <section class="page">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Settings</h1>
+                        <p class="page-subtitle">Manage your account preferences</p>
+                    </div>
+                    <button type="submit" form="settings-form" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+
+                <!-- Messages -->
+                {% if messages %}
+                    <div class="alert-container">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                                <button class="alert-close">&times;</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Status Messages -->
+                {% if settings_saved %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> Settings saved successfully!
+                        <button class="alert-close">&times;</button>
+                    </div>
+                {% endif %}
+                {% if password_error %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i> {{ password_error }}
+                        <button class="alert-close">&times;</button>
+                    </div>
+                {% endif %}
+                {% if twofa_error %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i> {{ twofa_error }}
+                        <button class="alert-close">&times;</button>
+                    </div>
+                {% endif %}
+
+                <form id="settings-form" method="post" class="settings-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="settings">
+
+                    <div class="settings-grid">
+                     
+
+                        <!-- Preferences -->
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <i class="fas fa-sliders-h"></i>
+                                <h2>Preferences</h2>
+                            </div>
+                            <div class="card-content">
+                                <div class="form-group">
+                                    <label class="form-label">Theme</label>
+                                    <div class="theme-selector">
+                                        <label class="theme-option">
+                                            <input type="radio" name="theme" value="light" {% if settings_theme == 'light' %}checked{% endif %}>
+                                            <span class="theme-preview light">
+                                                <i class="fas fa-sun"></i>
+                                                <span>Light</span>
+                                            </span>
+                                        </label>
+                                        <label class="theme-option">
+                                            <input type="radio" name="theme" value="dark" {% if settings_theme == 'dark' %}checked{% endif %}>
+                                            <span class="theme-preview dark">
+                                                <i class="fas fa-moon"></i>
+                                                <span>Dark</span>
+                                            </span>
+                                        </label>
+                                        <label class="theme-option">
+                                            <input type="radio" name="theme" value="system" {% if settings_theme == 'system' or not settings_theme %}checked{% endif %}>
+                                            <span class="theme-preview system">
+                                                <i class="fas fa-desktop"></i>
+                                                <span>System</span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                               
+                            </div>
+                        </div>
+
+                        <!-- Notifications -->
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <i class="fas fa-bell"></i>
+                                <h2>Notifications</h2>
+                            </div>
+                            <div class="card-content">
+                                <div class="toggle-group">
+                                    <div class="toggle-item">
+                                        <span>Email Notifications</span>
+                                        <label class="switch">
+                                            <input type="checkbox" name="email_notifications" 
+                                                   {% if settings_email_notifications %}checked{% endif %}>
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="toggle-item">
+                                        <span>Push Notifications</span>
+                                        <label class="switch">
+                                            <input type="checkbox" name="push_notifications" 
+                                                   {% if settings_push_notifications %}checked{% endif %}>
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="toggle-item">
+                                        <span>Marketing Emails</span>
+                                        <label class="switch">
+                                            <input type="checkbox" name="marketing_emails" 
+                                                   {% if settings_marketing_emails %}checked{% endif %}>
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security -->
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <i class="fas fa-shield-alt"></i>
+                                <h2>Security</h2>
+                            </div>
+                            <div class="card-content">
+                                <div class="security-item">
+                                    <div>
+                                        <h4>Password</h4>
+                                        <p>Last changed: 3 months ago</p>
+                                    </div>
+                                    <button type="button" class="btn btn-outline" id="change-password">
+                                        Change
+                                    </button>
+                                </div>
+                                
+                                <div class="security-item">
+                                    <div>
+                                        <h4>Two-Factor Authentication</h4>
+                                        <p>Add an extra layer of security</p>
+                                    </div>
+                                    <button type="button" class="btn btn-{% if settings_2fa_enabled %}success{% else %}outline{% endif %}" 
+                                            id="toggle-2fa">
+                                        {% if settings_2fa_enabled %}Enabled{% else %}Enable 2FA{% endif %}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+
+                <!-- Danger Zone (outside main form) -->
+                <div class="settings-card danger">
+                    <div class="card-header">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h2>Danger Zone</h2>
+                    </div>
+                    <div class="card-content">
+                        <!-- Deactivate account form -->
+                        <div class="danger-item">
+                            <div>
+                                <h4>Deactivate Account</h4>
+                                <p>Your account will be deactivated but not deleted.</p>
+                            </div>
+                            <form method="post" style="margin: 0;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="deactivate">
+                                <button type="submit" class="btn btn-outline-danger">
+                                    Deactivate
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Delete account form -->
+                        <div class="danger-item">
+                            <div>
+                                <h4>Delete Account</h4>
+                                <p>This action cannot be undone.</p>
+                            </div>
+                            <form method="post" style="margin: 0;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <button type="submit" class="btn btn-danger">
+                                    Delete Account
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-content"> 2025 <a href="https://ultrakeyit.com/" target="_blank" rel="noopener noreferrer" class="text-decoration-none">Ultrakey It Solutions</a>. All rights reserved.</div>
+        </footer>
+
+    </main>
+
+</div>
+
+<!-- Password Change Modal -->
+<div id="password-modal" class="modal">
+    <div class="modal-content">
+        <button class="close-modal">&times;</button>
+        <h2>Change Password</h2>
+        <form id="password-form" method="post">
+            <input type="text" name="username" autocomplete="username" class="visually-hidden" value="{{ request.user.username }}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="change_password">
+            
+            <div class="form-group">
+                <label class="form-label">Current Password</label>
+                <input type="password" name="current_password" required class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">New Password</label>
+                <input type="password" name="new_password" required class="form-control">
+                <div class="password-requirements">
+                    <p id="length">✓ At least 8 characters</p>
+                    <p id="uppercase">✓ One uppercase letter</p>
+                    <p id="number">✓ One number</p>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Confirm New Password</label>
+                <input type="password" name="confirm_password" required class="form-control">
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Update Password</button>
+                <button type="button" class="btn btn-secondary close-modal">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 2FA Modal -->
+<div id="2fa-modal" class="modal">
+    <div class="modal-content">
+        <button class="close-modal">&times;</button>
+        <h2>{% if settings_2fa_enabled %}Disable{% else %}Enable{% endif %} Two-Factor Authentication</h2>
+        <form id="2fa-form" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="toggle_2fa">
+            
+            {% if not settings_2fa_enabled %}
+            <p>Two-factor authentication adds an extra layer of security to your account.</p>
+            <div class="form-group">
+                <label class="form-label">Authenticator App</label>
+                <p>Install an authenticator app like Google Authenticator or Microsoft Authenticator on your phone.</p>
+                <div id="qr-code" style="text-align: center; margin: 1rem 0;">
+                    <!-- QR code will be displayed here -->
+                </div>
+                <input type="text" name="setup_code" readonly class="form-control" placeholder="Setup code will appear here" style="text-align: center; font-family: monospace;">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Verification Code</label>
+                <input type="text" name="verification_code" inputmode="numeric" maxlength="6" placeholder="000000" class="form-control" style="text-align: center; font-size: 1.2rem; letter-spacing: 0.5rem;">
+                <small>Enter the 6-digit code from your authenticator app</small>
+            </div>
+            {% else %}
+            <p>This will disable two-factor authentication on your account.</p>
+            <div class="form-group">
+                <label class="form-label">Enter your password to confirm</label>
+                <input type="password" name="confirm_password" required class="form-control">
+            </div>
+            {% endif %}
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">{% if settings_2fa_enabled %}Disable{% else %}Enable{% endif %} 2FA</button>
+                <button type="button" class="btn btn-secondary close-modal">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- JS Files -->
+<!-- <script src="{% static 'userdashboard/js/layout.js' %}"></script> -->
+<script src="{% static 'userdashboard/js/script.js' %}"></script>
+<script src="{% static 'userdashboard/js/app.js' %}"></script>
+
+  <script>
+        // Theme switcher
+        function setTheme(theme) {
+            const html = document.documentElement;
+            
+            // Remove all theme classes first
+            html.classList.remove('light-theme', 'dark-theme');
+            
+            if (theme === 'system') {
+                // Check system preference
+                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (prefersDark) {
+                    html.classList.add('dark-theme');
+                } else {
+                    html.classList.add('light-theme');
+                }
+            } else {
+                html.classList.add(`${theme}-theme`);
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('theme', theme);
+            
+            // Dispatch event for other components to listen to
+            document.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme } }));
+        }
+        
+        // Initialize theme
+        function initTheme() {
+            // First try to get the checked radio button (from database)
+            const checkedRadio = document.querySelector('input[name="theme"]:checked');
+            let savedTheme = 'system'; // default
+            
+            if (checkedRadio) {
+                savedTheme = checkedRadio.value;
+            } else {
+                // Fallback to localStorage if no radio is checked
+                savedTheme = localStorage.getItem('theme') || 'system';
+                // Update radio button to match localStorage
+                const radio = document.querySelector(`input[name="theme"][value="${savedTheme}"]`);
+                if (radio) radio.checked = true;
+            }
+            
+            setTheme(savedTheme);
+        }
+        
+        // Add event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize theme
+            initTheme();
+            
+            // Apply theme immediately based on backend value
+            const checkedRadio = document.querySelector('input[name="theme"]:checked');
+            if (checkedRadio) {
+                setTheme(checkedRadio.value);
+            }
+            
+            // Add change event to theme radio buttons
+            document.querySelectorAll('input[name="theme"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    setTheme(e.target.value);
+                });
+            });
+            
+            // Listen for system theme changes
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                const currentTheme = localStorage.getItem('theme') || 'system';
+                if (currentTheme === 'system') {
+                    setTheme('system');
+                }
+            });
+        });
+
+        // Password visibility toggle
+        document.querySelectorAll('.password-toggle').forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                const input = e.target.previousElementSibling;
+                const type = input.type === 'password' ? 'text' : 'password';
+                input.type = type;
+                e.target.classList.toggle('fa-eye');
+                e.target.classList.toggle('fa-eye-slash');
+            });
+        });
+
+        // Modal handling
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Event listeners for modals
+        document.getElementById('change-password')?.addEventListener('click', () => openModal('password-modal'));
+        document.getElementById('toggle-2fa')?.addEventListener('click', () => openModal('2fa-modal'));
+        document.querySelectorAll('.close-modal').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const modal = e.target.closest('.modal');
+                if (modal) closeModal(modal.id);
+            });
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                closeModal(e.target.id);
+            }
+        });
+
+        // Password form submission
+        document.getElementById('password-form')?.addEventListener('submit', (e) => {
+            const form = e.target;
+            const newPass = form.querySelector('input[name="new_password"]').value;
+            const confirmPass = form.querySelector('input[name="confirm_password"]').value;
+            
+            if (newPass !== confirmPass) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+                return;
+            }
+            
+            // Check password requirements
+            const hasLength = newPass.length >= 8;
+            const hasUppercase = /[A-Z]/.test(newPass);
+            const hasNumber = /[0-9]/.test(newPass);
+            
+            if (!hasLength || !hasUppercase || !hasNumber) {
+                e.preventDefault();
+                alert('Password does not meet the requirements!');
+                return;
+            }
+        });
+
+        // 2FA form submission
+        document.getElementById('2fa-form')?.addEventListener('submit', (e) => {
+            const form = e.target;
+            const verificationCode = form.querySelector('input[name="verification_code"]');
+            
+            if (verificationCode && verificationCode.value.length !== 6) {
+                e.preventDefault();
+                alert('Please enter a valid 6-digit code');
+                return;
+            }
+        });
+
+        // Password strength indicator
+        document.querySelector('input[name="new_password"]')?.addEventListener('input', (e) => {
+            const password = e.target.value;
+            const length = document.getElementById('length');
+            const uppercase = document.getElementById('uppercase');
+            const number = document.getElementById('number');
+
+            // Check password requirements
+            const hasLength = password.length >= 8;
+            const hasUppercase = /[A-Z]/.test(password);
+            const hasNumber = /[0-9]/.test(password);
+
+            // Update UI
+            if (length) length.style.color = hasLength ? 'var(--success)' : 'var(--text-muted)';
+            if (uppercase) uppercase.style.color = hasUppercase ? 'var(--success)' : 'var(--text-muted)';
+            if (number) number.style.color = hasNumber ? 'var(--success)' : 'var(--text-muted)';
+        });
+
+        // Close alert messages
+        document.querySelectorAll('.alert-close').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const alert = e.target.closest('.alert');
+                if (alert) {
+                    alert.style.animation = 'slideOut 0.3s ease forwards';
+                    setTimeout(() => alert.remove(), 300);
+                }
+            });
+        });
+
+        // Auto-close alerts after 5 seconds
+        document.querySelectorAll('.alert').forEach(alert => {
+            setTimeout(() => {
+                if (alert.parentElement) {
+                    alert.style.animation = 'slideOut 0.3s ease forwards';
+                    setTimeout(() => alert.remove(), 300);
+                }
+            }, 5000);
+        });
+
+        // Let the form submit normally so Django handles POST and reloads the page.
+    </script>
+
+    <style>
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+        }
+    </style>
+</body>
+</html>

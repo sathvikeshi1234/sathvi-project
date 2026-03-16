@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Ticket Management System</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+
+    :root {
+
+      --ts-primary: #0d6efd;
+
+      --ts-primary-soft: rgba(13, 110, 253, 0.08);
+
+      --ts-bg: #020617;
+
+      --ts-surface: #0f172a;
+
+      --ts-surface-soft: #111827;
+
+      --ts-border: rgba(148, 163, 184, 0.35);
+
+      --ts-text: #e5e7eb;
+
+      --ts-text-muted: #9ca3af;
+
+      --ts-radius-lg: 16px;
+
+      --ts-radius-md: 12px;
+
+      --ts-shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.65);
+
+    }
+
+
+
+    * {
+
+      box-sizing: border-box;
+
+    }
+
+
+
+    body {
+
+      min-height: 100vh;
+
+      margin: 0;
+
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+      color: var(--ts-text);
+
+      background:
+
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 55%),
+
+        radial-gradient(circle at bottom right, rgba(129, 140, 248, 0.15), transparent 55%),
+
+        radial-gradient(circle at top right, rgba(251, 191, 36, 0.08), transparent 55%),
+
+        linear-gradient(135deg, #020617, #020617 40%, #020617 100%);
+
+      display: flex;
+
+      flex-direction: column;
+
+    }
+
+
+
+    .ts-shell {
+
+      width: 100%;
+
+      margin: 0px auto;
+
+    }
+
+
+
+    .ts-nav {
+
+  
+
+    }
+
+
+
+    .ts-nav .navbar-brand {
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 0.6rem;
+
+      font-weight: 700;
+
+      letter-spacing: 0.02em;
+
+      color: #f9fafb !important;
+
+    }
+
+
+
+    .ts-nav-logo {
+
+      width: 34px;
+
+      height: 34px;
+
+      border-radius: 999px;
+
+      display: inline-flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      background: radial-gradient(circle at 10% 0%, #38bdf8 0%, #0ea5e9 40%, #6366f1 100%);
+
+      box-shadow: 0 10px 30px rgba(59, 130, 246, 0.65);
+
+      font-size: 1.25rem;
+
+    }
+
+
+
+    .ts-nav-title-sub {
+
+      font-size: 0.75rem;
+
+      text-transform: uppercase;
+
+      letter-spacing: 0.16em;
+
+      color: rgba(226, 232, 240, 0.9);
+
+    }
+
+
+
+    .ts-nav-links .nav-link {
+
+      position: relative;
+
+      color: var(--ts-text-muted) !important;
+
+      font-weight: 500;
+
+      font-size: 0.92rem;
+
+      padding-inline: 0.75rem;
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 0.35rem;
+
+      border-radius: 999px;
+
+      transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+
+    }
+
+
+
+    .ts-nav-links .nav-link:hover {
+
+      color: #f9fafb !important;
+
+      background-color: rgba(15, 118, 255, 0.12);
+
+      transform: translateY(-1px);
+
+    }
+
+
+
+    .ts-nav-links .nav-link.active {
+
+      color: #0f172a !important;
+
+      background: linear-gradient(135deg, #60a5fa, #22c55e);
+
+      box-shadow: 0 10px 25px rgba(56, 189, 248, 0.35);
+
+    }
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+    .ts-page-shell-inner {
+
+      position: relative;
+
+      z-index: 1;
+
+    }
+
+
+
+    .ts-page-header {
+
+      display: flex;
+
+      flex-direction: column;
+
+      align-items: center;
+
+      text-align: center;
+
+      gap: 0.75rem;
+
+      margin-bottom: 1.5rem;
+
+    }
+
+
+
+    .ts-page-header-title {
+
+      display: flex;
+
+      flex-direction: column;
+
+      gap: 0.15rem;
+
+    }
+
+
+
+    .ts-page-header-title h1,
+
+    .ts-page-header-title h2,
+
+    .ts-page-header-title h3 {
+
+      margin: 0;
+
+      font-size: 1.25rem;
+
+      font-weight: 600;
+
+      color: #e5e7eb;
+
+    }
+
+
+
+    .ts-page-header-title p {
+
+      margin: 0;
+
+      font-size: 0.85rem;
+
+      color: var(--ts-text-muted);
+
+    }
+
+
+
+    .ts-page-chip {
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 0.4rem;
+
+      padding: 0.25rem 0.7rem;
+
+      border-radius: 999px;
+
+      font-size: 0.75rem;
+
+      background-color: rgba(15, 23, 42, 0.9);
+
+      border: 1px solid rgba(148, 163, 184, 0.6);
+
+      color: var(--ts-text-muted);
+
+      margin-top: 0.25rem;
+
+    }
+
+
+
+    .ts-content-card {
+
+
+
+    }
+
+
+
+    @media (min-width: 768px) {
+
+      .ts-page-shell {
+
+        padding: 1.75rem 1.9rem 2rem;
+
+      }
+
+
+
+      .ts-content-card {
+
+        padding: 1.5rem 1.4rem;
+
+      }
+
+    }
+
+
+
+    @media (max-width: 767.98px) {
+
+      .ts-main-wrap {
+
+        padding: 1.25rem 0.8rem 1.75rem;
+
+      }
+
+
+
+      .ts-page-header {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+      }
+
+
+
+      .ts-nav .navbar-collapse {
+
+        padding-top: 0.75rem;
+
+      }
+
+
+
+      .ts-nav-links .nav-link {
+
+        padding-inline: 0.6rem;
+
+      }
+
+    }
+
+    </style>
+
+</head>
+
+<body>
+
+
+
+  <!-- Main Content Shell -->
+
+  <div class="ts-shell">
+
+    <main class="ts-main-wrap">
+
+      <div class="ts-main-inner">
+
+        <div class="ts-page-shell">
+
+          <div class="ts-page-shell-inner">
+
+            
+
+
+
+            <div class="ts-content-card">
+
+              {% block content %}
+
+              {% endblock %}
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
+

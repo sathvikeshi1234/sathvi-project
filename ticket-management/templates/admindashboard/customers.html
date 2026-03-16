@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Customers</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'admindashboard/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'admindashboard/css/dropdown.css' %}">
+</head>
+<body>
+    <div id="app">
+        <!-- Include Sidebar -->
+        <div id="sidebar-container">
+            <!-- Content will be loaded by JavaScript -->
+        </div>
+
+        <div class="main-container">
+            <!-- Include Header -->
+            <div id="header-container">
+                <!-- Content will be loaded by JavaScript -->
+            </div>
+
+            <!-- Main Content -->
+            <main class="content-area">
+                <!-- CUSTOMERS PAGE CONTENT -->
+                <div id="customers" class="page-content active">
+                    <div class="page-header">
+                        <div>
+                            <h2>Customers</h2>
+                        </div>
+                        <!-- <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newCustomerModal">
+                            <i class="bi bi-plus"></i> Add Customer
+                        </button> -->
+                    </div>
+                    
+                    <!-- Breadcrumbs -->
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="/dashboard/admin-dashboard/">
+                                    <i class="bi bi-house-door"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                Customers
+                            </li>
+                        </ol>
+                    </nav>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="filter-controls">
+                                <div class="search-box">
+                                    <i class="bi bi-search"></i>
+                                    <input type="text" id="customer-search" placeholder="Search customers...">
+                                </div>
+                                <select class="form-select filter-input">
+                                    <option>All Status</option>
+                                    <option>Active</option>
+                                    <option>Inactive</option>
+                                    <option>VIP</option>
+                                </select>
+                                <select class="form-select filter-input">
+                                    <option>Sort By</option>
+                                    <option>Name (A-Z)</option>
+                                    <option>Name (Z-A)</option>
+                                    <option>Newest First</option>
+                                    <option>Oldest First</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="selectAll">
+                                                </div>
+                                            </th>
+                                            <th>Customer</th>
+                                            <th>Email</th>
+                                            <th>Phone</th>
+                                            <th>Tickets</th>
+                                            <th>Status</th>
+                                            <!-- <th>Last Active</th> -->
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="customers-table"></tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div class="text-muted">
+                                    Showing <span id="customers-showing-from">0</span> to <span id="customers-showing-to">0</span> of <span id="customers-total">0</span> entries
+                                </div>
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination mb-0">
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                                        </li>
+                                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="#">Next</a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="dashboard-footer mt-4 mb-2 text-muted small">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>© Ultrakey IT Solutions</span>
+                        <span>All systems operational</span>
+                    </div>
+                </footer>
+            </main>
+        </div>
+    </div>
+
+    <!-- Include Modals -->
+    <div id="modals-container">
+        <!-- Content will be loaded by JavaScript -->
+    </div>
+
+    
+    
+    
+
+    <!-- Core JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Utility function for loading components -->
+    <script>
+        // Function to load HTML content into an element
+        function loadComponent(url, elementId) {
+            return fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        element.innerHTML = html;
+                        
+                        // If loading the sidebar, set the active nav item
+                        if (url.includes('sidebar.html')) {
+                            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                            const pageName = currentPage.replace('.html', '') || 'dashboard';
+                            const activeNavItem = document.querySelector(`.nav-item[data-page="${pageName}"]`);
+                            if (activeNavItem) {
+                                // Remove active class from all nav items
+                                document.querySelectorAll('.nav-item').forEach(item => {
+                                    item.classList.remove('active');
+                                });
+                                activeNavItem.classList.add('active');
+                            }
+                        }
+                        
+                        // If loading the header, initialize it after a short delay
+                        if (url.includes('header.html') && window.initializeHeader) {
+                            setTimeout(() => {
+                                window.initializeHeader();
+                            }, 50);
+                        }
+                        
+                        return true;
+                    }
+                    return false;
+                })
+                .catch(error => {
+                    console.error('Error loading component:', error);
+                    return false;
+                });
+        }
+        
+        // Keep all customers in memory for client-side filtering/sorting
+        let ALL_CUSTOMERS = [];
+        let CURRENT_PAGE = 1;
+        let PAGE_SIZE = 10;
+        let TOTAL_CUSTOMERS = 0;
+        let TOTAL_PAGES = 0;
+
+        // Simple helper to read csrftoken from cookies for PATCH/DELETE
+        function getCsrfToken() {
+            const name = 'csrftoken=';
+            const decoded = decodeURIComponent(document.cookie || '');
+            const parts = decoded.split(';');
+            for (let i = 0; i < parts.length; i++) {
+                const c = parts[i].trim();
+                if (c.startsWith(name)) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return '';
+        }
+
+        function renderCustomers(customers, total, page, totalPages){
+            const tbody = document.getElementById('customers-table');
+            const totalEl = document.getElementById('customers-total');
+            const fromEl = document.getElementById('customers-showing-from');
+            const toEl = document.getElementById('customers-showing-to');
+
+            const customersList = Array.isArray(customers) ? customers : [];
+            TOTAL_CUSTOMERS = total || 0;
+            CURRENT_PAGE = page || 1;
+            TOTAL_PAGES = totalPages || 1;
+            
+            if (totalEl) totalEl.textContent = TOTAL_CUSTOMERS;
+            
+            // Calculate showing from/to
+            const from = TOTAL_CUSTOMERS > 0 ? ((CURRENT_PAGE - 1) * PAGE_SIZE) + 1 : 0;
+            const to = Math.min(CURRENT_PAGE * PAGE_SIZE, TOTAL_CUSTOMERS);
+            
+            if (fromEl) fromEl.textContent = from;
+            if (toEl) toEl.textContent = to;
+
+            if (!tbody){ return; }
+
+            if (customersList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-muted">No customers found.</td></tr>';
+                updatePaginationControls();
+                return;
+            }
+
+            tbody.innerHTML = customersList.map(c => {
+                const statusBadge = c.is_active ? 'bg-success' : (c.is_vip ? 'bg-info' : 'bg-warning');
+                const statusText = c.is_active ? 'Active' : (c.is_vip ? 'VIP' : 'Inactive');
+                const initials = c.initials || (c.name || '??').slice(0,2).toUpperCase();
+                const phone = c.phone || '-';
+                const tickets = c.tickets_count ?? 0;
+                
+                return `
+                    <tr>
+                        <td>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div>
+                                    <div class="fw-bold">${c.name || '-'}</div>
+                                    <small class="text-muted">ID: CUST-${c.id}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${c.email || '-'}</td>
+                        <td>${phone}</td>
+                        <td>${tickets}</td>
+                        <td><span class="badge ${statusBadge}">${statusText}</span></td>
+                        
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-icon" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <button class="dropdown-item btn-customer-view" data-customer-id="${c.id}">
+                                            <i class="bi bi-eye me-2"></i>View
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="dropdown-item btn-customer-edit" data-customer-id="${c.id}">
+                                            <i class="bi bi-pencil me-2"></i>Edit
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="dropdown-item btn-customer-activate" data-customer-id="${c.id}">
+                                            <i class="bi bi-toggle-on me-2 text-success"></i>Activate
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="dropdown-item btn-customer-deactivate" data-customer-id="${c.id}">
+                                            <i class="bi bi-toggle-off me-2 text-warning"></i>Deactivate
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="dropdown-item btn-customer-set-password" data-customer-id="${c.id}" data-customer-name="${c.name}" data-customer-email="${c.email}">
+                                            <i class="bi bi-key me-2"></i>Set Password
+                                        </button>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <button class="dropdown-item text-danger btn-customer-delete" data-customer-id="${c.id}">
+                                            <i class="bi bi-trash me-2"></i>Delete
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>`;
+            }).join('');
+            
+            updatePaginationControls();
+        }
+
+        function updatePaginationControls() {
+            const paginationUl = document.querySelector('.pagination');
+            if (!paginationUl) return;
+
+            let paginationHTML = '';
+            
+            // Previous button
+            const prevDisabled = CURRENT_PAGE <= 1 ? 'disabled' : '';
+            paginationHTML += `
+                <li class="page-item ${prevDisabled}">
+                    <a class="page-link" href="#" data-page="${CURRENT_PAGE - 1}" tabindex="-1">Previous</a>
+                </li>`;
+            
+            // Page numbers
+            const startPage = Math.max(1, CURRENT_PAGE - 2);
+            const endPage = Math.min(TOTAL_PAGES, CURRENT_PAGE + 2);
+            
+            if (startPage > 1) {
+                paginationHTML += '<li class="page-item"><a class="page-link" href="#" data-page="1">1</a></li>';
+                if (startPage > 2) {
+                    paginationHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                }
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const active = i === CURRENT_PAGE ? 'active' : '';
+                paginationHTML += `
+                    <li class="page-item ${active}">
+                        <a class="page-link" href="#" data-page="${i}">${i}</a>
+                    </li>`;
+            }
+            
+            if (endPage < TOTAL_PAGES) {
+                if (endPage < TOTAL_PAGES - 1) {
+                    paginationHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                }
+                paginationHTML += `<li class="page-item"><a class="page-link" href="#" data-page="${TOTAL_PAGES}">${TOTAL_PAGES}</a></li>`;
+            }
+            
+            // Next button
+            const nextDisabled = CURRENT_PAGE >= TOTAL_PAGES ? 'disabled' : '';
+            paginationHTML += `
+                <li class="page-item ${nextDisabled}">
+                    <a class="page-link" href="#" data-page="${CURRENT_PAGE + 1}">Next</a>
+                </li>`;
+            
+            paginationUl.innerHTML = paginationHTML;
+            
+            // Add click handlers for pagination links
+            paginationUl.addEventListener('click', function(e) {
+                e.preventDefault();
+                const pageLink = e.target.closest('.page-link');
+                if (pageLink && !pageLink.parentElement.classList.contains('disabled')) {
+                    const pageNum = parseInt(pageLink.getAttribute('data-page'));
+                    if (pageNum && pageNum !== CURRENT_PAGE) {
+                        CURRENT_PAGE = pageNum;
+                        loadCustomers();
+                    }
+                }
+            });
+        }
+
+        function applyCustomerFilters(){
+            // Reset to page 1 when applying filters
+            CURRENT_PAGE = 1;
+            loadCustomers();
+        }
+
+        // Fetch customers with pagination
+        async function loadCustomers(){
+            const tbody = document.getElementById('customers-table');
+            if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-muted">Loading...</td></tr>';
+            }
+            try {
+                const searchInput = document.getElementById('customer-search');
+                const search = (searchInput?.value || '').trim();
+                
+                const params = new URLSearchParams({
+                    page: CURRENT_PAGE.toString(),
+                    page_size: PAGE_SIZE.toString(),
+                });
+                
+                if (search) {
+                    params.append('search', search);
+                }
+                
+                const res = await fetch(`/api/customers/?${params.toString()}`);
+                if (!res.ok) throw new Error('Failed to load customers');
+                const payload = await res.json();
+                
+                renderCustomers(
+                    payload.results || [], 
+                    payload.total || 0, 
+                    payload.page || 1, 
+                    payload.total_pages || 1
+                );
+            } catch (e) {
+                console.error(e);
+                if (tbody) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-danger">Failed to load customers.</td></tr>';
+                }
+            }
+        }
+
+        // Attach event handlers for customer row actions (view/edit/delete/activate/deactivate)
+        function wireCustomerActions(){
+            document.body.addEventListener('click', async function(e){
+                const viewBtn = e.target.closest('.btn-customer-view');
+                const editBtn = e.target.closest('.btn-customer-edit');
+                const deleteBtn = e.target.closest('.btn-customer-delete');
+                const activateBtn = e.target.closest('.btn-customer-activate');
+                const deactivateBtn = e.target.closest('.btn-customer-deactivate');
+                const setPasswordBtn = e.target.closest('.btn-customer-set-password');
+
+                const targetBtn = viewBtn || editBtn || deleteBtn || activateBtn || deactivateBtn || setPasswordBtn;
+                if (!targetBtn) return;
+
+                const id = targetBtn.getAttribute('data-customer-id');
+                if (!id) return;
+
+                const csrfToken = getCsrfToken();
+                const baseUrl = `/api/users/${id}/`;
+
+                try {
+                    if (viewBtn){
+                        const res = await fetch(baseUrl, {credentials: 'same-origin'});
+                        if (!res.ok) throw new Error('Failed to load customer details');
+                        const data = await res.json();
+
+                        const modalEl = document.getElementById('viewCustomerModal');
+                        const nameEl = document.getElementById('view_customer_name');
+                        const usernameEl = document.getElementById('view_customer_username');
+                        const emailEl = document.getElementById('view_customer_email');
+                        const roleEl = document.getElementById('view_customer_role');
+                        const deptEl = document.getElementById('view_customer_department');
+                        const statusEl = document.getElementById('view_customer_status');
+
+                        if (!modalEl || !nameEl || !usernameEl || !emailEl || !roleEl || !deptEl || !statusEl) {
+                            throw new Error('View modal not available');
+                        }
+
+                        const fullName = `${data.first_name || ''} ${data.last_name || ''}`.trim() || data.username || '-';
+                        nameEl.textContent = fullName;
+                        usernameEl.textContent = data.username || '-';
+                        emailEl.textContent = data.email || '-';
+                        roleEl.textContent = data.role || '-';
+                        deptEl.textContent = data.department || '-';
+                        statusEl.textContent = data.is_active ? 'Active' : 'Inactive';
+
+                        if (window.bootstrap && window.bootstrap.Modal) {
+                            const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+                            modal.show();
+                        }
+                    } else if (editBtn){
+                        const res = await fetch(baseUrl, {credentials: 'same-origin'});
+                        if (!res.ok) throw new Error('Failed to load customer');
+                        const data = await res.json();
+
+                        const modalEl = document.getElementById('editCustomerModal');
+                        const idInput = document.getElementById('edit_customer_id');
+                        const firstInput = document.getElementById('edit_customer_first_name');
+                        const lastInput = document.getElementById('edit_customer_last_name');
+                        const emailInput = document.getElementById('edit_customer_email');
+                        const phoneInput = document.getElementById('edit_customer_phone');
+                        const statusSelect = document.getElementById('edit_customer_status');
+
+                        if (!modalEl || !idInput || !firstInput || !emailInput || !statusSelect) {
+                            throw new Error('Edit modal not available');
+                        }
+
+                        idInput.value = id;
+                        firstInput.value = data.first_name || '';
+                        lastInput.value = data.last_name || '';
+                        emailInput.value = data.email || '';
+                        if (phoneInput) {
+                            // phone is not included in UserDetailView, fall back to '-' or empty
+                            phoneInput.value = data.phone || '';
+                        }
+                        statusSelect.value = data.is_active ? 'active' : 'inactive';
+
+                        if (window.bootstrap && window.bootstrap.Modal) {
+                            const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+                            modal.show();
+                        }
+                    } else if (deleteBtn){
+                        if (!confirm('Are you sure you want to delete this customer?')) return;
+                        const delRes = await fetch(baseUrl, {
+                            method: 'DELETE',
+                            credentials: 'same-origin',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        });
+                        if (!delRes.ok && delRes.status !== 204) throw new Error('Failed to delete customer');
+                        await loadCustomers();
+                    } else if (activateBtn || deactivateBtn){
+                        const makeActive = !!activateBtn;
+                        const patchRes = await fetch(baseUrl, {
+                            method: 'PATCH',
+                            credentials: 'same-origin',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ is_active: makeActive }),
+                        });
+                        if (!patchRes.ok) throw new Error('Failed to update status');
+                        await loadCustomers();
+                    } else if (setPasswordBtn){
+                        const name = targetBtn.getAttribute('data-customer-name') || 'Unknown';
+                        const email = targetBtn.getAttribute('data-customer-email') || 'Unknown';
+
+                        const modalEl = document.getElementById('setPasswordModal');
+                        const userIdInput = document.getElementById('set_password_user_id');
+                        const userInfoInput = document.getElementById('set_password_user_info');
+                        const passwordInput = document.getElementById('set_password_password');
+                        const confirmInput = document.getElementById('set_password_confirm_password');
+
+                        if (!modalEl || !userIdInput || !userInfoInput || !passwordInput || !confirmInput){
+                            throw new Error('Set Password modal not available');
+                        }
+
+                        userIdInput.value = id;
+                        userInfoInput.textContent = `${name} (${email})`;
+                        passwordInput.value = '';
+                        confirmInput.value = '';
+
+                        if (window.bootstrap && window.bootstrap.Modal) {
+                            const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+                            modal.show();
+                        }
+                    }
+                } catch (err){
+                    console.error(err);
+                    if (typeof showToast === 'function') {
+                        showToast('Action failed: ' + (err.message || 'Unknown error'), 'danger');
+                    }
+                }
+            }, false);
+        }
+
+        // Setup Edit Customer form submit handler once modals are loaded
+        function setupEditCustomerForm(){
+            const form = document.getElementById('editCustomerForm');
+            if (!form) return;
+
+            form.addEventListener('submit', async function(e){
+                e.preventDefault();
+
+                const idInput = document.getElementById('edit_customer_id');
+                const firstInput = document.getElementById('edit_customer_first_name');
+                const lastInput = document.getElementById('edit_customer_last_name');
+                const emailInput = document.getElementById('edit_customer_email');
+                const phoneInput = document.getElementById('edit_customer_phone');
+                const statusSelect = document.getElementById('edit_customer_status');
+                const modalEl = document.getElementById('editCustomerModal');
+
+                if (!idInput || !firstInput || !emailInput || !statusSelect || !modalEl) {
+                    return;
+                }
+
+                const id = idInput.value;
+                if (!id) return;
+
+                const csrfToken = getCsrfToken();
+                const baseUrl = `/api/users/${id}/`;
+
+                const payload = {
+                    first_name: firstInput.value || '',
+                    last_name: lastInput.value || '',
+                    email: emailInput.value || '',
+                    is_active: (statusSelect.value === 'active'),
+                };
+                if (phoneInput) {
+                    payload.phone = phoneInput.value || '';
+                }
+
+                try {
+                    const res = await fetch(baseUrl, {
+                        method: 'PATCH',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload),
+                    });
+                    if (!res.ok) throw new Error('Failed to update customer');
+
+                    if (window.bootstrap && window.bootstrap.Modal) {
+                        const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+                        modal.hide();
+                    }
+
+                    await loadCustomers();
+                    if (typeof showToast === 'function') {
+                        showToast('Customer updated successfully.', 'success');
+                    }
+                } catch (err){
+                    console.error(err);
+                    if (typeof showToast === 'function') {
+                        showToast('Failed to update customer: ' + (err.message || 'Unknown error'), 'danger');
+                    }
+                }
+            });
+        }
+
+        // Setup Set Password form submission handler
+        function setupSetPasswordForm(){
+            const form = document.getElementById('setPasswordForm');
+            if (!form) return;
+
+            form.addEventListener('submit', async function(e){
+                e.preventDefault();
+
+                const userIdInput = document.getElementById('set_password_user_id');
+                const passwordInput = document.getElementById('set_password_password');
+                const confirmInput = document.getElementById('set_password_confirm_password');
+                const modalEl = document.getElementById('setPasswordModal');
+
+                if (!userIdInput || !passwordInput || !confirmInput || !modalEl) return;
+
+                const userId = userIdInput.value;
+                const password = passwordInput.value;
+                const confirmPassword = confirmInput.value;
+
+                if (!userId || !password || !confirmPassword) return;
+
+                if (password !== confirmPassword) {
+                    if (typeof showToast === 'function') {
+                        showToast('Passwords do not match', 'danger');
+                    }
+                    return;
+                }
+
+                const csrf = getCsrfToken();
+                const url = `/api/users/${userId}/set-password/`;
+
+                try {
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrf || '',
+                        },
+                        body: JSON.stringify({
+                            password: password,
+                            confirm_password: confirmPassword
+                        }),
+                    });
+
+                    const data = await res.json();
+
+                    if (!res.ok) {
+                        throw new Error(data.detail || 'Failed to set password');
+                    }
+
+                    // Close modal
+                    if (window.bootstrap && window.bootstrap.Modal) {
+                        const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+                        modal.hide();
+                    }
+
+                    // Show success message
+                    if (typeof showToast === 'function') {
+                        showToast(`Password set successfully for ${data.username}`, 'success');
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    if (typeof showToast === 'function') {
+                        showToast('Failed to set password: ' + (err.message || 'Unknown error'), 'danger');
+                    }
+                }
+            });
+        }
+
+        // Initialize components when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load header if container exists
+            if (document.getElementById('header-container')) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/header.html" %}', 'header-container');
+            }
+            
+            // Load sidebar if container exists
+            if (document.getElementById('sidebar-container')) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/sidebar.html" %}', 'sidebar-container');
+            }
+            
+            // Load modals if container exists
+            if (document.getElementById('modals-container')) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/modals.html" %}', 'modals-container')
+                    .then(() => {
+                        setupEditCustomerForm();
+                        setupSetPasswordForm();
+                    });
+            }
+
+            // Load customers table
+            loadCustomers();
+
+            // Wire up search filter (status and sort filters will be implemented later)
+            const searchInput = document.getElementById('customer-search');
+            if (searchInput){
+                searchInput.addEventListener('input', function() {
+                    CURRENT_PAGE = 1; // Reset to page 1 on search
+                    loadCustomers();
+                });
+            }
+            
+            // Listen for navigation events (for single-page navigation)
+            document.body.addEventListener('click', function(e) {
+                // Check if the click was on a navigation link
+                const navLink = e.target.closest('a[data-page]');
+                if (navLink) {
+                    // Re-initialize header after a short delay to allow the page to update
+                    setTimeout(() => {
+                        if (window.initializeHeader) {
+                            window.initializeHeader();
+                        }
+                    }, 100);
+                }
+            });
+
+            // Wire customer row actions once
+            wireCustomerActions();
+        });
+    </script>
+    
+    <!-- Application Scripts -->
+    <script src="{% static 'admindashboard/js/dropdown.js' %}"></script>
+    <script src="{% static 'admindashboard/js/script.js' %}"></script>
+    <script src="{% static 'admindashboard/js/header.js' %}"></script>
+</body>
+</html>

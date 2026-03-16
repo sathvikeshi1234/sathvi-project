@@ -1,0 +1,62 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Upload Test</title>
+    <script src="https://127.0.0.1:8000/static/userdashboard/js/chat.js"></script>
+</head>
+<body>
+    <h1>File Upload Test</h1>
+    
+    <button id="attachFileBtn">Attach File</button>
+    <input type="file" id="fileUpload" style="display: none;" multiple>
+    <div id="filePreviews" style="display: none;"></div>
+    
+    <script>
+        // Test the setupFileUploadHandlers function
+        console.log('Testing file upload functionality...');
+        
+        // Wait for DOM to load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            
+            // Check if setupFileUploadHandlers function exists
+            if (typeof setupFileUploadHandlers === 'function') {
+                console.log('[OK] setupFileUploadHandlers function found');
+                
+                // Call the function
+                setupFileUploadHandlers();
+                console.log('[OK] setupFileUploadHandlers called');
+                
+                // Check if event listeners were attached
+                const attachBtn = document.getElementById('attachFileBtn');
+                const fileInput = document.getElementById('fileUpload');
+                
+                if (attachBtn) {
+                    console.log('[OK] Attach button found');
+                    // Check if it has event listeners
+                    const listeners = getEventListeners ? getEventListeners(attachBtn) : 'N/A';
+                    console.log('   Event listeners:', listeners);
+                } else {
+                    console.log('[ERROR] Attach button NOT found');
+                }
+                
+                if (fileInput) {
+                    console.log('[OK] File input found');
+                } else {
+                    console.log('[ERROR] File input NOT found');
+                }
+                
+            } else {
+                console.log('[ERROR] setupFileUploadHandlers function NOT found');
+            }
+        });
+        
+        // Helper function to check event listeners (if available)
+        function getEventListeners(element) {
+            return element.eventListeners ? Object.keys(element.eventListeners) : 'Not available';
+        }
+    </script>
+</body>
+</html>
+        

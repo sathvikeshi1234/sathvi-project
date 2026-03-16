@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}{% load chat_permissions %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Tickets</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'admindashboard/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'admindashboard/css/dropdown.css' %}">
+</head>
+<body>
+    <div id="app">
+        <!-- Include Sidebar -->
+        <div id="sidebar-container"></div>
+
+        <div class="main-container">
+            <!-- Include Header -->
+            <div id="header-container"></div>
+
+            <!-- Main Content -->
+            <main class="content-area">
+                <!-- TICKETS PAGE CONTENT -->
+                <div id="tickets" class="page-content active">
+                    <div class="page-header">
+                        <div>
+                            <h2>Tickets</h2>
+                        </div>
+                    </div>
+                    
+                    <!-- Breadcrumbs -->
+                    <nav aria-label="breadcrumb" class="mb-3">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="/dashboard/admin-dashboard/">
+                                    <i class="bi bi-house-door"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                Tickets
+                            </li>
+                        </ol>
+                    </nav>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="filter-controls">
+                                <input type="text" class="form-control filter-input" placeholder="Search tickets...">
+                                <select class="form-select filter-input">
+                                    <option>All Status</option>
+                                    <option>Open</option>
+                                    <option>In Progress</option>
+                                    <option>Resolved</option>
+                                </select>
+                                <select class="form-select filter-input">
+                                    <option>All Priority</option>
+                                    <option>High</option>
+                                    <option>Medium</option>
+                                    <option>Low</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Customer</th>
+                                        <th>Subject</th>
+                                        <th>Status</th>
+                                        <th>Priority</th>
+                                        <th>Assigned To</th>
+                                        <th>Created</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tickets-table">
+                                    {% if tickets %}
+                                        {% for t in tickets %}
+                                            <tr>
+                                                <td>
+                                                    <button type="button"
+                                                            class="btn btn-link p-0 text-decoration-none btn-ticket-view"
+                                                            data-id="{% if t.ticket_id %}{{ t.ticket_id }}{% else %}#{{ t.id }}{% endif %}">
+                                                        {% if t.ticket_id %}{{ t.ticket_id }}{% else %}#{{ t.id }}{% endif %}
+                                                    </button>
+                                                </td>
+                                                <td>{{ t.created_by.username }}</td>
+                                                <td>{{ t.title }}</td>
+                                                <td>
+                                                    <span class="badge {% if t.status == 'Open' %}bg-warning{% elif t.status == 'In Progress' %}bg-info{% elif t.status == 'Resolved' %}bg-success{% else %}bg-secondary{% endif %}">{{ t.status }}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge {% if t.priority == 'High' %}bg-danger{% elif t.priority == 'Medium' %}bg-warning{% elif t.priority == 'Low' %}bg-info{% elif t.priority == 'Critical' %}bg-danger{% else %}bg-secondary{% endif %}">{{ t.priority }}</span>
+                                                </td>
+                                                <td>{% if t.assigned_to %}{{ t.assigned_to.get_full_name|default:t.assigned_to.username }}{% else %}-{% endif %}</td>
+                                                <td>{{ t.created_at }}</td>
+                                                <td>
+  <div class="dropdown">
+    <button class="btn btn-sm btn-icon" type="button" data-bs-toggle="dropdown">
+      <i class="bi bi-three-dots-vertical"></i>
+    </button>
+    <ul class="dropdown-menu">
+      <li>
+        <button class="dropdown-item btn-ticket-view" data-id="{% if t.ticket_id %}{{ t.ticket_id }}{% else %}#{{ t.id }}{% endif %}">
+          <i class="bi bi-eye me-2"></i>View
+        </button>
+      </li>
+      <li>
+        <button class="dropdown-item btn-ticket-edit" data-id="{% if t.ticket_id %}{{ t.ticket_id }}{% else %}#{{ t.id }}{% endif %}">
+          <i class="bi bi-pencil me-2"></i>Edit
+        </button>
+      </li>
+      <li>
+        <button class="dropdown-item btn-admin-chat" 
+                data-ticket-id="{% if t.ticket_id %}{{ t.ticket_id }}{% else %}#{{ t.id }}{% endif %}"
+                data-user-id="{{ t.created_by.id }}"
+                data-agent-id="{% if t.assigned_to %}{{ t.assigned_to.id }}{% endif %}">
+          <i class="bi bi-chat-dots me-2"></i>Chat
+        </button>
+      </li>
+      <li>
+        <button class="dropdown-item text-danger btn-ticket-delete" data-id="{% if t.ticket_id %}{{ t.ticket_id }}{% else %}#{{ t.id }}{% endif %}">
+          <i class="bi bi-trash me-2"></i>Delete
+        </button>
+      </li>
+    </ul>
+  </div>
+</td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                            </div>
+                            <!-- Pagination Container -->
+                            <nav aria-label="Ticket pagination" class="mt-3">
+                                <ul class="pagination justify-content-center">
+                                    <!-- Pagination will be populated by JavaScript -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="dashboard-footer mt-4 mb-2 text-muted small">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>© Ultrakey IT Solutions</span>
+                        <span>All systems operational</span>
+                    </div>
+                </footer>
+            </main>
+        </div>
+    </div>
+
+    <!-- Include Modals -->
+    <div id="modals-container">
+        <!-- Content will be loaded by JavaScript -->
+    </div>
+
+    <!-- Core JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Server-side data -->
+    <script id="server-tickets-data" type="application/json">
+    {% if tickets %}
+        [
+        {% for t in tickets %}
+            {
+                "id": {{ t.id|default:0 }},
+                "ticket_id": {% if t.ticket_id %}"{{ t.ticket_id|escapejs }}"{% else %}null{% endif %},
+                "title": "{{ t.title|escapejs|default:'Untitled' }}",
+                "status": "{{ t.status|escapejs|default:'Unknown' }}",
+                "priority": "{{ t.priority|escapejs|default:'Medium' }}",
+                "created_by_username": "{{ t.created_by.username|escapejs|default:'Unknown' }}",
+                "created_by_id": {{ t.created_by.id|default:0 }},
+                "assigned_to_username": {% if t.assigned_to %}"{{ t.assigned_to.username|escapejs }}"{% else %}null{% endif %},
+                "assigned_to_full_name": {% if t.assigned_to %}"{% if t.assigned_to.get_full_name %}{{ t.assigned_to.get_full_name|escapejs }}{% else %}{{ t.assigned_to.username|escapejs }}{% endif %}"{% else %}null{% endif %},
+                "created_at": "{{ t.created_at|date:'Y-m-d H:i:s'|escapejs }}",
+                "updated_at": "{{ t.updated_at|date:'Y-m-d H:i:s'|escapejs }}"
+            }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+        ]
+    {% else %}
+        []
+    {% endif %}
+    </script>
+    
+    <!-- Application Scripts -->
+    <script>
+        // Ensure the loadComponent function is available
+        function loadComponent(url, elementId) {
+            return fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        element.innerHTML = html;
+                        
+                        // If loading the sidebar, set the active nav item
+                        if (url.includes('sidebar.html')) {
+                            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                            const pageName = currentPage.replace('.html', '') || 'dashboard';
+                            const activeNavItem = document.querySelector(`.nav-item[data-page="${pageName}"]`);
+                            if (activeNavItem) {
+                                // Remove active class from all nav items
+                                document.querySelectorAll('.nav-item').forEach(item => {
+                                    item.classList.remove('active');
+                                });
+                                activeNavItem.classList.add('active');
+                            }
+                        }
+                        
+                        // If loading the header, initialize it after a short delay
+                        if (url.includes('header.html') && window.initializeHeader) {
+                            setTimeout(() => {
+                                window.initializeHeader();
+                            }, 50);
+                        }
+                        
+                        return true;
+                    }
+                    return false;
+                })
+                .catch(error => {
+                    console.error('Error loading component:', error);
+                    return false;
+                });
+        }
+
+        // Helper functions
+        function badgeClassForStatus(s){
+            if(s === 'Open') return 'bg-warning';
+            if(s === 'In Progress') return 'bg-info';
+            if(s === 'Resolved') return 'bg-success';
+            return 'bg-secondary';
+        }
+        function badgeClassForPriority(p){
+            if(p === 'High') return 'bg-danger';
+            if(p === 'Medium') return 'bg-warning';
+            if(p === 'Low') return 'bg-info';
+            if(p === 'Critical') return 'bg-danger';
+            return 'bg-secondary';
+        }
+        function fmtDate(d){
+            try { return new Date(d).toLocaleString(); } catch(e){ return d || '-'; }
+        }
+
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Keep all tickets in memory for client-side filtering
+        let ALL_TICKETS = [];
+        let CURRENT_PAGE = 1;
+        let PAGE_SIZE = 10;
+        let TOTAL_TICKETS = 0;
+        let TOTAL_PAGES = 0;
+
+        function renderTickets(list, total, page, totalPages){
+            const tbody = document.getElementById('tickets-table');
+            const totalEl = document.getElementById('tickets-total');
+            const fromEl = document.getElementById('tickets-showing-from');
+            const toEl = document.getElementById('tickets-showing-to');
+
+            const ticketsList = Array.isArray(list) ? list : [];
+            TOTAL_TICKETS = total || 0;
+            CURRENT_PAGE = page || 1;
+            TOTAL_PAGES = totalPages || 1;
+            
+            console.log('renderTickets called:', { 
+                listLength: list.length, 
+                total: TOTAL_TICKETS, 
+                page: CURRENT_PAGE, 
+                totalPages: TOTAL_PAGES,
+                pageSize: PAGE_SIZE
+            });
+            
+            if (totalEl) totalEl.textContent = TOTAL_TICKETS;
+            
+            // Calculate showing from/to
+            const from = TOTAL_TICKETS > 0 ? ((CURRENT_PAGE - 1) * PAGE_SIZE) + 1 : 0;
+            const to = Math.min(CURRENT_PAGE * PAGE_SIZE, TOTAL_TICKETS);
+            
+            if (fromEl) fromEl.textContent = from;
+            if (toEl) toEl.textContent = to;
+
+            if (!tbody) return;
+
+            if (ticketsList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-muted">No tickets found.</td></tr>';
+                updatePaginationControls();
+                return;
+            }
+
+            // Paginate list
+            const paginatedList = ticketsList.slice((CURRENT_PAGE - 1) * PAGE_SIZE, CURRENT_PAGE * PAGE_SIZE);
+            console.log('Paginated list length:', paginatedList.length, 'from index', (CURRENT_PAGE - 1) * PAGE_SIZE, 'to', CURRENT_PAGE * PAGE_SIZE);
+
+            const rows = paginatedList.map(t => {
+                const id = t.ticket_id || (`#${t.id}`);
+                const customer = t.created_by_username || '-';
+                const statusBadge = badgeClassForStatus(t.status);
+                const priorityBadge = badgeClassForPriority(t.priority);
+                const assignedTo = t.assigned_to_full_name || t.assigned_to_username || '-';
+                const created = t.created_at ? new Date(t.created_at).toLocaleString('sv-SE', { hour12: false }).replace('T', ' ') : '-';
+                const options = ['Open','In Progress','Resolved','Closed']
+                    .map(o => `<option value="${o}" ${String(t.status)===o?'selected':''}>${o}</option>`)
+                    .join('');
+                return `
+                    <tr data-pk="${t.id}">
+      <td>
+        <button type="button" class="btn btn-link p-0 text-decoration-none btn-ticket-view" data-id="${id}">
+          ${id}
+        </button>
+      </td>
+      <td>${customer}</td>
+      <td>${t.title}</td>
+      <td>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge ${statusBadge} js-status-badge">${t.status}</span>
+          <select class="form-select form-select-sm w-auto js-status-select">
+            ${options}
+          </select>
+        </div>
+      </td>
+      <td><span class="badge ${priorityBadge}">${t.priority}</span></td>
+      <td>${assignedTo}</td>
+      <td>${created}</td>
+      <td>
+        <div class="dropdown">
+          <button class="btn btn-sm btn-icon" type="button" data-bs-toggle="dropdown">
+            <i class="bi bi-three-dots-vertical"></i>
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <button class="dropdown-item btn-ticket-view" data-id="${id}">
+                <i class="bi bi-eye me-2"></i>View
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item btn-ticket-edit" data-id="${id}">
+                <i class="bi bi-pencil me-2"></i>Edit
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item btn-admin-chat" 
+                      data-ticket-id="${id}"
+                      data-user-id="${t.created_by_id}"
+                      data-agent-id="${t.assigned_to_id}">
+                <i class="bi bi-chat-dots me-2"></i>Chat
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item text-danger btn-ticket-delete" data-id="${id}">
+                <i class="bi bi-trash me-2"></i>Delete
+              </button>
+            </li>
+          </ul>
+        </div>
+      </td>
+    </tr>`
+            }).join('');
+            tbody.innerHTML = rows;
+            updatePaginationControls();
+        }
+
+        function updatePaginationControls() {
+            const paginationUl = document.querySelector('.pagination');
+            console.log('Updating pagination controls, found pagination element:', !!paginationUl);
+            console.log('Pagination data:', { TOTAL_TICKETS, TOTAL_PAGES, CURRENT_PAGE, PAGE_SIZE });
+            
+            if (!paginationUl) {
+                console.log('Pagination element not found, skipping pagination update');
+                return;
+            }
+
+            // If there's only one page, hide pagination
+            if (TOTAL_PAGES <= 1) {
+                paginationUl.innerHTML = '';
+                console.log('Only one page, hiding pagination');
+                return;
+            }
+
+            let paginationHTML = '';
+            
+            // Previous button
+            const prevDisabled = CURRENT_PAGE <= 1 ? 'disabled' : '';
+            paginationHTML += `
+                <li class="page-item ${prevDisabled}">
+                    <a class="page-link" href="#" data-page="${CURRENT_PAGE - 1}" tabindex="-1">Previous</a>
+                </li>`;
+            
+            // Page numbers
+            const startPage = Math.max(1, CURRENT_PAGE - 2);
+            const endPage = Math.min(TOTAL_PAGES, CURRENT_PAGE + 2);
+            
+            if (startPage > 1) {
+                paginationHTML += '<li class="page-item"><a class="page-link" href="#" data-page="1">1</a></li>';
+                if (startPage > 2) {
+                    paginationHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                }
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const active = i === CURRENT_PAGE ? 'active' : '';
+                paginationHTML += `
+                    <li class="page-item ${active}">
+                        <a class="page-link" href="#" data-page="${i}">${i}</a>
+                    </li>`;
+            }
+            
+            if (endPage < TOTAL_PAGES) {
+                if (endPage < TOTAL_PAGES - 1) {
+                    paginationHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                }
+                paginationHTML += `<li class="page-item"><a class="page-link" href="#" data-page="${TOTAL_PAGES}">${TOTAL_PAGES}</a></li>`;
+            }
+            
+            // Next button
+            const nextDisabled = CURRENT_PAGE >= TOTAL_PAGES ? 'disabled' : '';
+            paginationHTML += `
+                <li class="page-item ${nextDisabled}">
+                    <a class="page-link" href="#" data-page="${CURRENT_PAGE + 1}">Next</a>
+                </li>`;
+            
+            paginationUl.innerHTML = paginationHTML;
+            console.log('Pagination HTML set:', paginationHTML);
+            
+            // Remove existing event listener to prevent duplicates
+            paginationUl.removeEventListener('click', handlePaginationClick);
+            
+            // Add click handlers for pagination links
+            function handlePaginationClick(e) {
+                e.preventDefault();
+                const pageLink = e.target.closest('.page-link');
+                if (pageLink && !pageLink.parentElement.classList.contains('disabled')) {
+                    const pageNum = parseInt(pageLink.getAttribute('data-page'));
+                    if (pageNum && pageNum !== CURRENT_PAGE) {
+                        console.log('Changing to page:', pageNum);
+                        CURRENT_PAGE = pageNum;
+                        applyTicketFilters();
+                    }
+                }
+            }
+            
+            paginationUl.addEventListener('click', handlePaginationClick);
+        }
+
+        function applyTicketFilters(){
+            if (!Array.isArray(ALL_TICKETS) || ALL_TICKETS.length === 0){
+                renderTickets([]);
+                return;
+            }
+
+            const searchInput = document.querySelector('.filter-controls input[type="text"]');
+            const statusSelect = document.querySelector('.filter-controls select:nth-of-type(1)');
+            const prioritySelect = document.querySelector('.filter-controls select:nth-of-type(2)');
+
+            const search = (searchInput?.value || '').toLowerCase().trim();
+            const statusFilter = (statusSelect?.value || 'All Status');
+            const priorityFilter = (prioritySelect?.value || 'All Priority');
+
+            const filtered = ALL_TICKETS.filter(t => {
+                const id = String(t.ticket_id || t.id || '').toLowerCase();
+                const customer = String(t.created_by_username || '').toLowerCase();
+                const subject = String(t.title || '').toLowerCase();
+                const status = String(t.status || '').toLowerCase();
+                const priority = String(t.priority || '').toLowerCase();
+
+                // Search: match id, customer, subject, status, or priority
+                const matchesSearch = !search || (
+                    id.includes(search) ||
+                    customer.includes(search) ||
+                    subject.includes(search) ||
+                    status.includes(search) ||
+                    priority.includes(search)
+                );
+
+                // Status filter
+                const matchesStatus = (statusFilter === 'All Status') || (t.status === statusFilter);
+
+                // Priority filter
+                const matchesPriority = (priorityFilter === 'All Priority') || (t.priority === priorityFilter);
+
+                return matchesSearch && matchesStatus && matchesPriority;
+            });
+
+            // Calculate total pages for filtered results
+            const filteredTotal = filtered.length;
+            const filteredPages = Math.ceil(filteredTotal / PAGE_SIZE);
+            
+            renderTickets(filtered, filteredTotal, CURRENT_PAGE, filteredPages);
+        }
+
+        async function loadTickets(){
+            const tbody = document.getElementById('tickets-table');
+            if(!tbody) return;
+            
+            // Check if we have server-side tickets data as fallback
+            let serverSideTickets = [];
+            // Get server-side data from hidden script tag if available
+            const serverDataElement = document.getElementById('server-tickets-data');
+            if (serverDataElement) {
+                try {
+                    serverSideTickets = JSON.parse(serverDataElement.textContent);
+                } catch (e) {
+                    console.warn('Failed to parse server tickets data:', e);
+                    serverSideTickets = [];
+                }
+            }
+            
+            tbody.innerHTML = '<tr><td colspan="7" class="text-muted">Loading...</td></tr>';
+            try{
+                console.log('Attempting to fetch tickets from:', '/tickets/api/tickets/');
+                const res = await fetch('/tickets/api/tickets/', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                console.log('Response status:', res.status);
+                
+                if(!res.ok) {
+                    const errorText = await res.text();
+                    console.error('API Error Response:', errorText);
+                    throw new Error(`Failed to load tickets: ${res.status}`);
+                }
+                
+                const data = await res.json();
+                console.log('Raw API Response Data:', data);
+                console.log('Type of data:', typeof data);
+                console.log('Is array?', Array.isArray(data));
+                
+                if (Array.isArray(data)) {
+                    console.log('First ticket data structure:', data[0]);
+                    console.log('First ticket created_by_id:', data[0]?.created_by_id);
+                }
+                
+                ALL_TICKETS = Array.isArray(data) ? data : [];
+                console.log('ALL_TICKETS set to:', ALL_TICKETS.length, 'tickets');
+                console.log('Sample ALL_TICKETS entry:', ALL_TICKETS[0]);
+                applyTicketFilters();
+            }catch(err){
+                console.error('Complete error loading tickets:', err);
+                console.log('Using server-side tickets as fallback:', serverSideTickets.length, 'tickets');
+                // Use server-side tickets as fallback
+                ALL_TICKETS = serverSideTickets;
+                applyTicketFilters();
+            }
+        }
+
+        // Load admin partials via routed URLs
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.getElementById('header-container')) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/header.html" %}', 'header-container');
+            }
+            if (document.getElementById('sidebar-container')) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/sidebar.html" %}', 'sidebar-container');
+            }
+            if (document.getElementById('modals-container')) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/modals.html" %}', 'modals-container');
+            }
+
+            // Always refresh table from API to ensure latest and admin-wide view
+            loadTickets();
+
+            // Hook up search and filter controls
+            const searchInput = document.querySelector('.filter-controls input[type="text"]');
+            const selects = document.querySelectorAll('.filter-controls select');
+
+            if (searchInput){
+                searchInput.addEventListener('input', () => {
+                    applyTicketFilters();
+                });
+            }
+            selects.forEach(sel => {
+                sel.addEventListener('change', () => {
+                    applyTicketFilters();
+                });
+            });
+
+            // Delegate clicks on View / Edit / Delete buttons in the tickets table
+            const table = document.getElementById('tickets-table');
+            table && table.addEventListener('click', async function (e) {
+                const viewBtn = e.target.closest('.btn-ticket-view');
+                const editBtn = e.target.closest('.btn-ticket-edit');
+                const deleteBtn = e.target.closest('.btn-ticket-delete');
+                const chatBtn = e.target.closest('.btn-admin-chat');
+                if (!viewBtn && !editBtn && !deleteBtn && !chatBtn) return;
+
+                const tr = e.target.closest('tr');
+                if (!tr) return;
+                const pk = tr.getAttribute('data-pk');
+                if (!pk) return;
+
+                // Handle Chat button click
+                if (chatBtn) {
+                    const ticketId = chatBtn.dataset.ticketId;
+                    let userId = chatBtn.dataset.userId;
+                    const agentId = chatBtn.dataset.agentId;
+                    
+                    console.log('Chat button clicked:', { ticketId, userId, agentId });
+                    console.log('Chat button dataset:', chatBtn.dataset);
+                    console.log('ALL_TICKETS available:', ALL_TICKETS.length, 'tickets');
+                    
+                    if (!ticketId) {
+                        alert('Missing ticket ID');
+                        return;
+                    }
+                    
+                    // If userId is missing, try to get it from ticket data
+                    if (!userId) {
+                        console.log('Missing userId, trying to get from ticket data...');
+                        console.log('Looking for ticket with ID:', ticketId);
+                        
+                        // Debug: show all ticket IDs available
+                        console.log('Available ticket IDs:', ALL_TICKETS.map(t => ({ id: t.id, ticket_id: t.ticket_id, created_by_id: t.created_by_id })));
+                        
+                        const ticketData = ALL_TICKETS.find(t => {
+                            const match = t.ticket_id === ticketId || t.id === parseInt(ticketId.replace('#', ''));
+                            console.log('Checking ticket:', { t: t.ticket_id, id: t.id, match });
+                            return match;
+                        });
+                        
+                        console.log('Found ticket data:', ticketData);
+                        
+                        if (ticketData && ticketData.created_by_id) {
+                            userId = ticketData.created_by_id;
+                            console.log('Found user ID from ticket data:', userId);
+                            // Update the dataset for future use
+                            chatBtn.dataset.userId = userId;
+                        } else {
+                            alert('Missing user information - cannot start chat. Please check console for details.');
+                            return;
+                        }
+                    }
+                    
+                    // Ensure userId is a valid number
+                    if (!userId || isNaN(parseInt(userId))) {
+                        console.error('Invalid userId:', userId);
+                        alert('Invalid user ID - cannot start chat');
+                        return;
+                    }
+                    
+                    // Convert to integer for consistency
+                    userId = parseInt(userId);
+                    const agentIdInt = agentId ? parseInt(agentId) : null;
+
+                    // Admin can chat with both user and agent
+                    try {
+                        // Check if there's an existing chat modal or create one
+                        let chatModal = document.getElementById('adminChatModal');
+                        
+                        if (!chatModal) {
+                            // Create a simple chat modal
+                            const modalHtml = `
+                                <div class="modal fade" id="adminChatModal" tabindex="-1">
+                                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Admin Chat - Ticket #${ticketId}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Chat with:</label>
+                                                            <select id="chatParticipant" class="form-select">
+                                                                <option value="${userId}">User (ID: ${userId})</option>
+                                                                ${agentIdInt ? `<option value="${agentIdInt}">Agent (ID: ${agentIdInt})</option>` : ''}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Messages:</label>
+                                                            <button id="loadMessagesBtn" class="btn btn-sm btn-outline-primary">Load Messages</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div id="chatMessages" style="height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px;">
+                                                    <div class="text-muted">Select participant and click "Load Messages"</div>
+                                                </div>
+                                                <div class="input-group">
+                                                    <input type="text" id="chatInput" class="form-control" placeholder="Type your message...">
+                                                    <button class="btn btn-primary" id="sendChatBtn">Send</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            document.body.insertAdjacentHTML('beforeend', modalHtml);
+                            chatModal = document.getElementById('adminChatModal');
+                        }
+
+                        // Set up chat functionality
+                        const chatMessages = document.getElementById('chatMessages');
+                        const chatInput = document.getElementById('chatInput');
+                        const sendBtn = document.getElementById('sendChatBtn');
+                        const participantSelect = document.getElementById('chatParticipant');
+                        const loadMessagesBtn = document.getElementById('loadMessagesBtn');
+
+                        // Load messages when participant changes or button is clicked
+                        const loadMessages = async () => {
+                            const selectedParticipant = participantSelect.value;
+                            if (!selectedParticipant) {
+                                console.log('No participant selected');
+                                return;
+                            }
+                            
+                            // Validate that selectedParticipant is a valid number
+                            if (!selectedParticipant || isNaN(parseInt(selectedParticipant))) {
+                                console.error('Invalid selectedParticipant:', selectedParticipant);
+                                chatMessages.innerHTML = '<div class="text-danger">Invalid participant selected</div>';
+                                return;
+                            }
+                            
+                            // Validate ticketId
+                            if (!ticketId) {
+                                console.error('Invalid ticketId:', ticketId);
+                                chatMessages.innerHTML = '<div class="text-danger">Invalid ticket ID</div>';
+                                return;
+                            }
+
+                            chatMessages.innerHTML = '<div class="text-muted">Loading messages...</div>';
+                            
+                            try {
+                                const url = `/api/chat/messages/?contact_id=${parseInt(selectedParticipant)}&ticket_id=${encodeURIComponent(ticketId)}`;
+                                console.log('Loading messages from:', url);
+                                
+                                const response = await fetch(url, {
+                                    method: 'GET',
+                                    headers: {
+                                        'X-CSRFToken': getCookie('csrftoken')
+                                    }
+                                });
+                                
+                                if (response.ok) {
+                                    const data = await response.json();
+                                    displayChatMessages(data.results || [], chatMessages);
+                                } else {
+                                    chatMessages.innerHTML = '<div class="text-muted">No messages yet. Start the conversation!</div>';
+                                }
+                            } catch (err) {
+                                console.error('Error loading messages:', err);
+                                chatMessages.innerHTML = '<div class="text-danger">Failed to load messages</div>';
+                            }
+                        };
+
+                        // Send message functionality
+                        const sendMessage = async () => {
+                            const text = chatInput.value.trim();
+                            const selectedParticipant = participantSelect.value;
+                            
+                            console.log('Sending message:', { text, selectedParticipant, ticketId });
+                            
+                            if (!text || !selectedParticipant) {
+                                console.log('Missing text or participant');
+                                alert('Please enter a message and select a participant');
+                                return;
+                            }
+                            
+                            // Validate that selectedParticipant is a valid number
+                            if (!selectedParticipant || isNaN(parseInt(selectedParticipant))) {
+                                console.error('Invalid selectedParticipant:', selectedParticipant);
+                                alert('Invalid participant selected');
+                                return;
+                            }
+                            
+                            // Validate ticketId
+                            if (!ticketId) {
+                                console.error('Invalid ticketId:', ticketId);
+                                alert('Invalid ticket ID');
+                                return;
+                            }
+
+                            try {
+                                console.log('Making API call to /api/chat/messages/');
+                                const payload = {
+                                    contact_id: parseInt(selectedParticipant),
+                                    ticket_id: ticketId,
+                                    text: text
+                                };
+                                console.log('API payload:', payload);
+                                
+                                const response = await fetch('/api/chat/messages/', {
+                                    method: 'POST',
+                                    headers: { 
+                                        'Content-Type': 'application/json',
+                                        'X-CSRFToken': getCookie('csrftoken')
+                                    },
+                                    body: JSON.stringify(payload)
+                                });
+
+                                console.log('API response status:', response.status);
+                                
+                                if (response.ok) {
+                                    console.log('Message sent successfully');
+                                    chatInput.value = '';
+                                    // Reload messages
+                                    await loadMessages();
+                                } else {
+                                    const errorData = await response.text();
+                                    console.error('API error response:', errorData);
+                                    alert('Failed to send message: ' + errorData.substring(0, 100));
+                                }
+                            } catch (err) {
+                                console.error('Error sending message:', err);
+                                alert('Failed to send message: ' + err.message);
+                            }
+                        };
+
+                        // Helper function to display chat messages
+                        function displayChatMessages(messages, container) {
+                            if (!messages.length) {
+                                container.innerHTML = '<div class="text-muted">No messages yet. Start the conversation!</div>';
+                                return;
+                            }
+                            
+                            const messagesHtml = messages.map(msg => {
+                                const directionClass = msg.direction === 'sent' ? 'text-end' : 'text-start';
+                                const bgClass = msg.direction === 'sent' ? 'bg-primary text-white' : 'bg-light';
+                                return `
+                                    <div class="${directionClass} mb-2">
+                                        <div class="d-inline-block ${bgClass} rounded p-2" style="max-width: 80%;">
+                                            <div class="small">${msg.text}</div>
+                                            <div class="small ${msg.direction === 'sent' ? 'text-white-50' : 'text-muted'}">${msg.time}</div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('');
+                            
+                            container.innerHTML = messagesHtml;
+                            container.scrollTop = container.scrollHeight;
+                        }
+
+                        // Event listeners
+                        loadMessagesBtn.onclick = loadMessages;
+                        participantSelect.onchange = loadMessages;
+                        sendBtn.onclick = sendMessage;
+                        chatInput.onkeypress = (e) => {
+                            if (e.key === 'Enter') sendMessage();
+                        };
+
+                        // Show modal
+                        const modal = new bootstrap.Modal(chatModal);
+                        modal.show();
+
+                        // Auto-load messages for first participant
+                        setTimeout(loadMessages, 500);
+
+                    } catch (err) {
+                        console.error('Error opening chat:', err);
+                        alert('Failed to open chat');
+                    }
+                    return; // Exit early for chat
+                }
+
+                // View: fetch server-rendered modal and show it
+                if (viewBtn) {
+                    const identifier = (viewBtn.dataset.id || (tr.querySelector('td')?.textContent || '')).trim();
+                    if (!identifier) return;
+                    try {
+                        const res = await fetch(`/dashboard/admin-dashboard/ticket/${encodeURIComponent(identifier)}/`);
+                        if (!res.ok) throw new Error('Failed to load ticket');
+                        const html = await res.text();
+                        // Parse and mount modal
+                        const tmp = document.createElement('div');
+                        tmp.innerHTML = html;
+                        const modal = tmp.querySelector('#ticketDetailModal');
+                        if (!modal) throw new Error('Modal not found in response');
+                        // Remove old instance if present
+                        const existing = document.getElementById('ticketDetailModal');
+                        if (existing) existing.remove();
+                        document.body.appendChild(modal);
+                        if (window.bootstrap && window.bootstrap.Modal) {
+                            const instance = new window.bootstrap.Modal(modal);
+                            instance.show();
+                        }
+                    } catch (err) {
+                        console.error(err);
+                    }
+                    return;
+                }
+
+                // Edit: fetch server-rendered edit modal and show it (similar to View)
+                if (editBtn) {
+                    // Get the ticket ID from data-id attribute, with fallbacks
+                    let identifier = editBtn.dataset.id;
+                    
+                    // Fallback 1: try to get from the first column (ticket ID button)
+                    if (!identifier) {
+                        const firstTd = tr.querySelector('td:first-child button');
+                        if (firstTd) {
+                            identifier = firstTd.textContent || firstTd.dataset.id || '';
+                        }
+                    }
+                    
+                    // Fallback 2: use the data-pk attribute from the row
+                    if (!identifier) {
+                        identifier = tr.getAttribute('data-pk');
+                        if (identifier) {
+                            // Try to get the actual ticket_id from the API data
+                            const ticketData = ALL_TICKETS.find(t => t.id == identifier);
+                            if (ticketData && ticketData.ticket_id) {
+                                identifier = ticketData.ticket_id;
+                            } else {
+                                identifier = `#${identifier}`;
+                            }
+                        }
+                    }
+                    
+                    identifier = identifier?.trim();
+                    if (!identifier) {
+                        console.error('Could not determine ticket ID for edit');
+                        return;
+                    }
+                    
+                    console.log('Editing ticket with identifier:', identifier);
+                    
+                    try {
+                        const res = await fetch(`/dashboard/admin-dashboard/ticket/${encodeURIComponent(identifier)}/edit/`);
+                        if (!res.ok) throw new Error('Failed to load ticket edit form');
+                        const html = await res.text();
+                        const tmp = document.createElement('div');
+                        tmp.innerHTML = html;
+                        const modal = tmp.querySelector('#ticketEditModal');
+                        if (!modal) throw new Error('Edit modal not found in response');
+                        const existing = document.getElementById('ticketEditModal');
+                        if (existing) existing.remove();
+                        document.body.appendChild(modal);
+                        if (window.bootstrap && window.bootstrap.Modal) {
+                            const instance = new window.bootstrap.Modal(modal);
+                            instance.show();
+                        }
+                    } catch (err) {
+                        console.error('Error loading edit form:', err);
+                        alert('Could not load ticket edit form.');
+                    }
+                    return;
+                }
+
+                // Delete: redirect to delete URL
+                if (deleteBtn) {
+                    window.location.href = `/tickets/${pk}/delete/`;
+                }
+            });
+
+            // Delegated change on status selects to PATCH the ticket status
+            table && table.addEventListener('change', async function(e){
+                const sel = e.target.closest('.js-status-select');
+                if(!sel) return;
+                const tr = sel.closest('tr');
+                const pk = tr?.getAttribute('data-pk');
+                const newStatus = sel.value;
+                if(!pk || !newStatus) return;
+                sel.disabled = true;
+                try{
+                    const res = await fetch(`/tickets/api/tickets/${pk}/status/`,{
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: newStatus })
+                    });
+                    if(!res.ok) throw new Error('Update failed');
+                    // Update badge color and text
+                    const badge = tr.querySelector('.js-status-badge');
+                    if(badge){
+                        const cls = badgeClassForStatus(newStatus);
+                        badge.className = `badge ${cls} js-status-badge`;
+                        badge.textContent = newStatus;
+                    }
+                }catch(err){
+                    console.error(err);
+                    alert('Could not update status.');
+                    // revert selection on failure by reloading tickets
+                    loadTickets();
+                }finally{
+                    sel.disabled = false;
+                }
+            });
+
+            // Delegated submit for Create Ticket modal (works when modal is loaded dynamically)
+            document.addEventListener('submit', async function(e){
+                const form = e.target;
+                if(form && form.id === 'ticketForm'){
+                    e.preventDefault();
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if(submitBtn){ submitBtn.disabled = true; submitBtn.textContent = 'Creating...'; }
+                    const fd = new FormData(form);
+                    const payload = Object.fromEntries(fd.entries());
+                    try{
+                        const res = await fetch('/tickets/api/tickets/',{
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if(!res.ok) throw new Error('Failed to create');
+                        // Close modal
+                        const modalEl = document.getElementById('ticketModal');
+                        if(window.bootstrap && modalEl){
+                            const instance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                            instance.hide();
+                        }
+                        form.reset();
+                        // Refresh tickets
+                        loadTickets();
+                    }catch(err){
+                        console.error(err);
+                        alert('Could not create ticket. Please check the inputs.');
+                    }finally{
+                        if(submitBtn){ submitBtn.disabled = false; submitBtn.textContent = 'Create Ticket'; }
+                    }
+                }
+            });
+        });
+    </script>
+    <!-- <script src="{% static 'admindashboard/js/main.js' %}"></script> -->
+    <script src="{% static 'admindashboard/js/dropdown.js' %}"></script>
+    <script src="{% static 'admindashboard/js/header.js' %}"></script>
+    <script src="{% static 'admindashboard/js/script.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,371 @@
+{% extends 'superadmin/base.html' %}
+{% block title %}All Subscriptions · Super Admin{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Breadcrumb Navigation -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'superadmin:superadmin_dashboard' %}">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'superadmin:subscriptions_list' %}">Subscriptions</a>
+                    </li>
+                    <li class="breadcrumb-item active">All Subscriptions</li>
+                </ol>
+            </nav>
+            
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">All Subscriptions</h1>
+                    <p class="text-muted mb-0">View and manage all subscription records</p>
+                </div>
+                <div>
+                    <a href="{% url 'superadmin:subscriptions_list' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Summary
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<main class="nxl-container">
+    <div class="nxl-content">
+        <!-- [Main Content] Start -->
+        <div class="main-content">
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-xxl-3 col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Total Subscriptions</h6>
+                                    <h3 class="mb-0">{{ total_subscriptions }}</h3>
+                                    <p class="mb-0 text-success"><i class="bi bi-arrow-up"></i> All time</p>
+                                </div>
+                                <div class="avatar bg-light-primary p-2">
+                                    <i class="bi bi-people fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-3 col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Active Subscriptions</h6>
+                                    <h3 class="mb-0">{{ active_subscriptions }}</h3>
+                                    <p class="mb-0 text-success"><i class="bi bi-arrow-up"></i> Currently active</p>
+                                </div>
+                                <div class="avatar bg-light-success p-2">
+                                    <i class="bi bi-check-circle fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-3 col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Trial Subscriptions</h6>
+                                    <h3 class="mb-0">{{ trial_subscriptions }}</h3>
+                                    <p class="mb-0 text-info"><i class="bi bi-clock"></i> In trial period</p>
+                                </div>
+                                <div class="avatar bg-light-info p-2">
+                                    <i class="bi bi-hourglass-split fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-3 col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Expired Subscriptions</h6>
+                                    <h3 class="mb-0">{{ expired_subscriptions }}</h3>
+                                    <p class="mb-0 text-danger"><i class="bi bi-x-circle"></i> No longer active</p>
+                                </div>
+                                <div class="avatar bg-light-danger p-2">
+                                    <i class="bi bi-exclamation-triangle fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Subscriptions Table -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">All Subscription Records</h5>
+                    <div class="d-flex align-items-center">
+                        <div class="input-group me-2" style="max-width: 300px;">
+                            <input type="text" class="form-control" placeholder="Search subscriptions..." id="searchInput">
+                            <button class="btn btn-outline-secondary" type="button">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-filter me-1"></i> Filter
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#" onclick="filterSubscriptions('all')">All Status</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="filterSubscriptions('active')">Active</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="filterSubscriptions('trial')">Trial</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="filterSubscriptions('expired')">Expired</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="filterSubscriptions('cancelled')">Cancelled</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Subscription ID</th>
+                                    <th>Company</th>
+                                    <th>Plan</th>
+                                    <th>Billing Cycle</th>
+                                    <th>Amount</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subscriptionsTableBody">
+                                {% for subscription in all_subscriptions_list %}
+                                <tr data-status="{{ subscription.status }}">
+                                    <td>
+                                        <div class="fw-medium">#SUB-{{ subscription.id|stringformat:"04d" }}</div>
+                                        <div class="text-muted small">ID: {{ subscription.id }}</div>
+                                    </td>
+                                    <td>
+                                        <div class="fw-medium">{{ subscription.company.name }}</div>
+                                        <div class="text-muted small">{{ subscription.company.email }}</div>
+                                    </td>
+                                    <td><span class="badge bg-primary">{{ subscription.plan.name }}</span></td>
+                                    <td>{{ subscription.get_billing_cycle_display }}</td>
+                                    <td>₹{{ subscription.total_amount|floatformat:2 }}</td>
+                                    <td>{{ subscription.start_date|date:"M d, Y" }}</td>
+                                    <td>{{ subscription.end_date|date:"M d, Y" }}</td>
+                                    <td>
+                                        {% if subscription.status == 'active' %}
+                                            <span class="badge bg-success-subtle text-success">Active</span>
+                                        {% elif subscription.status == 'trial' %}
+                                            <span class="badge bg-info-subtle text-info">Trial ({{ subscription.trial_days_remaining }} days left)</span>
+                                        {% elif subscription.status == 'expired' %}
+                                            <span class="badge bg-danger-subtle text-danger">Expired</span>
+                                        {% elif subscription.status == 'cancelled' %}
+                                            <span class="badge bg-danger-subtle text-danger">Cancelled</span>
+                                        {% elif subscription.status == 'suspended' %}
+                                            <span class="badge bg-warning-subtle text-warning">Suspended</span>
+                                        {% else %}
+                                            <span class="badge bg-info-subtle text-info">{{ subscription.get_status_display }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
+                                                <i class="bi bi-three-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li><a class="dropdown-item" href="#" onclick="viewSubscriptionDetails({{ subscription.id }})"><i class="bi bi-eye me-2"></i>View Details</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="editSubscription({{ subscription.id }})"><i class="bi bi-pencil me-2"></i>Edit</a></li>
+                                                {% if subscription.status == 'active' %}
+                                                    <li><a class="dropdown-item" href="#" onclick="suspendSubscription({{ subscription.id }})"><i class="bi bi-pause me-2"></i>Suspend</a></li>
+                                                {% endif %}
+                                                {% if subscription.status == 'trial' %}
+                                                    <li><a class="dropdown-item" href="#" onclick="activateSubscription({{ subscription.id }})"><i class="bi bi-check-circle me-2"></i>Activate</a></li>
+                                                {% endif %}
+                                                {% if subscription.status == 'suspended' %}
+                                                    <li><a class="dropdown-item" href="#" onclick="activateSubscription({{ subscription.id }})"><i class="bi bi-play-circle me-2"></i>Reactivate</a></li>
+                                                {% endif %}
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-danger" href="#" onclick="cancelSubscription({{ subscription.id }})"><i class="bi bi-trash me-2"></i>Cancel</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="9" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="bi bi-inbox fs-2"></i>
+                                            <p class="mb-0">No subscriptions found</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Pagination Controls -->
+                        {% if subscriptions.has_other_pages %}
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="text-muted">
+                                    Showing {{ subscriptions.start_index }}-{{ subscriptions.end_index }} of {{ subscriptions.paginator.count }} subscriptions
+                                </div>
+                                <nav>
+                                    <ul class="pagination pagination-sm mb-0">
+                                        {% if subscriptions.has_previous %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ subscriptions.previous_page_number }}">
+                                                    <i class="bi bi-chevron-left"></i> Previous
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                        
+                                        {% for num in subscriptions.paginator.page_range %}
+                                            {% if subscriptions.number == num %}
+                                                <li class="page-item active">
+                                                    <span class="page-link">{{ num }}</span>
+                                                </li>
+                                            {% else %}
+                                                <li class="page-item">
+                                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                                </li>
+                                            {% endif %}
+                                        {% endfor %}
+                                        
+                                        {% if subscriptions.has_next %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ subscriptions.next_page_number }}">
+                                                    Next <i class="bi bi-chevron-right"></i>
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                        {% endif %}
+            </div>
+        </div>
+        <!-- [Main Content] End -->
+    </div>
+</main>
+
+<script>
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('#subscriptionsTableBody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+});
+
+// Filter functionality
+function filterSubscriptions(status) {
+    const rows = document.querySelectorAll('#subscriptionsTableBody tr');
+    
+    rows.forEach(row => {
+        if (status === 'all') {
+            row.style.display = '';
+        } else {
+            row.style.display = row.getAttribute('data-status') === status ? '' : 'none';
+        }
+    });
+}
+
+// Cancel subscription function
+function cancelSubscription(subscriptionId) {
+    if (confirm('Are you sure you want to cancel this subscription? This action cannot be undone.')) {
+        performSubscriptionAction(subscriptionId, 'cancel', 'Subscription cancelled successfully!', 'Error cancelling subscription');
+    }
+}
+
+// View subscription details function
+function viewSubscriptionDetails(subscriptionId) {
+    // Redirect to subscriptions list page since subscription detail page doesn't exist
+    window.location.href = '/superadmin/subscriptions/';
+}
+
+// Edit subscription function
+function editSubscription(subscriptionId) {
+    // Redirect to subscriptions list page since edit page doesn't exist
+    window.location.href = '/superadmin/subscriptions/';
+}
+
+// Suspend subscription function
+function suspendSubscription(subscriptionId) {
+    if (confirm('Are you sure you want to suspend this subscription?')) {
+        performSubscriptionAction(subscriptionId, 'suspend', 'Subscription suspended successfully!', 'Error suspending subscription');
+    }
+}
+
+// Activate subscription function
+function activateSubscription(subscriptionId) {
+    if (confirm('Are you sure you want to activate this subscription?')) {
+        performSubscriptionAction(subscriptionId, 'activate', 'Subscription activated successfully!', 'Error activating subscription');
+    }
+}
+
+// Generic function to perform subscription actions
+function performSubscriptionAction(subscriptionId, action, successMessage, errorMessage) {
+    // Get CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+                     getCookie('csrftoken');
+    
+    if (!csrfToken) {
+        alert('Security token missing. Please refresh the page and try again.');
+        return;
+    }
+    
+    // Create form data
+    const formData = new FormData();
+    formData.append('subscription_id', subscriptionId);
+    formData.append('action', action);
+    formData.append('csrfmiddlewaretoken', csrfToken);
+    
+    // Submit action
+    // Bulk subscription action disabled
+    alert('Bulk subscription actions are currently disabled. Please implement the bulk_subscription_action view function to enable this feature.');
+    return;
+}
+
+// Helper function to get CSRF token from cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+
+<!-- Footer -->
+<footer class="text-center py-3 mt-4 mb-2 text-muted small border-top">
+    <div class="d-flex justify-content-between align-items-center">
+        <span>&copy; 2024 Ultrakey IT Solutions</span>
+        <span>All Subscriptions Management</span>
+        <span>Support</span>
+    </div>
+</footer>
+
+{% endblock %}

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .file-preview { margin: 10px 0; padding: 10px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <h1>File Upload Debug Test</h1>
+    
+    <div class="test-section">
+        <h3>Test File Upload Logic</h3>
+        <input type="file" id="testFileUpload" multiple>
+        <button onclick="testFileSelection()">Test File Selection</button>
+        <button onclick="testFileUpload()">Test File Upload</button>
+        <div id="testPreviews"></div>
+        <div id="testResults"></div>
+    </div>
+
+    <script>
+        function testFileSelection() {
+            const fileInput = document.getElementById('testFileUpload');
+            const previews = document.getElementById('testPreviews');
+            const results = document.getElementById('testResults');
+            
+            // Clear previous results
+            previews.innerHTML = '';
+            results.innerHTML = '';
+            
+            const files = fileInput.files;
+            results.innerHTML = `<p>Files selected: ${files.length}</p>`;
+            
+            Array.from(files).forEach((file, index) => {
+                const preview = document.createElement('div');
+                preview.className = 'file-preview';
+                preview.dataset.fileName = file.name;
+                preview.storedFile = file; // Store the actual file object
+                
+                preview.innerHTML = `
+                    <p>File ${index + 1}: ${file.name} (${file.size} bytes)</p>
+                    <p>Stored file object: ${preview.storedFile ? 'YES' : 'NO'}</p>
+                `;
+                
+                previews.appendChild(preview);
+            });
+        }
+        
+        function testFileUpload() {
+            const previews = document.querySelectorAll('.file-preview');
+            const results = document.getElementById('testResults');
+            const formData = new FormData();
+            
+            results.innerHTML += '<p>Testing file upload...</p>';
+            
+            previews.forEach((preview, index) => {
+                const file = preview.storedFile;
+                results.innerHTML += `<p>File ${index}: ${file ? file.name : 'null'} - ${file ? 'READY' : 'MISSING'}</p>`;
+                
+                if (file) {
+                    formData.append('files', file);
+                }
+            });
+            
+            // Check FormData contents
+            results.innerHTML += `<p>FormData entries: ${formData.getAll('files').length}</p>`;
+            
+            // Test with actual fetch (commented out for now)
+            /*
+            fetch('/api/chat/messages/', {
+                method: 'POST',
+                body: formData
+            }).then(res => {
+                results.innerHTML += `<p>Response: ${res.status}</p>`;
+            }).catch(err => {
+                results.innerHTML += `<p>Error: ${err.message}</p>`;
+            });
+            */
+        }
+    </script>
+</body>
+</html>

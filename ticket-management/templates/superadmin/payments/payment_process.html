@@ -1,0 +1,166 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}Process Payment{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-credit-card me-2"></i>
+                        Process Payment
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if expiry_info.days_expired > 0 %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Your trial expired {{ expiry_info.days_expired }} day(s) ago. Please select a plan to continue.
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post" id="paymentForm">
+                        {% csrf_token %}
+                        
+                        <!-- Plan Selection -->
+                        <div class="mb-4">
+                            <h6>Select a Plan</h6>
+                            <div class="row">
+                                {% for plan in plans %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="card plan-card" onclick="selectPlan('{{ plan.id }}', '{{ plan.name }}', '{{ plan.price }}')">
+                                        <div class="card-body text-center">
+                                            <h6 class="card-title">{{ plan.name }}</h6>
+                                            <div class="h4 text-primary">{{ currency_symbol }}{{ plan.price }}</div>
+                                            <small class="text-muted">per {{ plan.get_billing_cycle_display }}</small>
+                                            <hr>
+                                            <ul class="list-unstyled small">
+                                                <li><i class="fas fa-check text-success me-1"></i> {{ plan.users }} Users</li>
+                                                <li><i class="fas fa-check text-success me-1"></i> {{ plan.storage }} Storage</li>
+                                            </ul>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="plan_id" value="{{ plan.id }}" id="plan_{{ plan.id }}" required>
+                                                <label class="form-check-label" for="plan_{{ plan.id }}">
+                                                    Select this plan
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Payment Information -->
+                        <div class="mb-4">
+                            <h6>Payment Information</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Payment Method</label>
+                                        <select class="form-select" name="payment_method" required>
+                                            {% for method, display in payment_methods %}
+                                            <option value="{{ method }}">{{ display }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Card Holder Name</label>
+                                        <input type="text" class="form-control" name="card_holder" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Card Number</label>
+                                        <input type="text" class="form-control" name="card_number" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Expiry Date</label>
+                                        <input type="text" class="form-control" name="card_expiry" placeholder="MM/YY" maxlength="5" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">CVV</label>
+                                        <input type="text" class="form-control" name="card_cvv" placeholder="123" maxlength="4" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'superadmin:superadmin_dashboard' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Back
+                            </a>
+                            <button type="submit" class="btn btn-success" id="submitBtn">
+                                <i class="fas fa-lock me-1"></i> Process Payment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function selectPlan(planId, planName, planPrice) {
+    // Check the radio button
+    document.getElementById('plan_' + planId).checked = true;
+    
+    // Visual feedback
+    document.querySelectorAll('.plan-card').forEach(card => {
+        card.classList.remove('border-primary');
+    });
+    event.currentTarget.classList.add('border-primary');
+}
+
+// Format card number input
+document.querySelector('input[name="card_number"]').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\s/g, '');
+    let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+    e.target.value = formattedValue;
+});
+
+// Format expiry date input
+document.querySelector('input[name="card_expiry"]').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length >= 2) {
+        value = value.slice(0, 2) + '/' + value.slice(2, 4);
+    }
+    e.target.value = value;
+});
+
+// Only allow numbers for CVV
+document.querySelector('input[name="card_cvv"]').addEventListener('input', function(e) {
+    e.target.value = e.target.value.replace(/\D/g, '');
+});
+</script>
+
+<style>
+.plan-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.plan-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.plan-card.border-primary {
+    border-width: 2px;
+}
+</style>
+{% endblock %}

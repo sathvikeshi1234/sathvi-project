@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JavaScript Fix Test</title>
+    <script src="http://127.0.0.1:8000/static/userdashboard/js/app.js"></script>
+    <script src="http://127.0.0.1:8000/static/userdashboard/js/chat.js"></script>
+</head>
+<body>
+    <h1>JavaScript Error Fix Test</h1>
+    
+    <button id="attachFileBtn">Attach File</button>
+    <input type="file" id="fileUpload" style="display: none;" multiple>
+    <div id="filePreviews" style="display: none;"></div>
+    
+    <script>
+        // Set up chat variables for testing
+        window.USER_CHAT_CONTACT_ID = 8;
+        window.USER_CHAT_CONTACT_NAME = 'Jane Smith';
+        window.USER_CHAT_TICKET_ID = 'TEST-001';
+        window.USER_CHAT_TICKET_IDS = ['TEST-001'];
+        
+        // Test the JavaScript functionality
+        console.log('Testing JavaScript fix...');
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            
+            // Test if setupFileUploadHandlers function exists
+            if (typeof setupFileUploadHandlers === 'function') {
+                console.log('[OK] setupFileUploadHandlers function found');
+                
+                // Call the function
+                setupFileUploadHandlers();
+                console.log('[OK] setupFileUploadHandlers called');
+                
+                // Check if event listeners were attached
+                const attachBtn = document.getElementById('attachFileBtn');
+                const fileInput = document.getElementById('fileUpload');
+                
+                if (attachBtn) {
+                    console.log('[OK] Attach button found');
+                    
+                    // Test click functionality
+                    attachBtn.addEventListener('click', function() {
+                        console.log('[OK] Attach button clicked!');
+                        alert('Attach button is working! File upload functionality is ready.');
+                    });
+                    
+                } else {
+                    console.log('[ERROR] Attach button NOT found');
+                }
+                
+                if (fileInput) {
+                    console.log('[OK] File input found');
+                } else {
+                    console.log('[ERROR] File input NOT found');
+                }
+                
+            } else {
+                console.log('[ERROR] setupFileUploadHandlers function NOT found');
+            }
+            
+            // Test if initSidebarToggle works without error
+            try {
+                if (typeof initSidebarToggle === 'function') {
+                    initSidebarToggle();
+                    console.log('[OK] initSidebarToggle executed without error');
+                } else {
+                    console.log('[INFO] initSidebarToggle function not found');
+                }
+            } catch (error) {
+                console.error('[ERROR] initSidebarToggle failed:', error);
+            }
+        });
+    </script>
+</body>
+</html>
+        

@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - User Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+    <link rel="stylesheet" href="{% static 'admindashboard/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'admindashboard/css/dropdown.css' %}">
+</head>
+<body>
+    <div id="app">
+        <!-- Include Sidebar -->
+        <div id="sidebar-container">
+            <!-- Content will be loaded by JavaScript -->
+        </div>
+
+        <div class="main-container">
+            <!-- Include Header -->
+            <div id="header-container">
+                <!-- Content will be loaded by JavaScript -->
+            </div>
+
+            <!-- Main Content -->
+            <main class="content-area">
+                <!-- USERS PAGE CONTENT -->
+                <div id="users" class="page-content active">
+                    <div class="page-header">
+                        <div>
+                            <h2>User Management</h2>
+                            <button onclick="console.log('Test button clicked!'); alert('JavaScript is working!');" class="btn btn-info ms-3">Test Console</button>
+                        </div>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newUserModal">
+                            <i class="bi bi-plus"></i> Add User
+                        </button>
+                    </div>
+                    
+                    <!-- Breadcrumbs -->
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="/dashboard/admin-dashboard/">
+                                    <i class="bi bi-house-door"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                Users
+                            </li>
+                        </ol>
+                    </nav>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex flex-column flex-md-row gap-2 w-md-auto">
+                                <div class="d-flex flex-column flex-sm-row gap-2  w-md-auto">
+                                    <div class="input-group me-3" style="width: 300px;">
+                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <input type="text" class="form-control" placeholder="Search users...">
+                                    </div>
+                                    <select class="form-select me-2" style="width: 150px;">
+                                        <option>All Roles</option>
+                                        <option>Administrator</option>
+                                        <option>Agent</option>
+                                        <option>Customer</option>
+                                    </select>
+                                    <select class="form-select" style="width: 150px;">
+                                        <option>All Status</option>
+                                        <option>Active</option>
+                                        <option>Inactive</option>
+                                        <option>Suspended</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="d-flex flex-column flex-sm-row gap-2 w-md-auto">
+                                    <button class="btn btn-outline-secondary me-2">
+                                        <i class="bi bi-funnel"></i> Filter
+                                    </button>
+                                    <button class="btn btn-outline-secondary">
+                                        <i class="bi bi-download"></i> Export
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th width="40">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="selectAllUsers">
+                                                </div>
+                                            </th>
+                                            <th>User</th>
+                                            <th>Email</th>
+                                            <th>Role</th>
+                                            <th>Department</th>
+                                            <th>Last Login</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="users-table">
+                                        <tr><td colspan="8" class="text-muted">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="d-flex flex-column justify-content-between flex-sm-row gap-2 w-100 w-md-auto mt-3">
+                                <div class="text-muted">
+                                    Showing <span id="users-showing-from">0</span> to <span id="users-showing-to">0</span> of <span id="users-total">0</span> users
+                                </div>
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination mb-0">
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                                        </li>
+                                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="#">Next</a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="dashboard-footer mt-4 mb-2 text-muted small">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>©Ultrakey IT Solutions</span>
+                        <span>All systems operational</span>
+                    </div>
+                </footer>
+            </main>
+        </div>
+    </div>
+
+    <!-- Include Modals -->
+    <div id="modals-container">
+        <!-- Content will be loaded by JavaScript -->
+        
+        <!-- New User Modal -->
+        <div class="modal fade" id="newUserModal" tabindex="-1" aria-labelledby="newUserModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="newUserModalLabel">Add New User</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="newUserForm">
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">First Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" required>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Role <span class="text-danger">*</span></label>
+                                    <select class="form-select" required>
+                                        <option value="">Select Role</option>
+                                        <option value="admin">Administrator</option>
+                                        <option value="manager">Manager</option>
+                                        <option value="agent">Agent</option>
+                                        <option value="customer">Customer</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Department</label>
+                                    <select class="form-select">
+                                        <option value="">Select Department</option>
+                                        <option>Support</option>
+                                        <option>Sales</option>
+                                        <option>Billing</option>
+                                        <option>IT</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="sendWelcomeEmail">
+                                    <label class="form-check-label" for="sendWelcomeEmail">
+                                        Send welcome email with login instructions
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Create User</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- View User Modal -->
+        <div class="modal fade" id="viewUserModal" tabindex="-1" aria-labelledby="viewUserModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="viewUserModalLabel">User Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-3 text-center mb-4">
+                                <div class="avatar-xxl mb-3">AD</div>
+                                <h5>Admin User</h5>
+                                <span class="badge bg-primary">Administrator</span>
+                                <div class="mt-3">
+                                    <button class="btn btn-sm btn-outline-primary me-2">
+                                        <i class="bi bi-envelope"></i> Message
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <ul class="nav nav-tabs card-header-tabs" id="userDetailsTabs" role="tablist">
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="true">Profile</button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity" type="button" role="tab" aria-controls="activity" aria-selected="false">Activity</button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link" id="permissions-tab" data-bs-toggle="tab" data-bs-target="#permissions" type="button" role="tab" aria-controls="permissions" aria-selected="false">Permissions</button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="tab-content" id="userDetailsTabsContent">
+                                            <div class="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                                                <div class="row mb-3">
+                                                    <div class="col-md-6">
+                                                        <p class="mb-1 text-muted">Full Name</p>
+                                                        <p id="view-user-name">Admin User</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p class="mb-1 text-muted">Email</p>
+                                                        <p id="view-user-email">admin@tickethub.com</p>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <div class="col-md-6">
+                                                        <p class="mb-1 text-muted">Phone</p>
+                                                        <p id="view-user-phone">+1 234 567 890</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p class="mb-1 text-muted">Department</p>
+                                                        <p id="view-user-department">IT</p>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <div class="col-md-6">
+                                                        <p class="mb-1 text-muted">Role</p>
+                                                        <p><span class="badge bg-primary" id="view-user-role">Administrator</span></p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <p class="mb-1 text-muted">Status</p>
+                                                        <p><span class="badge bg-success" id="view-user-status">Active</span></p>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <p class="mb-1 text-muted">Bio</p>
+                                                        <p>System administrator with full access to all features and settings.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane fade" id="activity" role="tabpanel" aria-labelledby="activity-tab">
+                                                <div class="activity-timeline">
+                                                    <div class="activity-item">
+                                                        <div class="activity-badge">
+                                                            <i class="bi bi-person-plus"></i>
+                                                        </div>
+                                                        <div class="activity-content">
+                                                            <h6>New user registered</h6>
+                                                            <p class="text-muted mb-0">Sarah Johnson was added to the system</p>
+                                                            <small class="text-muted">2 hours ago</small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="activity-item">
+                                                        <div class="activity-badge">
+                                                            <i class="bi bi-ticket-detailed"></i>
+                                                        </div>
+                                                        <div class="activity-content">
+                                                            <h6>Ticket #1254 was closed</h6>
+                                                            <p class="text-muted mb-0">Resolved login issue for customer</p>
+                                                            <small class="text-muted">5 hours ago</small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="activity-item">
+                                                        <div class="activity-badge">
+                                                            <i class="bi bi-gear"></i>
+                                                        </div>
+                                                        <div class="activity-content">
+                                                            <h6>Updated system settings</h6>
+                                                            <p class="text-muted mb-0">Changed email notification templates</p>
+                                                            <small class="text-muted">1 day ago</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane fade" id="permissions" role="tabpanel" aria-labelledby="permissions-tab">
+                                                <div class="permissions-list">
+                                                    <div class="permission-item">
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" id="dashboardPermission" checked disabled>
+                                                            <label class="form-check-label" for="dashboardPermission">Access Dashboard</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="permission-item">
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" id="ticketsPermission" checked disabled>
+                                                            <label class="form-check-label" for="ticketsPermission">Manage Tickets</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="permission-item">
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" id="usersPermission" checked disabled>
+                                                            <label class="form-check-label" for="usersPermission">Manage Users</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="permission-item">
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" id="settingsPermission" checked disabled>
+                                                            <label class="form-check-label" for="settingsPermission">System Settings</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="permission-item">
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" id="reportsPermission" checked disabled>
+                                                            <label class="form-check-label" for="reportsPermission">View Reports</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Edit User Modal -->
+        <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="editUserForm">
+                        <div class="modal-body">
+                            <ul class="nav nav-pills mb-4" id="editUserTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="account-tab" data-bs-toggle="pill" data-bs-target="#account" type="button" role="tab" aria-controls="account" aria-selected="true">Account</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="permissions-tab" data-bs-toggle="pill" data-bs-target="#edit-permissions" type="button" role="tab" aria-controls="edit-permissions" aria-selected="false">Permissions</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="notifications-tab" data-bs-toggle="pill" data-bs-target="#notifications" type="button" role="tab" aria-controls="notifications" aria-selected="false">Notifications</button>
+                                </li>
+                            </ul>
+                            
+                            <div class="tab-content" id="editUserTabsContent">
+                                <div class="tab-pane fade show active" id="account" role="tabpanel" aria-labelledby="account-tab">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">First Name <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="edit-first-name" value="Admin" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="edit-last-name" value="User" required>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                                        <input type="email" class="form-control" id="edit-email" value="admin@tickethub.com" required>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Role <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="edit-role" required>
+                                                <option value="">Select Role</option>
+                                                <option value="admin" selected>Administrator</option>
+                                                <option value="manager">Manager</option>
+                                                <option value="agent">Agent</option>
+                                                <option value="customer">Customer</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Department</label>
+                                            <select class="form-select" id="edit-department">
+                                                <option value="">Select Department</option>
+                                                <option selected>IT</option>
+                                                <option>Support</option>
+                                                <option>Sales</option>
+                                                <option>Billing</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-control" id="edit-phone" value="+1 234 567 890">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Bio</label>
+                                        <textarea class="form-control" rows="3">System administrator with full access to all features and settings.</textarea>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="edit-permissions" role="tabpanel" aria-labelledby="permissions-tab">
+                                    <div class="permissions-list">
+                                        <div class="permission-category mb-4">
+                                            <h6 class="mb-3">General</h6>
+                                            <div class="permission-item">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="dashboardAccess" checked>
+                                                    <label class="form-check-label" for="dashboardAccess">Access Dashboard</label>
+                                                </div>
+                                                <small class="text-muted">Allow user to view the main dashboard</small>
+                                            </div>
+                                            <div class="permission-item mt-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="reportsAccess" checked>
+                                                    <label class="form-check-label" for="reportsAccess">View Reports</label>
+                                                </div>
+                                                <small class="text-muted">Allow user to view and generate reports</small>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="permission-category mb-4">
+                                            <h6 class="mb-3">Tickets</h6>
+                                            <div class="permission-item">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="createTickets" checked>
+                                                    <label class="form-check-label" for="createTickets">Create Tickets</label>
+                                                </div>
+                                            </div>
+                                            <div class="permission-item mt-2">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="editTickets" checked>
+                                                    <label class="form-check-label" for="editTickets">Edit Tickets</label>
+                                                </div>
+                                            </div>
+                                            <div class="permission-item mt-2">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="deleteTickets" checked>
+                                                    <label class="form-check-label" for="deleteTickets">Delete Tickets</label>
+                                                </div>
+                                            </div>
+                                            <div class="permission-item mt-2">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="assignTickets" checked>
+                                                    <label class="form-check-label" for="assignTickets">Assign Tickets</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="permission-category">
+                                            <h6 class="mb-3">Users & Settings</h6>
+                                            <div class="permission-item">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="manageUsers" checked>
+                                                    <label class="form-check-label" for="manageUsers">Manage Users</label>
+                                                </div>
+                                            </div>
+                                            <div class="permission-item mt-2">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="manageRoles" checked>
+                                                    <label class="form-check-label" for="manageRoles">Manage Roles & Permissions</label>
+                                                </div>
+                                            </div>
+                                            <div class="permission-item mt-2">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="systemSettings" checked>
+                                                    <label class="form-check-label" for="systemSettings">System Settings</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="notifications" role="tabpanel" aria-labelledby="notifications-tab">
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Email Notifications</h6>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                                            <label class="form-check-label" for="emailNotifications">Enable email notifications</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="ticketAssigned" checked>
+                                            <label class="form-check-label" for="ticketAssigned">Ticket assigned to me</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="ticketUpdated" checked>
+                                            <label class="form-check-label" for="ticketUpdated">Ticket updated</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="ticketClosed" checked>
+                                            <label class="form-check-label" for="ticketClosed">Ticket closed</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="ticketReopened" checked>
+                                            <label class="form-check-label" for="ticketReopened">Ticket reopened</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">In-App Notifications</h6>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="inAppNotifications" checked>
+                                            <label class="form-check-label" for="inAppNotifications">Enable in-app notifications</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="newMessage" checked>
+                                            <label class="form-check-label" for="newMessage">New message received</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="mention" checked>
+                                            <label class="form-check-label" for="mention">When mentioned</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <h6 class="mb-3">Notification Sound</h6>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="notificationSound" checked>
+                                            <label class="form-check-label" for="notificationSound">Play sound for notifications</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="resetPasswordModalLabel">Reset User Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="resetPasswordForm">
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            You are resetting password for: <strong id="reset-password-username"></strong>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">New Password <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="newPassword" name="password" required minlength="6">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <div class="form-text">Password must be at least 6 characters long</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required minlength="6">
+                                <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="sendPasswordEmail">
+                                <label class="form-check-label" for="sendPasswordEmail">
+                                    Send password reset email to user
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-key me-2"></i>Reset Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Set Password Modal -->
+    <div class="modal fade" id="setPasswordModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Set User Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="setPasswordForm">
+                        <input type="hidden" id="set_password_user_id" name="user_id">
+                        <div class="mb-3">
+                            <label class="form-label" for="set_password_user_info">User</label>
+                            <div id="set_password_user_info" class="form-control bg-light text-muted"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="set_password_password">New Password</label>
+                            <input type="password" id="set_password_password" name="password" class="form-control" autocomplete="new-password" required>
+                            <div class="form-text">Password must be at least 6 characters long</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="set_password_confirm_password">Confirm Password</label>
+                            <input type="password" id="set_password_confirm_password" name="confirm_password" class="form-control" autocomplete="new-password" required>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Note:</strong> After setting the password, the user will be able to login using their email/username and this password.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Set Password</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Core JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Utility function for loading components -->
+    <script>
+        // Immediate test to see if script loads
+        console.log('=== USERS PAGE SCRIPT LOADING ===');
+        alert('Users page script is loading!');
+        
+        // Function to load HTML content into an element
+        function loadComponent(url, elementId) {
+            return fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        element.innerHTML = html;
+                        
+                        // If loading the sidebar, set the active nav item
+                        if (url.includes('sidebar.html')) {
+                            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                            const pageName = currentPage.replace('.html', '') || 'dashboard';
+                            const activeNavItem = document.querySelector(`.nav-item[data-page="${pageName}"]`);
+                            if (activeNavItem) {
+                                // Remove active class from all nav items
+                                document.querySelectorAll('.nav-item').forEach(item => {
+                                    item.classList.remove('active');
+                                });
+                                activeNavItem.classList.add('active');
+                            }
+                        }
+                        
+                        // If loading the header, initialize it after a short delay
+                        if (url.includes('header.html') && window.initializeHeader) {
+                            setTimeout(() => {
+                                window.initializeHeader();
+                            }, 50);
+                        }
+                        
+                        return true;
+                    }
+                    return false;
+                })
+                .catch(error => {
+                    console.error('Error loading component:', error);
+                    return false;
+                });
+        }
+        
+        // Pagination variables
+        let CURRENT_PAGE = 1;
+        let PAGE_SIZE = 10;
+        let TOTAL_USERS = 0;
+        let TOTAL_PAGES = 0;
+
+        // Simple helper to get CSRF token from cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function renderUsers(users, total, page, totalPages){
+            const tbody = document.getElementById('users-table');
+            const totalEl = document.getElementById('users-total');
+            const fromEl = document.getElementById('users-showing-from');
+            const toEl = document.getElementById('users-showing-to');
+
+            const usersList = Array.isArray(users) ? users : [];
+            TOTAL_USERS = total || 0;
+            CURRENT_PAGE = page || 1;
+            TOTAL_PAGES = totalPages || 1;
+            
+            if (totalEl) totalEl.textContent = TOTAL_USERS;
+            
+            // Calculate showing from/to
+            const from = TOTAL_USERS > 0 ? ((CURRENT_PAGE - 1) * PAGE_SIZE) + 1 : 0;
+            const to = Math.min(CURRENT_PAGE * PAGE_SIZE, TOTAL_USERS);
+            
+            if (fromEl) fromEl.textContent = from;
+            if (toEl) toEl.textContent = to;
+
+            if (!tbody){ return; }
+
+            if (usersList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-muted">No users found.</td></tr>';
+                updatePaginationControls();
+                return;
+            }
+
+            tbody.innerHTML = usersList.map(u => {
+                return `
+                    <tr>
+                        <td>
+                            <div class="form-check">
+                                <input class="form-check-input user-checkbox" type="checkbox">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div>
+                                    <div class="fw-bold user-name">${u.name}</div>
+                                    <small class="text-muted user-id" data-user-id="${u.id}">ID: USR-${u.id}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="user-email">${u.email}</td>
+                        <td class="user-role" data-role-label="${u.role_label}"><span class="badge ${u.role_badge_class}">${u.role_label}</span></td>
+                        <td class="user-department">${u.department}</td>
+                        <td class="user-last-login">${u.last_login_display}</td>
+                        <td class="user-status" data-status-label="${u.status_label}"><span class="badge ${u.status_badge_class}">${u.status_label}</span></td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-icon" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item user-action-view" href="#" data-bs-toggle="modal" data-bs-target="#viewUserModal"><i class="bi bi-eye me-2"></i>View</a></li>
+                                    <li><a class="dropdown-item user-action-edit" href="#" data-bs-toggle="modal" data-bs-target="#editUserModal"><i class="bi bi-pencil me-2"></i>Edit</a></li>
+                                    <li><a class="dropdown-item user-action-reset-password" href="#" data-bs-toggle="modal" data-bs-target="#setPasswordModal"><i class="bi bi-key me-2"></i>Reset Password</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger user-action-delete" href="#"><i class="bi bi-trash me-2"></i>Delete</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>`;
+            }).join('');
+            
+            updatePaginationControls();
+        }
+
+        function updatePaginationControls() {
+            const paginationUl = document.querySelector('.pagination');
+            if (!paginationUl) return;
+
+            let paginationHTML = '';
+            
+            // Previous button
+            const prevDisabled = CURRENT_PAGE <= 1 ? 'disabled' : '';
+            paginationHTML += `
+                <li class="page-item ${prevDisabled}">
+                    <a class="page-link" href="#" data-page="${CURRENT_PAGE - 1}" tabindex="-1">Previous</a>
+                </li>`;
+            
+            // Page numbers
+            const startPage = Math.max(1, CURRENT_PAGE - 2);
+            const endPage = Math.min(TOTAL_PAGES, CURRENT_PAGE + 2);
+            
+            if (startPage > 1) {
+                paginationHTML += '<li class="page-item"><a class="page-link" href="#" data-page="1">1</a></li>';
+                if (startPage > 2) {
+                    paginationHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                }
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const active = i === CURRENT_PAGE ? 'active' : '';
+                paginationHTML += `
+                    <li class="page-item ${active}">
+                        <a class="page-link" href="#" data-page="${i}">${i}</a>
+                    </li>`;
+            }
+            
+            if (endPage < TOTAL_PAGES) {
+                if (endPage < TOTAL_PAGES - 1) {
+                    paginationHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                }
+                paginationHTML += `<li class="page-item"><a class="page-link" href="#" data-page="${TOTAL_PAGES}">${TOTAL_PAGES}</a></li>`;
+            }
+            
+            // Next button
+            const nextDisabled = CURRENT_PAGE >= TOTAL_PAGES ? 'disabled' : '';
+            paginationHTML += `
+                <li class="page-item ${nextDisabled}">
+                    <a class="page-link" href="#" data-page="${CURRENT_PAGE + 1}">Next</a>
+                </li>`;
+            
+            paginationUl.innerHTML = paginationHTML;
+            
+            // Add click handlers for pagination links
+            paginationUl.addEventListener('click', function(e) {
+                e.preventDefault();
+                const pageLink = e.target.closest('.page-link');
+                if (pageLink && !pageLink.parentElement.classList.contains('disabled')) {
+                    const pageNum = parseInt(pageLink.getAttribute('data-page'));
+                    if (pageNum && pageNum !== CURRENT_PAGE) {
+                        CURRENT_PAGE = pageNum;
+                        loadUsers();
+                    }
+                }
+            });
+        }
+
+        // Fetch users with pagination
+        async function loadUsers(){
+            const tbody = document.getElementById('users-table');
+            if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-muted">Loading...</td></tr>';
+            }
+            try {
+                const header = document.querySelector('.card-header');
+                const searchInput = header ? header.querySelector('input[type="text"]') : null;
+                const selects = header ? header.querySelectorAll('select.form-select') : [];
+                const roleSelect = selects[0];
+                const statusSelect = selects[1];
+
+                const search = (searchInput?.value || '').trim();
+                const role = (roleSelect?.value || '').trim();
+                const status = (statusSelect?.value || '').trim();
+                
+                const params = new URLSearchParams({
+                    page: CURRENT_PAGE.toString(),
+                    page_size: PAGE_SIZE.toString(),
+                });
+                
+                if (search) params.append('search', search);
+                if (role && role !== 'All Roles') params.append('role', role);
+                if (status && status !== 'All Status') params.append('status', status);
+                
+                const res = await fetch(`/api/users/?${params.toString()}`);
+                if (!res.ok) throw new Error('Failed to load users');
+                const payload = await res.json();
+                
+                renderUsers(
+                    payload.results || [], 
+                    payload.total || 0, 
+                    payload.page || 1, 
+                    payload.total_pages || 1
+                );
+            } catch (e) {
+                console.error(e);
+                if (tbody) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-danger">Failed to load users.</td></tr>';
+                }
+            }
+        }
+
+        function applyUserFilters(){
+            // Reset to page 1 when applying filters
+            CURRENT_PAGE = 1;
+            loadUsers();
+        }
+
+        // Export currently visible (filtered) users as CSV
+        function exportFilteredUsers(){
+            const tableBody = document.querySelector('table.table tbody');
+            if (!tableBody) return;
+
+            const rows = Array.from(tableBody.querySelectorAll('tr'))
+                .filter(row => row.style.display !== 'none' && row.querySelector('.user-name'));
+
+            if (!rows.length){
+                alert('No users to export for the current filters.');
+                return;
+            }
+
+            const header = ['ID', 'Name', 'Email', 'Role', 'Department', 'Status', 'Last Login'];
+            const lines = [header.join(',')];
+
+            rows.forEach(row => {
+                const idEl = row.querySelector('.user-id');
+                const nameEl = row.querySelector('.user-name');
+                const emailEl = row.querySelector('.user-email');
+                const roleEl = row.querySelector('.user-role');
+                const deptEl = row.querySelector('.user-department');
+                const statusEl = row.querySelector('.user-status');
+                const loginEl = row.querySelector('.user-last-login');
+
+                const id = idEl ? (idEl.dataset.userId || '') : '';
+                const name = nameEl ? nameEl.textContent.trim() : '';
+                const email = emailEl ? emailEl.textContent.trim() : '';
+                const role = roleEl ? (roleEl.dataset.roleLabel || roleEl.textContent.trim()) : '';
+                const dept = deptEl ? deptEl.textContent.trim() : '';
+                const status = statusEl ? (statusEl.dataset.statusLabel || statusEl.textContent.trim()) : '';
+                const lastLogin = loginEl ? loginEl.textContent.trim() : '';
+
+                const rowData = [id, name, email, role, dept, status, lastLogin].map(val => {
+                    const v = val || '';
+                    if (v.includes(',') || v.includes('"') || v.includes('\n')){
+                        return '"' + v.replace(/"/g, '""') + '"';
+                    }
+                    return v;
+                });
+                lines.push(rowData.join(','));
+            });
+
+            const blob = new Blob([lines.join('\n')], {type: 'text/csv;charset=utf-8;'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'users_export.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize components when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== DOM LOADED - USERS PAGE INITIALIZING ===');
+            console.log('Current URL:', window.location.href);
+            console.log('Bootstrap available:', !!window.bootstrap);
+            console.log('Bootstrap Modal available:', !!(window.bootstrap && window.bootstrap.Modal));
+            
+            // Load header if container exists
+            if (document.getElementById('header-container')) {
+                console.log('Loading header component...');
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/header.html" %}', 'header-container');
+            }
+            
+            // Load sidebar if container exists
+            if (document.getElementById('sidebar-container')) {
+                console.log('Loading sidebar component...');
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/sidebar.html" %}', 'sidebar-container');
+            }
+            
+            // Load modals only if container exists and is empty, so page-specific modals are not overwritten
+            const modalsContainer = document.getElementById('modals-container');
+            if (modalsContainer && !modalsContainer.hasChildNodes()) {
+                console.log('Loading modals component...');
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/modals.html" %}', 'modals-container');
+            }
+
+            // Load users table with pagination
+            console.log('Starting to load users...');
+            loadUsers();
+            
+            // Listen for navigation events (for single-page navigation)
+            document.body.addEventListener('click', function(e) {
+                // Check if the click was on a navigation link
+                const navLink = e.target.closest('a[data-page]');
+                if (navLink) {
+                    // Re-initialize header after a short delay to allow the page to update
+                    setTimeout(() => {
+                        if (window.initializeHeader) {
+                            window.initializeHeader();
+                        }
+                    }, 100);
+                }
+            });
+
+            // Wire up search, filters, and export for Users table
+            console.log('Setting up search and filter handlers...');
+            const header = document.querySelector('.card-header');
+            if (header){
+                const searchInput = header.querySelector('input[type="text"]');
+                const selects = header.querySelectorAll('select.form-select');
+                const roleSelect = selects[0];
+                const statusSelect = selects[1];
+                const exportBtnIcon = header.querySelector('button .bi-download');
+                const exportBtn = exportBtnIcon ? exportBtnIcon.closest('button') : null;
+
+                console.log('Elements found:', {
+                    searchInput: !!searchInput,
+                    roleSelect: !!roleSelect,
+                    statusSelect: !!statusSelect,
+                    exportBtn: !!exportBtn
+                });
+
+                if (searchInput){
+                    console.log('Adding search input listener');
+                    searchInput.addEventListener('input', applyUserFilters);
+                }
+                if (roleSelect){
+                    console.log('Adding role select listener');
+                    roleSelect.addEventListener('change', applyUserFilters);
+                }
+                if (statusSelect){
+                    console.log('Adding status select listener');
+                    statusSelect.addEventListener('change', applyUserFilters);
+                }
+                if (exportBtn){
+                    console.log('Adding export button listener');
+                    exportBtn.addEventListener('click', function(e){
+                        e.preventDefault();
+                        exportFilteredUsers();
+                    });
+                }
+            } else {
+                console.error('Header element not found!');
+            }
+            
+            console.log('=== DOM INITIALIZATION COMPLETE ===');
+            
+            // Users table actions: populate View/Edit modals and handle edit/delete via API
+            const usersTableBody = document.querySelector('table.table tbody');
+            let currentUserId = null;
+            let currentRow = null;
+            console.log('Users table body found:', !!usersTableBody);
+            
+            if (usersTableBody) {
+                usersTableBody.addEventListener('click', function (e) {
+                    console.log('Click detected in users table', e.target);
+                    
+                    const viewLink = e.target.closest('.user-action-view');
+                    const editLink = e.target.closest('.user-action-edit');
+                    const resetPasswordLink = e.target.closest('.user-action-reset-password');
+                    const deleteLink = e.target.closest('.user-action-delete');
+                    
+                    console.log('Link detection:', {
+                        viewLink: !!viewLink,
+                        editLink: !!editLink,
+                        resetPasswordLink: !!resetPasswordLink,
+                        deleteLink: !!deleteLink
+                    });
+                    
+                    if (!viewLink && !editLink && !resetPasswordLink && !deleteLink) return;
+
+                    console.log('Processing user action...');
+                    e.preventDefault();
+                    const row = e.target.closest('tr');
+                    if (!row) return;
+                    currentRow = row;
+
+                    const idEl = row.querySelector('.user-id');
+                    const nameEl = row.querySelector('.user-name');
+                    const emailEl = row.querySelector('.user-email');
+                    const roleEl = row.querySelector('.user-role');
+                    const deptEl = row.querySelector('.user-department');
+                    const statusEl = row.querySelector('.user-status');
+
+                    const userId = idEl ? idEl.dataset.userId : null;
+                    const fullName = nameEl ? nameEl.textContent.trim() : '';
+                    const email = emailEl ? emailEl.textContent.trim() : '';
+                    const roleLabel = roleEl ? (roleEl.dataset.roleLabel || roleEl.textContent.trim()) : '';
+                    const department = deptEl ? deptEl.textContent.trim() : '';
+                    const statusLabel = statusEl ? (statusEl.dataset.statusLabel || statusEl.textContent.trim()) : '';
+
+                    currentUserId = userId;
+                    console.log('User data extracted:', { userId, fullName });
+
+                    if (viewLink) {
+                        const viewName = document.getElementById('view-user-name');
+                        const viewEmail = document.getElementById('view-user-email');
+                        const viewDept = document.getElementById('view-user-department');
+                        const viewRole = document.getElementById('view-user-role');
+                        const viewStatus = document.getElementById('view-user-status');
+
+                        if (viewName) viewName.textContent = fullName || '—';
+                        if (viewEmail) viewEmail.textContent = email || '—';
+                        if (viewDept) viewDept.textContent = department || '—';
+                        if (viewRole) viewRole.textContent = roleLabel || '—';
+                        if (viewStatus) viewStatus.textContent = statusLabel || '—';
+                    }
+
+                    if (editLink) {
+                        // Split full name into first/last (best-effort)
+                        let firstName = '';
+                        let lastName = '';
+                        if (fullName) {
+                            const parts = fullName.split(' ').filter(Boolean);
+                            if (parts.length === 1) {
+                                firstName = parts[0];
+                            } else if (parts.length > 1) {
+                                firstName = parts[0];
+                                lastName = parts.slice(1).join(' ');
+                            }
+                        }
+
+                        const editFirstName = document.getElementById('edit-first-name');
+                        const editLastName = document.getElementById('edit-last-name');
+                        const editEmail = document.getElementById('edit-email');
+                        const editRole = document.getElementById('edit-role');
+                        const editDept = document.getElementById('edit-department');
+
+                        if (editFirstName) editFirstName.value = firstName || '';
+                        if (editLastName) editLastName.value = lastName || '';
+                        if (editEmail) editEmail.value = email || '';
+
+                        // Select matching role by label text (Administrator, Agent, Customer, etc.)
+                        if (editRole && roleLabel) {
+                            Array.from(editRole.options).forEach(opt => {
+                                opt.selected = (opt.textContent.trim() === roleLabel.trim());
+                            });
+                        }
+
+                        // Select matching department option by text
+                        if (editDept && department) {
+                            Array.from(editDept.options).forEach(opt => {
+                                opt.selected = (opt.textContent.trim() === department.trim());
+                            });
+                        }
+                    }
+
+                    if (resetPasswordLink && userId) {
+                        console.log('Reset password link clicked for user:', userId, fullName);
+                        
+                        // Populate the set password modal
+                        const userInfo = document.getElementById('set_password_user_info');
+                        const hiddenUserId = document.getElementById('set_password_user_id');
+                        
+                        if (userInfo) {
+                            userInfo.textContent = fullName || nameEl?.textContent?.trim() || 'User';
+                            console.log('Set user info in modal:', userInfo.textContent);
+                        } else {
+                            console.error('User info element not found');
+                        }
+                        
+                        if (hiddenUserId) {
+                            hiddenUserId.value = userId;
+                            console.log('Set user ID in hidden field:', userId);
+                        } else {
+                            console.error('Hidden user ID element not found');
+                        }
+                        
+                        // Clear form fields
+                        const passwordField = document.getElementById('set_password_password');
+                        const confirmPasswordField = document.getElementById('set_password_confirm_password');
+                        
+                        if (passwordField) passwordField.value = '';
+                        if (confirmPasswordField) confirmPasswordField.value = '';
+                        
+                        console.log('Form fields cleared');
+                        
+                        // Store current user ID for form submission
+                        currentUserId = userId;
+                        console.log('Stored currentUserId:', currentUserId);
+                        
+                        // Show the modal (Bootstrap will handle this automatically with data-bs-toggle)
+                        console.log('Modal should open automatically via Bootstrap');
+                    }
+
+                    if (deleteLink && userId) {
+                        if (!confirm('Are you sure you want to delete this user?')) {
+                            return;
+                        }
+                        const csrftoken = getCookie('csrftoken');
+                        fetch(`/api/users/${userId}/`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRFToken': csrftoken || '',
+                            },
+                            credentials: 'same-origin',
+                        }).then(resp => {
+                            if (resp.ok || resp.status === 204) {
+                                // Reload the users table to update pagination
+                                loadUsers();
+                            } else {
+                                return resp.json().then(data => { throw new Error(data.detail || 'Failed to delete user'); });
+                            }
+                        }).catch(err => {
+                            console.error('Error deleting user:', err);
+                            alert(err.message || 'Failed to delete user.');
+                        });
+                    }
+                });
+            } else {
+                console.error('Users table body not found when setting up event listeners');
+            }
+
+            // Handle Edit User form submit -> PATCH /api/users/<id>/
+            const editUserForm = document.getElementById('editUserForm');
+            if (editUserForm) {
+                editUserForm.addEventListener('submit', function (e) {
+                    if (!currentUserId) return;
+                    e.preventDefault();
+
+                    const firstName = document.getElementById('edit-first-name')?.value || '';
+                    const lastName = document.getElementById('edit-last-name')?.value || '';
+                    const email = document.getElementById('edit-email')?.value || '';
+                    const roleSelect = document.getElementById('edit-role');
+                    const deptSelect = document.getElementById('edit-department');
+
+                    const roleValue = roleSelect ? (roleSelect.options[roleSelect.selectedIndex]?.textContent || '') : '';
+                    const deptValue = deptSelect ? (deptSelect.options[deptSelect.selectedIndex]?.textContent || '') : '';
+
+                    const payload = {
+                        first_name: firstName,
+                        last_name: lastName,
+                        email: email,
+                        role: roleValue,
+                        department: deptValue,
+                    };
+
+                    const csrftoken = getCookie('csrftoken');
+                    fetch(`/api/users/${currentUserId}/`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken || '',
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify(payload),
+                    }).then(resp => {
+                        if (!resp.ok) {
+                            return resp.json().then(data => { throw new Error(data.detail || 'Failed to update user'); });
+                        }
+                        return resp.json();
+                    }).then(data => {
+                        if (currentRow) {
+                            const nameCell = currentRow.querySelector('.user-name');
+                            const emailCell = currentRow.querySelector('.user-email');
+                            const roleCell = currentRow.querySelector('.user-role');
+                            const deptCell = currentRow.querySelector('.user-department');
+                            const statusCell = currentRow.querySelector('.user-status');
+
+                            const fullName = `${data.first_name || ''} ${data.last_name || ''}`.trim() || data.username;
+                            if (nameCell) nameCell.textContent = fullName;
+                            if (emailCell) emailCell.textContent = data.email || '';
+                            if (deptCell) deptCell.textContent = data.department || '-';
+                            if (roleCell) {
+                                const label = data.role || '';
+                                roleCell.dataset.roleLabel = label;
+                                const badge = roleCell.querySelector('span.badge');
+                                if (badge) badge.textContent = label;
+                            }
+                            if (statusCell) {
+                                // Status not edited here; keep as is
+                            }
+                        }
+
+                        const editModalEl = document.getElementById('editUserModal');
+                        if (editModalEl && bootstrap && bootstrap.Modal) {
+                            const modal = bootstrap.Modal.getInstance(editModalEl) || new bootstrap.Modal(editModalEl);
+                            modal.hide();
+                        }
+                    }).catch(err => {
+                        console.error('Error updating user:', err);
+                        alert(err.message || 'Failed to update user.');
+                    });
+                });
+            }
+
+            // Handle Set Password form submit
+            const setPasswordForm = document.getElementById('setPasswordForm');
+            if (setPasswordForm) {
+                setPasswordForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    const userId = document.getElementById('set_password_user_id')?.value || currentUserId;
+                    const newPassword = document.getElementById('set_password_password')?.value || '';
+                    const confirmPassword = document.getElementById('set_password_confirm_password')?.value || '';
+
+                    console.log('Form submitted:', { userId, newPassword, confirmPassword });
+
+                    // Validation
+                    if (!newPassword || !confirmPassword) {
+                        alert('Please fill in both password fields.');
+                        return;
+                    }
+
+                    if (newPassword.length < 6) {
+                        alert('Password must be at least 6 characters long.');
+                        return;
+                    }
+
+                    if (newPassword !== confirmPassword) {
+                        alert('Passwords do not match.');
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('password', newPassword);
+                    formData.append('confirm_password', confirmPassword);
+                    
+                    const csrftoken = getCookie('csrftoken');
+                    fetch(`/api/users/${userId}/set-password/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrftoken || '',
+                        },
+                        credentials: 'same-origin',
+                        body: formData,
+                    }).then(resp => {
+                        if (!resp.ok) {
+                            return resp.json().then(data => { throw new Error(data.error || 'Failed to reset password'); });
+                        }
+                        return resp.json();
+                    }).then(data => {
+                        alert(data.message || 'Password reset successfully!');
+                        
+                        // Close the modal
+                        const setPasswordModalEl = document.getElementById('setPasswordModal');
+                        if (setPasswordModalEl && bootstrap && bootstrap.Modal) {
+                            const modal = bootstrap.Modal.getInstance(setPasswordModalEl) || new bootstrap.Modal(setPasswordModalEl);
+                            modal.hide();
+                        }
+                    }).catch(err => {
+                        console.error('Error resetting password:', err);
+                        alert(err.message || 'Failed to reset password.');
+                    });
+                });
+            }
+        });
+    </script>
+    
+<!-- Application Scripts -->
+<script src="{% static 'admindashboard/js/dropdown.js' %}"></script>
+<script src="{% static 'admindashboard/js/script.js' %}"></script>
+<script src="{% static 'admindashboard/js/header.js' %}"></script>
+</body>
+</html>

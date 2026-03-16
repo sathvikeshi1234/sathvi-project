@@ -1,0 +1,71 @@
+<!-- SIDEBAR NAVIGATION -->
+     {% load static %}
+<aside id="sidebar" class="sidebar">
+    <div class="logo-sidebar-brand-image">
+    {% if site_settings and site_settings.company_logo %}
+        <img class="full-logo light-logo" src="{{ site_settings.company_logo.url }}" alt="">
+        <img class="full-logo dark-logo" src="{{ site_settings.company_logo.url }}" alt="">
+        <img class="mini-logo" src="{% if site_settings.collapsed_logo and site_settings.company_logo %}{{ site_settings.company_logo.url }}{% else %}{% static 'assets/images/UK-Favicon.png' %}{% endif %}" alt="">
+        <span class="mini-logo-text" style="display:none; font-weight:700; font-size:0.9rem;">{{ site_settings.company_name|default:request.user.username }}</span>
+    {% else %}
+        <!-- Light mode full logo -->
+        <img class="full-logo light-logo" src="{% static 'assets/images/logo.jpg' %}" alt="">
+        <!-- Dark mode full logo (white version) -->
+        <img class="full-logo dark-logo" src="{% static 'assets/images/ultra-logo-white.png' %}" alt="">
+        <!-- Mini logo used when sidebar is collapsed -->
+        <img class="mini-logo" src="{% static 'assets/images/UK-Favicon.png' %}" alt="">
+      
+    {% endif %}
+</div>
+
+    
+    <nav class="sidebar-nav">
+        <a href="{% url 'dashboards:admin_dashboard' %}" class="nav-item" data-page="dashboard">
+            <i class="bi bi-graph-up"></i>
+            <span class="nav-text">Dashboard</span>
+        </a>
+        <a href="{% url 'dashboards:admin_dashboard_page' 'tickets.html' %}" class="nav-item" data-page="tickets">
+            <i class="bi bi-ticket-detailed"></i>
+            <span class="nav-text">Tickets</span>
+        </a>
+        <a href="{% url 'dashboards:admin_dashboard_page' 'chat.html' %}" class="nav-item" data-page="chat">
+            <i class="bi bi-chat-dots"></i>
+            <span class="nav-text">Chat</span>
+        </a>
+        <a href="{% url 'dashboards:admin_dashboard_page' 'customers.html' %}" class="nav-item" data-page="customers">
+            <i class="bi bi-people"></i>
+            <span class="nav-text">Customers</span>
+        </a>
+        <a href="{% url 'dashboards:admin_dashboard_page' 'agents.html' %}" class="nav-item" data-page="agents">
+            <i class="bi bi-person-badge"></i>
+            <span class="nav-text">Agents</span>
+        </a>
+        <a href="{% url 'dashboards:admin_dashboard_page' 'reports.html' %}" class="nav-item" data-page="reports">
+            <i class="bi bi-bar-chart"></i>
+            <span class="nav-text">Reports</span>
+        </a>
+        
+        <div class="sidebar-divider"></div>
+        
+        <a href="{% url 'dashboards:admin_dashboard_page' 'users.html' %}" class="nav-item" data-page="users">
+            <i class="bi bi-person-gear"></i>
+            <span class="nav-text">User Mgmt</span>
+        </a>
+        <!-- <a href="{% url 'dashboards:admin_dashboard_page' 'roles.html' %}" class="nav-item" data-page="roles">
+            <i class="bi bi-shield-check"></i>
+            <span class="nav-text">Role Mgmt</span>
+        </a> -->
+        <!-- <a href="{% url 'dashboards:admin_dashboard_page' 'custom-fields.html' %}" class="nav-item" data-page="custom-fields">
+            <i class="bi bi-sliders"></i>
+            <span class="nav-text">Custom Fields</span>
+        </a> -->
+        <a href="{% url 'dashboards:admin_dashboard_page' 'ratings.html' %}" class="nav-item" data-page="ratings">
+            <i class="bi bi-star"></i>
+            <span class="nav-text">Ratings</span>
+        </a>
+        <a href="{% url 'dashboards:admin_dashboard_page' 'settings.html' %}" class="nav-item" data-page="settings">
+            <i class="bi bi-gear"></i>
+            <span class="nav-text">Settings</span>
+        </a>
+    </nav>
+</aside>

@@ -1,0 +1,110 @@
+
+{% load static %}
+<aside class="sidebar hidden-mobile" id="sidebar">
+
+ <div class="sidebar-header">
+    <div class="logo-sidebar-brand-image">
+    {% if site_settings and site_settings.company_logo %}
+      <img class="full-logo light-logo" src="{{ site_settings.company_logo.url }}" alt="">
+      <img class="full-logo dark-logo" src="{{ site_settings.company_logo.url }}" alt="">
+      <img class="mini-logo" src="{% if site_settings.collapsed_logo and site_settings.company_logo %}{{ site_settings.company_logo.url }}{% else %}{% static 'assets/images/UK-Favicon.png' %}{% endif %}" alt="">
+    {% else %}
+      <!-- Light mode full logo -->
+      <img class="full-logo light-logo" src="{% static 'assets/images/logo.jpg' %}" alt="">
+      <!-- Dark mode full logo (white version) -->
+      <img class="full-logo dark-logo" src="{% static 'assets/images/ultra-logo-white.png' %}" alt="">
+      <!-- Mini logo used when sidebar is collapsed -->
+      <img class="mini-logo" src="{% static 'assets/images/UK-Favicon.png' %}" alt="">
+    {% endif %}
+
+  </div>
+
+    <button class="icon-button sidebar-close" id="sidebarCloseBtn">✕</button>
+  </div>
+
+  <div class="sidebar-content">
+
+    <!-- New Ticket Button -->
+    <div class="sidebar-section">
+      <a href="/dashboard/user-dashboard/ticket/" class="primary-button full-width" style="text-decoration: none; display: block;">
+        <span class="icon">＋</span>
+        <span>New Ticket</span>
+      </a>
+    </div>
+
+    <!-- Ticket Sections -->
+    <div class="sidebar-section">
+      <p class="sidebar-section-label">Tickets</p>
+      <nav class="nav-list" id="mainNav">
+
+        <a href="/dashboard/user-dashboard/" class="nav-item {% if current_status == 'All' %}active{% endif %}" data-page="dashboard" data-count="{{ total_tickets|default:0 }}">
+          <span class="icon">🏠</span>
+          <span class="label">Dashboard</span>
+        </a>
+         
+        <a href="/dashboard/user-dashboard/tickets/" class="nav-item" data-page="tickets">
+          <span class="icon">👤</span>
+          <span class="label">Tickets</span>
+        </a>
+
+        <a href="/dashboard/user-dashboard/?status=Open" class="nav-item {% if current_status == 'Open' %}active{% endif %}" data-page="open-tickets" data-count="{{ open_count|default:0 }}">
+          <span class="icon">⚠️</span>
+          <span class="label">Open Tickets</span>
+        </a>
+
+        <a href="/dashboard/user-dashboard/?status=In%20Progress" class="nav-item {% if current_status == 'In Progress' %}active{% endif %}" data-page="in-progress" data-count="{{ in_progress_count|default:0 }}">
+          <span class="icon">⏳</span>
+          <span class="label">In Progress</span>
+        </a>
+
+        <a href="/dashboard/user-dashboard/?status=Resolved" class="nav-item {% if current_status == 'Resolved' %}active{% endif %}" data-page="resolved" data-count="{{ resolved_count|default:0 }}">
+          <span class="icon">✅</span>
+          <span class="label">Resolved</span>
+        </a>
+
+      </nav>
+    </div>
+
+    <!-- Account Section -->
+    <div class="sidebar-section">
+      <p class="sidebar-section-label">Account</p>
+      <nav class="nav-list">
+
+         
+        <a href="/dashboard/user-dashboard/profile/" class="nav-item" data-page="profile">
+          <span class="icon">👤</span>
+          <span class="label">Profile</span>
+        </a>
+
+        <a href="/dashboard/user-dashboard/chat/" class="nav-item" data-page="chat">
+          <span class="icon">💬</span>
+          <span class="label">Chat</span>
+        </a>
+
+        <a href="/dashboard/user-dashboard/ratings/" class="nav-item" data-page="ratings">
+          <span class="icon">⭐</span>
+          <span class="label">Ratings</span>
+        </a>
+
+        <a href="/dashboard/user-dashboard/faq/" class="nav-item" data-page="faq">
+          <span class="icon">❓</span>
+          <span class="label">FAQ</span>
+        </a>
+
+        <a href="/dashboard/user-dashboard/settings/" class="nav-item" data-page="settings">
+          <span class="icon">🛠</span>
+          <span class="label">Settings</span>
+        </a>
+
+      </nav>
+    </div>
+
+    <!-- Footer -->
+    <div class="sidebar-footer">
+      <p class="footer-title">Need Help?</p>
+      <p class="footer-text">Contact support for any issues</p>
+      <a href="/dashboard/user-dashboard/chat/" class="secondary-button full-width" style="text-decoration: none; display: block; text-align: center;">Contact Support</a>
+    </div>
+
+  </div>
+</aside>

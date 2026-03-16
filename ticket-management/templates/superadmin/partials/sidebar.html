@@ -1,0 +1,231 @@
+<style>
+    .iconside{
+         position: relative!important;
+         right: 10px !important;
+    }
+</style> 
+<!-- SIDEBAR NAVIGATION -->
+{% load static %}
+<aside id="sidebar" class="sidebar" role="navigation" aria-label="Main sidebar">
+    <div class="logo-sidebar-brand-image">
+        {% if site_settings and site_settings.company_logo %}
+            <img class="full-logo" data-light-src="{{ site_settings.company_logo.url }}" data-dark-src="{{ site_settings.company_logo.url }}" src="{{ site_settings.company_logo.url }}" alt="Company logo">
+            <img class="mini-logo" src="{% if site_settings.collapsed_logo and site_settings.company_logo %}{{ site_settings.company_logo.url }}{% else %}{% static 'assets/images/UK-Favicon.png' %}{% endif %}" alt="Mini logo">
+        {% else %}
+            <img class="full-logo" data-light-src="{% static 'assets/images/logo.jpg' %}" data-dark-src="{% static 'assets/images/ultra-logo-white.png' %}" src="{% static 'assets/images/logo.jpg' %}" alt="Company logo">
+            <img class="mini-logo" src="{% static 'assets/images/UK-Favicon.png' %}" alt="Mini logo">
+        {% endif %}
+    </div>
+
+    <nav class="sidebar-nav">
+        <a href="{% url 'superadmin:superadmin_dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'superadmin_dashboard' %}active{% endif %}" data-page="dashboard">
+            <i class="bi bi-speedometer2  iconside" aria-hidden="true"></i>
+            <span class="nav-text">Dashboard</span>
+        </a>
+
+        <a href="{% url 'superadmin:companies_list' %}" class="nav-item {% if request.resolver_match.url_name == 'companies_list' %}active{% endif %}" data-page="companies">
+            <i class="bi bi-buildings iconside" aria-hidden="true"></i>
+            <span class="nav-text">Companies</span>
+        </a>
+
+        <a href="{% url 'superadmin:superadmin_page' 'plans' %}" class="nav-item {% if request.resolver_match.url_name == 'superadmin_page' and request.resolver_match.kwargs.page == 'plans' %}active{% endif %}" data-page="plans">
+            <i class="bi bi-boxes iconside" aria-hidden="true"></i>
+            <span class="nav-text">Plans</span>
+        </a>
+
+        <a href="{% url 'superadmin:subscriptions_list' %}" class="nav-item {% if request.resolver_match.url_name == 'subscriptions_list' %}active{% endif %}" data-page="subscriptions">
+            <i class="bi bi-credit-card iconside" aria-hidden="true"></i>
+            <span class="nav-text">Subscriptions</span>
+        </a>
+
+        <a href="{% url 'superadmin:users_list' %}" class="nav-item {% if request.resolver_match.url_name == 'users_list' %}active{% endif %}" data-page="users">
+            <i class="bi bi-people iconside" aria-hidden="true"></i>
+            <span class="nav-text">Users</span>
+        </a>
+
+        <a href="{% url 'superadmin:admin_management' %}" class="nav-item {% if request.resolver_match.url_name == 'admin_management' %}active{% endif %}" data-page="admin-management">
+            <i class="bi bi-person-badge iconside" aria-hidden="true"></i>
+            <span class="nav-text">Admin Management</span>
+        </a>
+
+        <div class="sidebar-divider" aria-hidden="true"></div>
+
+        <a href="{% url 'superadmin:superadmin_page' 'settings' %}" class="nav-item {% if request.resolver_match.url_name == 'superadmin_page' and request.resolver_match.kwargs.page == 'settings' %}active{% endif %}" data-page="settings">
+            <i class="bi bi-gear iconside" aria-hidden="true"></i>
+            <span class="nav-text">Settings</span>
+        </a>
+    </nav>
+</aside>
+
+<style>
+/* Sidebar core */
+.sidebar{width:250px;background:var(--sidebar-bg);border-right:1px solid #e3e6f0;min-height:100vh;position:fixed;left:0;top:0;z-index:999;transition:all .3s ease;overflow-y:auto;overflow-x:hidden;box-sizing:border-box}
+.sidebar.collapsed{width:70px}
+
+.logo-sidebar-brand-image{padding:.7rem .75rem;text-align:center;display:flex;align-items:center;justify-content:center;margin:0 auto;position:relative}
+.logo-sidebar-brand-image img{max-width:140px;max-height:72px;height:auto;transition:all .18s ease;display:block;margin:0 auto;padding:0;object-fit:contain}
+
+.sidebar.collapsed .full-logo{display:none}
+.sidebar:not(.collapsed) .mini-logo{display:none}
+.sidebar.collapsed .mini-logo{display:block;max-width:35px}
+
+.sidebar-nav{padding:1rem 0;margin-top:.5rem}
+.nav-item{display:flex;align-items:center;padding:.9rem 1.25rem;color:#6b7280;text-decoration:none;transition:all .18s ease;position:relative;margin:.5rem .8rem;border-radius:10px}
+.nav-item i{font-size:1.15rem;margin-right:1rem;min-width:24px;text-align:center}
+.nav-text{font-weight:600;font-size:.95rem;white-space:nowrap;opacity:1;transition:opacity .3s}
+.nav-item:hover{background:rgba(110,142,251,.08);color:var(--primary-color);transform:translateX(2px)}
+.nav-item.active{background:linear-gradient(135deg,var(--primary-color),var(--secondary-color));color:#fff;box-shadow:0 4px 12px rgba(110,142,251,.2)}
+.nav-item.active::before{content:'';position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:4px;height:24px;background:#fff;border-radius:0 4px 4px 0}
+
+/* Collapsed behavior */
+.sidebar.collapsed .nav-text{opacity:0;visibility:hidden}
+.mini-logo{display:none!important}
+.sidebar.collapsed .mini-logo{display:block!important}
+.sidebar.collapsed .full-logo{display:none!important}
+
+/* Divider */
+.sidebar-divider{height:1px;background:linear-gradient(90deg,rgba(227,230,240,0) 0%,rgba(227,230,240,.6) 35%,rgba(227,230,240,.6) 65%,rgba(227,230,240,0) 100%);margin:1.6rem .9rem;opacity:.95}
+
+/* Tooltip for collapsed */
+.sidebar.collapsed .nav-item{position:relative}
+.sidebar.collapsed .nav-item::after{content:attr(data-tooltip);position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:.5rem;background:#374151;color:#fff;padding:.5rem .75rem;border-radius:6px;font-size:.75rem;white-space:nowrap;opacity:0;visibility:hidden;transition:all .2s;z-index:1000;pointer-events:none}
+.sidebar.collapsed .nav-item:hover::after{opacity:1;visibility:visible}
+
+/* Mobile behavior */
+@media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.show{transform:translateX(0)}.sidebar.collapsed{width:250px;transform:translateX(-100%)}.sidebar.collapsed.show{transform:translateX(0)}.sidebar.collapsed .nav-text{opacity:1;visibility:visible}.sidebar.collapsed .full-logo{display:block!important}.sidebar.collapsed .mini-logo{display:none!important}}
+
+/* Logo visibility for dark mode */
+.full-logo { display: block; }
+
+/* Dark mode styles */
+body.dark-layout .sidebar { background: #1a1a1a; border-right-color: #404040; }
+body.dark-layout .nav-item { color: #b0b0b0; }
+body.dark-layout .nav-item:hover { background: rgba(110, 142, 251, 0.1); color: var(--primary-color); }
+body.dark-layout .nav-item.active { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: #fff; }
+body.dark-layout .sidebar-divider { background: linear-gradient(90deg, rgba(64, 64, 64, 0) 0%, rgba(64, 64, 64, 0.6) 35%, rgba(64, 64, 64, 0.6) 65%, rgba(64, 64, 64, 0) 100%); }
+body.dark-layout .sidebar.collapsed .nav-item::after { background: #374151; }
+
+/* Prevent horizontal scroll */
+html,body,#app,.main-container{overflow-x:hidden!important}
+</style>
+
+<script>
+// Ensure tooltip labels are present
+document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.nav-item').forEach(function(item){
+        const t = item.querySelector('.nav-text');
+        if(t) item.setAttribute('data-tooltip', t.textContent.trim());
+    });
+
+    const sidebar = document.getElementById('sidebar');
+    const mainContainer = document.querySelector('.main-container');
+    if(!sidebar || !mainContainer) return;
+
+    // Only restore collapsed state on DESKTOP view (width > 768px)
+    // Mobile should always start expanded
+    if(window.innerWidth > 768){
+        const saved = localStorage.getItem('sidebarCollapsed');
+        if(saved === 'true' || saved === '1'){
+            sidebar.classList.add('collapsed');
+            mainContainer.classList.add('expanded');
+        }
+    }
+
+    function setAria(isCollapsed){
+        const btn = document.getElementById('sidebar-toggle');
+        const mobileBtn = document.getElementById('mobile-sidebar-toggle');
+        if(btn) btn.setAttribute('aria-expanded', String(!isCollapsed));
+        if(mobileBtn) mobileBtn.setAttribute('aria-expanded', String(sidebar.classList.contains('show')));
+    }
+
+    // Toggle handlers (desktop and mobile)
+    const desktopToggle = document.getElementById('sidebar-toggle');
+    if(desktopToggle){
+        desktopToggle.addEventListener('click', function(e){
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if(window.innerWidth <= 768){
+                // On mobile: show/hide sidebar
+                sidebar.classList.toggle('show');
+                setAria(sidebar.classList.contains('collapsed'));
+            }else{
+                // On desktop: collapse/expand sidebar
+                const isNowCollapsed = !sidebar.classList.contains('collapsed');
+                sidebar.classList.toggle('collapsed');
+                mainContainer.classList.toggle('expanded');
+                
+                // Save state to localStorage
+                localStorage.setItem('sidebarCollapsed', isNowCollapsed ? 'true' : 'false');
+                setAria(isNowCollapsed);
+            }
+        });
+    }
+
+    const mobileToggle = document.getElementById('mobile-sidebar-toggle');
+    if(mobileToggle){
+        mobileToggle.addEventListener('click', function(e){
+            e.preventDefault();
+            e.stopPropagation();
+            sidebar.classList.toggle('show');
+            setAria(sidebar.classList.contains('collapsed'));
+        });
+    }
+
+    // Hide sidebar on mobile after navigation
+    document.querySelectorAll('.sidebar-nav a').forEach(function(a){
+        a.addEventListener('click', function(){
+            if(window.innerWidth <= 768 && sidebar.classList.contains('show')){
+                sidebar.classList.remove('show');
+            }
+        });
+    });
+
+    // Close mobile sidebar on outside click
+    document.addEventListener('click', function(e){
+        if(window.innerWidth > 768) return;
+        if(!sidebar.classList.contains('show')) return;
+        
+        const inside = e.target.closest('#sidebar');
+        const desktopBtn = e.target.closest('#sidebar-toggle');
+        const mobileBtn = e.target.closest('#mobile-sidebar-toggle');
+        
+        if(!inside && !desktopBtn && !mobileBtn){
+            sidebar.classList.remove('show');
+        }
+    });
+
+    // Logo switching for dark mode
+    function updateLogo() {
+        const fullLogo = document.querySelector('.full-logo');
+        if (fullLogo) {
+            const isDarkMode = document.body.classList.contains('dark-layout');
+            const lightSrc = fullLogo.getAttribute('data-light-src');
+            const darkSrc = fullLogo.getAttribute('data-dark-src');
+            
+            if (isDarkMode && darkSrc) {
+                fullLogo.src = darkSrc;
+            } else if (!isDarkMode && lightSrc) {
+                fullLogo.src = lightSrc;
+            }
+        }
+    }
+
+    // Update logo on page load
+    updateLogo();
+
+    // Update logo when dark mode toggles
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                updateLogo();
+            }
+        });
+    });
+
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class']
+    });
+});
+</script>

@@ -1,0 +1,293 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - TicketHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin: 0px auto;
+            max-width: 900px;
+            width: 90%;
+        }
+
+        /* Left Side - Form */
+        .login-left {
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .login-logo img {
+            width: 90%;
+            height: 90%;
+        }
+
+        .login-logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .login-header h2 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .login-header p {
+            color: #999;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            padding: 12px;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+
+        .signup-link {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .signup-link a {
+            color: #7c3aed;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Right Side - Illustration */
+        .login-right {
+            background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .illustration {
+            text-align: center;
+            color: white;
+            z-index: 2;
+        }
+
+        .illustration-icon {
+            font-size: 150px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .illustration h3 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .illustration p {
+            font-size: 16px;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        /* Floating shapes */
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .shape1 {
+            width: 300px;
+            height: 300px;
+            background: white;
+            top: -100px;
+            right: -100px;
+        }
+
+        .shape2 {
+            width: 200px;
+            height: 200px;
+            background: white;
+            bottom: -50px;
+            left: -50px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .login-container {
+                grid-template-columns: 1fr;
+            }
+
+            .login-right {
+                display: none;
+            }
+
+            .login-left {
+                padding: 40px 30px;
+            }
+
+            .login-header h2 {
+                font-size: 24px;
+            }
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .alert-success {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #ef4444;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <!-- Left Side -->
+    <div class="login-left">
+        <div class="login-logo">
+            {% if site_settings and site_settings.company_logo %}
+                <img src="{{ site_settings.company_logo.url }}" alt="TicketHub">
+            {% else %}
+                <img src="{% static 'assets/images/logo.jpg' %}" alt="TicketHub">
+            {% endif %}
+        </div>
+
+        <div class="login-header">
+            <h2>Admin</h2>
+            <p>Sign in to continue</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">Username or Email</label>
+                <input type="text" id="username" name="username" placeholder="e.g. admin" autocomplete="username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required>
+            </div>
+
+            <button type="submit" class="btn-danger">Login</button>
+        </form>
+
+        <div class="signup-link">
+            <a href="{% url 'superadmin:admin_signup' %}">Don't have an account? Sign Up</a>
+            <br>
+            <a href="{% url 'superadmin:superadmin_login' %}">Super Admin Login</a>
+        </div>
+    </div>
+
+    <!-- Right Side -->
+    <div class="login-right">
+        <div class="shape shape1"></div>
+        <div class="shape shape2"></div>
+
+        <div class="illustration">
+            <div class="illustration-icon">👤</div>
+            <h3>Admin Portal</h3>
+            <p>Manage your team and oversee platform operations</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

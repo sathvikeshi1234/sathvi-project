@@ -1,0 +1,295 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Choose Your Plan - Ticket System{% endblock %}
+
+{% block content %}
+<div id="paymentPlansContent">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-5">
+                <h2><i class="fas fa-rocket me-2"></i>Choose Your Perfect Plan</h2>
+                <p class="text-muted">
+                    {% if subscription and subscription.is_trial_active %}
+                        Your trial has {{ trial_days_remaining }} days remaining. Choose a plan to continue.
+                    {% else %}
+                        Select a plan that fits your needs and unlock all features.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    {% if error %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row">
+        {% for plan in plans %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="plan-card {% if plan.is_popular %}popular{% endif %}">
+                <div class="text-center mb-3">
+                    <h4>{{ plan.name }}</h4>
+                    <div class="pricing">
+                        <span class="display-4">${{ plan.get_display_price('monthly') }}</span>
+                        <span class="text-muted">/month</span>
+                    </div>
+                    {% if plan.get_annual_savings_percentage > 0 %}
+                        <small class="text-success">
+                            <i class="fas fa-percentage me-1"></i>
+                            Save {{ plan.get_annual_savings_percentage }}% annually
+                        </small>
+                    {% endif %}
+                </div>
+                
+                <p class="text-center text-muted">{{ plan.description|default:"Perfect for getting started" }}</p>
+                
+                {% if plan.features %}
+                <ul class="list-unstyled mb-4">
+                    {% for feature_key, feature_value in plan.features.items %}
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        {% if feature_value is True %}
+                            {{ feature_key|title }}
+                        {% elif feature_value %}
+                            {{ feature_key|title }}: {{ feature_value }}
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                
+                {% if plan.max_tickets_per_month or plan.max_agents or plan.storage_limit_gb %}
+                <ul class="list-unstyled mb-4">
+                    {% if plan.max_tickets_per_month %}
+                    <li class="mb-2">
+                        <i class="fas fa-ticket-alt text-primary me-2"></i>
+                        {{ plan.max_tickets_per_month }} tickets/month
+                    </li>
+                    {% endif %}
+                    {% if plan.max_agents %}
+                    <li class="mb-2">
+                        <i class="fas fa-users text-primary me-2"></i>
+                        {{ plan.max_agents }} agents
+                    </li>
+                    {% endif %}
+                    {% if plan.storage_limit_gb %}
+                    <li class="mb-2">
+                        <i class="fas fa-database text-primary me-2"></i>
+                        {{ plan.storage_limit_gb }}GB storage
+                    </li>
+                    {% endif %}
+                </ul>
+                {% endif %}
+                
+                <div class="d-grid gap-2">
+                    {% if plan.has_trial and plan.trial_days > 0 %}
+                        <button class="btn btn-outline-primary" onclick="startTrial({{ plan.id }})">
+                            <i class="fas fa-play me-1"></i>Start {{ plan.trial_days }}-Day Trial
+                        </button>
+                    {% endif %}
+                    
+                    <div class="dropdown">
+                        <button class="btn btn-primary dropdown-toggle w-100" type="button" id="paymentDropdown{{ plan.id }}" data-bs-toggle="dropdown">
+                            <i class="fas fa-credit-card me-1"></i>Choose Billing Cycle
+                        </button>
+                        <ul class="dropdown-menu w-100" aria-labelledby="paymentDropdown{{ plan.id }}">
+                            {% if plan.price_monthly %}
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="processPayment({{ plan.id }}, 'monthly')">
+                                    <strong>Monthly:</strong> ${{ plan.price_monthly }}
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% if plan.price_quarterly %}
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="processPayment({{ plan.id }}, 'quarterly')">
+                                    <strong>Quarterly:</strong> ${{ plan.price_quarterly }}
+                                    <small class="text-success">(Save 10%)</small>
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% if plan.price_annually %}
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="processPayment({{ plan.id }}, 'annually')">
+                                    <strong>Annually:</strong> ${{ plan.price_annually }}
+                                    <small class="text-success">(Save 20%)</small>
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% if plan.price_biennial %}
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="processPayment({{ plan.id }}, 'biennial')">
+                                    <strong>Biennial:</strong> ${{ plan.price_biennial }}
+                                    <small class="text-success">(Save 25%)</small>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if not plans %}
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <h4>No Plans Available</h4>
+                <p class="text-muted">There are currently no active plans available. Please check back later.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Features Comparison -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-balance-scale me-2"></i>Compare Plans
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    {% for plan in plans %}
+                                    <th class="text-center">{{ plan.name }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Price (Monthly)</strong></td>
+                                    {% for plan in plans %}
+                                    <td class="text-center">
+                                        {% if plan.is_free %}
+                                            <span class="badge bg-success">Free</span>
+                                        {% else %}
+                                            ${{ plan.price_monthly }}
+                                        {% endif %}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <td><strong>Free Trial</strong></td>
+                                    {% for plan in plans %}
+                                    <td class="text-center">
+                                        {% if plan.has_trial %}
+                                            <span class="badge bg-info">{{ plan.trial_days }} days</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <td><strong>Monthly Tickets</strong></td>
+                                    {% for plan in plans %}
+                                    <td class="text-center">
+                                        {% if plan.max_tickets_per_month %}
+                                            {{ plan.max_tickets_per_month }}
+                                        {% else %}
+                                            <i class="fas fa-infinity text-success"></i>
+                                        {% endif %}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <td><strong>Team Members</strong></td>
+                                    {% for plan in plans %}
+                                    <td class="text-center">
+                                        {% if plan.max_agents %}
+                                            {{ plan.max_agents }}
+                                        {% else %}
+                                            <i class="fas fa-infinity text-success"></i>
+                                        {% endif %}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    <td><strong>Storage</strong></td>
+                                    {% for plan in plans %}
+                                    <td class="text-center">
+                                        {% if plan.storage_limit_gb %}
+                                            {{ plan.storage_limit_gb }}GB
+                                        {% else %}
+                                            <i class="fas fa-infinity text-success"></i>
+                                        {% endif %}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-question-circle me-2"></i>Frequently Asked Questions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faq1">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
+                                    Can I change my plan later?
+                                </button>
+                            </h2>
+                            <div id="collapse1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Yes! You can upgrade or downgrade your plan at any time. Changes will be reflected in your next billing cycle.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faq2">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2">
+                                    What payment methods do you accept?
+                                </button>
+                            </h2>
+                            <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    We accept all major credit cards, debit cards, and PayPal payments through our secure payment processor.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faq3">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3">
+                                    Is there a free trial?
+                                </button>
+                            </h2>
+                            <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Yes! Most plans come with a free trial period. Look for the "Start Trial" button on each plan to see available trial options.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

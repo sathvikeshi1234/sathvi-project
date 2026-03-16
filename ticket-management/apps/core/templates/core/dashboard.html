@@ -1,0 +1,188 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Dashboard - Ticket System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h1>
+            <div>
+                {% if subscription %}
+                    <span class="badge bg-{{ 'success' if subscription.is_active else 'warning' }} me-2">
+                        {% if subscription.is_trial_active %}
+                            <i class="fas fa-clock me-1"></i>Trial: {{ trial_days_remaining }} days left
+                        {% elif subscription.is_active %}
+                            <i class="fas fa-check-circle me-1"></i>Active
+                        {% else %}
+                            <i class="fas fa-exclamation-triangle me-1"></i>{{ subscription.status|title }}
+                        {% endif %}
+                    </span>
+                {% endif %}
+                {% if plan %}
+                    <span class="badge bg-info">{{ plan.name }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Welcome Card -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-user-circle me-2"></i>Welcome, {{ user.username }}!
+                </h5>
+                <p class="card-text">
+                    {% if subscription and subscription.is_trial_active %}
+                        You are currently on a {{ trial_days_remaining }}-day trial.
+                    {% elif subscription and subscription.is_active %}
+                        You have an active {{ plan.name if plan else 'subscription' }}.
+                    {% else %}
+                        Please upgrade your subscription to access all features.
+                    {% endif %}
+                </p>
+                {% if subscription and subscription.needs_payment %}
+                    <button class="btn btn-primary" onclick="showPaymentModal()">
+                        <i class="fas fa-credit-card me-1"></i>Upgrade Now
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Stats -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-chart-line me-2"></i>Quick Stats
+                </h5>
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="stat-item">
+                            <h3 class="text-primary">0</h3>
+                            <small class="text-muted">Open Tickets</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-item">
+                            <h3 class="text-success">0</h3>
+                            <small class="text-muted">Resolved</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-item">
+                            <h3 class="text-warning">0</h3>
+                            <small class="text-muted">Pending</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Recent Activity -->
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-history me-2"></i>Recent Activity
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center text-muted py-5">
+                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                    <p>No recent activity</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-bolt me-2"></i>Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary">
+                        <i class="fas fa-plus me-1"></i>New Ticket
+                    </button>
+                    <button class="btn btn-outline-secondary">
+                        <i class="fas fa-search me-1"></i>Search Tickets
+                    </button>
+                    <button class="btn btn-outline-info">
+                        <i class="fas fa-cog me-1"></i>Settings
+                    </button>
+                    {% if subscription and subscription.needs_payment %}
+                        <button class="btn btn-outline-warning" onclick="showPaymentModal()">
+                            <i class="fas fa-credit-card me-1"></i>Upgrade Plan
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Plan Information -->
+{% if plan %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Your Plan Details
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>{{ plan.name }}</h6>
+                        <p class="text-muted">{{ plan.description|default:"No description available" }}</p>
+                        
+                        <h6>Pricing</h6>
+                        <ul class="list-unstyled">
+                            {% if plan.price_monthly %}
+                                <li>Monthly: ${{ plan.price_monthly }}</li>
+                            {% endif %}
+                            {% if plan.price_quarterly %}
+                                <li>Quarterly: ${{ plan.price_quarterly }}</li>
+                            {% endif %}
+                            {% if plan.price_annually %}
+                                <li>Annually: ${{ plan.price_annually }}</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Features & Limits</h6>
+                        <ul class="list-unstyled">
+                            {% if plan.max_tickets_per_month %}
+                                <li><i class="fas fa-ticket-alt me-1"></i>{{ plan.max_tickets_per_month }} tickets/month</li>
+                            {% endif %}
+                            {% if plan.max_agents %}
+                                <li><i class="fas fa-users me-1"></i>{{ plan.max_agents }} agents</li>
+                            {% endif %}
+                            {% if plan.storage_limit_gb %}
+                                <li><i class="fas fa-database me-1"></i>{{ plan.storage_limit_gb }}GB storage</li>
+                            {% endif %}
+                            {% if plan.api_calls_per_month %}
+                                <li><i class="fas fa-code me-1"></i>{{ plan.api_calls_per_month }} API calls/month</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

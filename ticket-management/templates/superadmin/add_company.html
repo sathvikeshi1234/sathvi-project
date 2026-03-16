@@ -1,0 +1,299 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Add Company - SuperAdmin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'superadmin:companies' %}">Companies</a>
+                            </li>
+                            <li class="breadcrumb-item active">Add Company</li>
+                        </ol>
+                    </nav>
+                    <h1 class="h3 mb-0">Add New Company</h1>
+                    <p class="text-muted mb-0">Create a new company account</p>
+                </div>
+                <div>
+                    <a href="{% url 'superadmin:companies' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Companies
+                    </a>
+                </div>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card sa-card">
+                <div class="card-body">
+                    <form id="addCompanyForm" method="POST" action="{% url 'superadmin:company_create' %}">
+                        {% csrf_token %}
+                        
+                        <!-- Company Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="mb-3">
+                                    <i class="bi bi-building me-2 text-primary"></i>Company Information
+                                </h5>
+                                <hr class="mt-0">
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="companyName" class="form-label">Company Name *</label>
+                                    <input type="text" class="form-control" id="companyName" name="name" required>
+                                    <div class="form-text">Enter the official company name</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="companyEmail" class="form-label">Email Address *</label>
+                                    <input type="email" class="form-control" id="companyEmail" name="email" required>
+                                    <div class="form-text">Primary contact email</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="companyPhone" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" id="companyPhone" name="phone">
+                                    <div class="form-text">Company contact number</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="companyWebsite" class="form-label">Website</label>
+                                    <input type="url" class="form-control" id="companyWebsite" name="website" placeholder="https://example.com">
+                                    <div class="form-text">Company website URL</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="companyAddress" class="form-label">Address</label>
+                                    <textarea class="form-control" id="companyAddress" name="address" rows="3"></textarea>
+                                    <div class="form-text">Physical business address</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Subscription Details -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="mb-3">
+                                    <i class="bi bi-credit-card me-2 text-success"></i>Subscription Details
+                                </h5>
+                                <hr class="mt-0">
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="companyPlan" class="form-label">Subscription Plan</label>
+                                    <select class="form-select" id="companyPlan" name="plan">
+                                        <option value="">Select a plan</option>
+                                        <option value="basic">Basic</option>
+                                        <option value="professional">Professional</option>
+                                        <option value="enterprise">Enterprise</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="subscriptionStatus" class="form-label">Subscription Status</label>
+                                    <select class="form-select" id="subscriptionStatus" name="subscription_status">
+                                        <option value="trial">Trial</option>
+                                        <option value="active">Active</option>
+                                        <option value="expired">Expired</option>
+                                        <option value="cancelled">Cancelled</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="trialEndDate" class="form-label">Trial End Date</label>
+                                    <input type="date" class="form-control" id="trialEndDate" name="trial_end_date">
+                                    <div class="form-text">When trial period ends (if applicable)</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="billingCycle" class="form-label">Billing Cycle</label>
+                                    <select class="form-select" id="billingCycle" name="billing_cycle">
+                                        <option value="monthly">Monthly</option>
+                                        <option value="quarterly">Quarterly</option>
+                                        <option value="annually">Annually</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Additional Settings -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="mb-3">
+                                    <i class="bi bi-gear me-2 text-info"></i>Additional Settings
+                                </h5>
+                                <hr class="mt-0">
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="maxUsers" class="form-label">Maximum Users</label>
+                                    <input type="number" class="form-control" id="maxUsers" name="max_users" min="1" value="10">
+                                    <div class="form-text">Maximum number of users allowed</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="maxTickets" class="form-label">Maximum Tickets per Month</label>
+                                    <input type="number" class="form-control" id="maxTickets" name="max_tickets" min="1" value="100">
+                                    <div class="form-text">Ticket limit per month</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="storageLimit" class="form-label">Storage Limit (GB)</label>
+                                    <input type="number" class="form-control" id="storageLimit" name="storage_limit" min="1" value="10">
+                                    <div class="form-text">File storage limit in GB</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" id="isActive" name="is_active" checked>
+                                            <label class="form-check-label" for="isActive">
+                                                Company is Active
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" id="emailNotifications" name="email_notifications" checked>
+                                            <label class="form-check-label" for="emailNotifications">
+                                                Email Notifications Enabled
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" id="apiAccess" name="api_access">
+                                            <label class="form-check-label" for="apiAccess">
+                                                API Access Enabled
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Form Actions -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-2"></i>Create Company
+                            </button>
+                            <a href="{% url 'superadmin:companies' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
+                            <button type="reset" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Reset Form
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('addCompanyForm');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Basic validation
+        const name = document.getElementById('companyName').value.trim();
+        const email = document.getElementById('companyEmail').value.trim();
+        
+        if (!name || !email) {
+            showAlert('Please fill in all required fields.', 'danger');
+            return;
+        }
+        
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showAlert('Please enter a valid email address.', 'danger');
+            return;
+        }
+        
+        // Website validation (if provided)
+        const website = document.getElementById('companyWebsite').value.trim();
+        if (website) {
+            try {
+                new URL(website);
+            } catch {
+                showAlert('Please enter a valid website URL.', 'danger');
+                return;
+            }
+        }
+        
+        // Submit form
+        this.submit();
+    });
+    
+    // Function to show alerts
+    function showAlert(message, type) {
+        // Remove existing alerts
+        const existingAlert = document.querySelector('.alert');
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+        
+        // Create new alert
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        // Insert at the top of the card
+        const cardBody = document.querySelector('.card-body');
+        cardBody.insertBefore(alertDiv, cardBody.firstChild);
+        
+        // Auto dismiss after 5 seconds
+        setTimeout(() => {
+            if (alertDiv) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+    
+    // Set default trial end date to 30 days from today
+    const trialEndDate = document.getElementById('trialEndDate');
+    if (trialEndDate && !trialEndDate.value) {
+        const today = new Date();
+        const trialEnd = new Date(today.setDate(today.getDate() + 30));
+        trialEndDate.value = trialEnd.toISOString().split('T')[0];
+    }
+});
+</script>
+{% endblock %}

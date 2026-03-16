@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ticket #{{ ticket.ticket_id }} - {{ ticket.title }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+  <style>
+    body { background: #f6f7fb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .page-shell { max-width: 1100px; margin: 0 auto; }
+    .page-title { font-weight: 700; letter-spacing: -0.02em; }
+    .ticket-header { background: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+    .ticket-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+    .meta-item { display: flex; flex-direction: column; }
+    .meta-label { font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem; }
+    .meta-value { font-weight: 600; }
+    .badge-soft { border: 1px solid rgba(2,6,23,.08); }
+    .badge-open { background: rgba(59,130,246,.12); color: #1d4ed8; }
+    .badge-progress { background: rgba(234,179,8,.16); color: #92400e; }
+    .badge-resolved { background: rgba(34,197,94,.14); color: #166534; }
+    .badge-closed { background: rgba(148,163,184,.22); color: #334155; }
+    .badge-low { background: rgba(148,163,184,.18); color: #334155; }
+    .badge-medium { background: rgba(59,130,246,.12); color: #1d4ed8; }
+    .badge-high { background: rgba(249,115,22,.14); color: #9a3412; }
+    .badge-critical { background: rgba(239,68,68,.14); color: #991b1b; }
+    .comments-section { background: white; border-radius: 8px; padding: 1.5rem; margin-top: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+    .comment-form { margin-bottom: 1.5rem; }
+    .comment-item { border-bottom: 1px solid #e3e6f0; padding: 1rem; }
+    .comment-item:last-child { border-bottom: none; }
+    .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .comment-author { font-weight: 600; color: #374151; }
+    .comment-time { font-size: 0.875rem; color: #6b7280; }
+    .comment-content { line-height: 1.5; color: #374151; }
+    .comment-actions { margin-top: 0.5rem; }
+    .internal-comment { background: rgba(255, 193, 7, 0.1); border-left: 3px solid #ffc107; }
+    .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.875rem; }
+  </style>
+</head>
+<body class="p-3 p-md-4">
+  <div class="page-shell">
+    <div class="d-flex align-items-start align-items-sm-center justify-content-between gap-3 mb-3">
+      <div>
+        <div class="page-title fs-3">Ticket #{{ ticket.ticket_id }}</div>
+        <div class="text-secondary">{{ ticket.title }}</div>
+      </div>
+      <div>
+        <a href="{% url 'tickets:ticket_list' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-2"></i>Back to Tickets
+        </a>
+      </div>
+    </div>
+
+    <div class="ticket-header">
+      <div class="ticket-meta">
+        <div class="meta-item">
+          <div class="meta-label">Status</div>
+          <div class="meta-value">
+            <span class="badge badge-soft rounded-pill
+              {% if ticket.status == 'Open' %}badge-open
+              {% elif ticket.status == 'In Progress' %}badge-progress
+              {% elif ticket.status == 'Resolved' %}badge-resolved
+              {% elif ticket.status == 'Closed' %}badge-closed
+              {% else %}badge-closed{% endif %}">
+              {{ ticket.status }}
+            </span>
+          </div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Priority</div>
+          <div class="meta-value">
+            <span class="badge badge-soft rounded-pill
+              {% if ticket.priority == 'Low' %}badge-low
+              {% elif ticket.priority == 'Medium' %}badge-medium
+              {% elif ticket.priority == 'High' %}badge-high
+              {% elif ticket.priority == 'Critical' %}badge-critical
+              {% else %}badge-low{% endif %}">
+              {{ ticket.priority }}
+            </span>
+          </div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Category</div>
+          <div class="meta-value">{{ ticket.category|default:"General" }}</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Created</div>
+          <div class="meta-value">{{ ticket.created_at|date:"Y-m-d H:i" }}</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Created By</div>
+          <div class="meta-value">{{ ticket.created_by.get_full_name|default:ticket.created_by.username }}</div>
+        </div>
+        {% if ticket.assigned_to %}
+        <div class="meta-item">
+          <div class="meta-label">Assigned To</div>
+          <div class="meta-value">{{ ticket.assigned_to.get_full_name|default:ticket.assigned_to.username }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="ticket-header">
+      <h5 class="mb-3">Description</h5>
+      <div class="p-3 bg-light rounded">{{ ticket.description|linebreaksbr }}</div>
+    </div>
+
+    <div class="comments-section">
+      <h5 class="mb-3">Comments</h5>
+      
+      <!-- Comment Form -->
+      {% if user.is_authenticated %}
+      <div class="comment-form">
+        <form id="commentForm" class="mb-3">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="commentContent" class="form-label">Add Comment</label>
+            <textarea class="form-control" id="commentContent" name="content" rows="3" placeholder="Write your comment here..." required></textarea>
+          </div>
+          
+          {% if user.is_staff %}
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="isInternal" name="is_internal">
+            <label class="form-check-label" for="isInternal">
+              Internal comment (only visible to staff)
+            </label>
+          </div>
+          {% endif %}
+          
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-send me-2"></i>Post Comment
+          </button>
+        </form>
+      </div>
+      {% endif %}
+      
+      <!-- Comments List -->
+      <div id="commentsList">
+        {% for comment in comments %}
+        <div class="comment-item {% if comment.is_internal %}internal-comment{% endif %}" data-comment-id="{{ comment.id }}">
+          <div class="comment-header">
+            <div>
+              <span class="comment-author">{{ comment.author.get_full_name|default:comment.author.username }}</span>
+              {% if comment.is_internal %}
+                <span class="badge bg-warning text-dark ms-2">Internal</span>
+              {% endif %}
+            </div>
+            <div class="comment-time">{{ comment.created_at|date:"Y-m-d H:i" }}</div>
+          </div>
+          <div class="comment-content">{{ comment.content|linebreaksbr }}</div>
+          
+          {% if comment.can_edit %}
+          <div class="comment-actions">
+            <button class="btn btn-sm btn-outline-primary me-2" onclick="editComment({{ comment.id }})">
+              <i class="bi bi-pencil"></i> Edit
+            </button>
+            {% endif %}
+            
+            {% if comment.author == user or user.is_staff %}
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteComment({{ comment.id }})">
+              <i class="bi bi-trash"></i> Delete
+            </button>
+            {% endif %}
+          </div>
+        </div>
+        {% empty %}
+        <div class="text-center text-muted py-4">
+          <i class="bi bi-chat-dots" style="font-size: 2rem;"></i>
+          <p class="mt-2">No comments yet. Be the first to comment!</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ticketId = {{ ticket.id }};
+    let comments = [];
+
+    // Load comments on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      loadComments();
+    });
+
+    // Handle comment form submission
+    document.getElementById('commentForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const content = document.getElementById('commentContent').value.trim();
+      const isInternal = document.getElementById('isInternal') ? document.getElementById('isInternal').checked : false;
+      
+      if (!content) {
+        alert('Comment content is required');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('content', content);
+      if (document.getElementById('isInternal')) {
+        formData.append('is_internal', isInternal);
+      }
+      
+      fetch(`/tickets/${ticketId}/comments/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById('commentContent').value = '';
+          if (document.getElementById('isInternal')) {
+            document.getElementById('isInternal').checked = false;
+          }
+          loadComments();
+        } else {
+          alert('Error posting comment: ' + (data.detail || 'Unknown error'));
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error posting comment');
+      });
+    });
+
+    function loadComments() {
+      fetch(`/tickets/${ticketId}/comments/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          comments = data.comments;
+          renderComments();
+        }
+      })
+      .catch(error => {
+        console.error('Error loading comments:', error);
+      });
+    }
+
+    function renderComments() {
+      const commentsList = document.getElementById('commentsList');
+      if (!commentsList) return;
+
+      if (comments.length === 0) {
+        commentsList.innerHTML = `
+          <div class="text-center text-muted py-4">
+            <i class="bi bi-chat-dots" style="font-size: 2rem;"></i>
+            <p class="mt-2">No comments yet. Be the first to comment!</p>
+          </div>
+        `;
+        return;
+      }
+
+      let commentsHtml = '';
+      comments.forEach(function(comment) {
+        const canEdit = comment.can_edit && (comment.author_id === currentUserId || isStaff);
+        const canDelete = comment.author_id === currentUserId || isStaff;
+        
+        commentsHtml += '<div class="comment-item ' + (comment.is_internal ? 'internal-comment' : '') + '" data-comment-id="' + comment.id + '">' +
+          '<div class="comment-header">' +
+            '<div>' +
+              '<span class="comment-author">' + comment.author_full_name + '</span>' +
+              (comment.is_internal ? '<span class="badge bg-warning text-dark ms-2">Internal</span>' : '') +
+            '</div>' +
+            '<div class="comment-time">' + comment.created_at + '</div>' +
+          '</div>' +
+          '<div class="comment-content">' + comment.content.replace(/\n/g, '<br>') + '</div>' +
+              
+          (canEdit || canDelete ? 
+            '<div class="comment-actions">' +
+              (canEdit ? '<button class="btn btn-sm btn-outline-primary me-2" onclick="editComment(' + comment.id + ')"><i class="bi bi-pencil"></i> Edit</button>' : '') +
+              
+              (canDelete ? '<button class="btn btn-sm btn-outline-danger" onclick="deleteComment(' + comment.id + ')"><i class="bi bi-trash"></i> Delete</button>' : '') +
+            '</div>'
+              : '') +
+          '</div>' +
+        '</div>';
+      });
+
+      commentsList.innerHTML = commentsHtml;
+    }
+
+    function editComment(commentId) {
+      const comment = comments.find(c => c.id === commentId);
+      if (!comment || !comment.can_edit) return;
+
+      const newContent = prompt('Edit comment:', comment.content);
+      if (newContent && newContent !== comment.content) {
+        updateComment(commentId, newContent);
+      }
+    }
+
+    function updateComment(commentId, content) {
+      fetch(`/tickets/${ticketId}/comments/${commentId}/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ content: content })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          loadComments();
+        } else {
+          alert('Error updating comment: ' + (data.detail || 'Unknown error'));
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating comment');
+      });
+    }
+
+    function deleteComment(commentId) {
+      if (!confirm('Are you sure you want to delete this comment?')) return;
+
+      fetch(`/tickets/${ticketId}/comments/${commentId}/`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          loadComments();
+        } else {
+          alert('Error deleting comment: ' + (data.detail || 'Unknown error'));
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error deleting comment');
+      });
+    }
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,542 @@
+{% load static %}{% load chat_permissions %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Ticket Management System</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- User Dashboard CSS -->
+    <link rel="stylesheet" href="{% static 'userdashboard/css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'userdashboard/css/tickets.css' %}">
+</head>
+
+<body class="app-body" data-page="dashboard">
+
+<div class="app-root">
+
+         <!-- Include Sidebar -->
+  {% include 'userdashboard/partials/sidebar.html' %}
+
+    <!-- Main Content -->
+    <main class="main">
+
+        <!-- Include Header -->
+  {% include 'userdashboard/partials/header.html' %}
+
+    {% block content %}
+
+      <!-- Page header / hero -->
+      <section class="page">
+        <div class="tickets-page-header">
+          <h1 class="section-title">My Support Tickets</h1>
+          <p class="page-subtitle">Create new requests and track all your existing tickets in one place.</p>
+        </div>
+
+        <!-- Main layout: left form, right table -->
+        <div class="tickets-layout">
+
+          <!-- Left: popular categories + submit ticket form -->
+          <div class="tickets-panel">
+            <h3>Popular categories</h3>
+            <div class="tickets-categories">
+              <div class="tickets-category"><div class="tickets-category-icon">🔐</div><div><strong>Account</strong></div></div>
+              <div class="tickets-category"><div class="tickets-category-icon">💳</div><div><strong>Billing</strong></div></div>
+              <div class="tickets-category"><div class="tickets-category-icon">🛠️</div><div><strong>Technical</strong></div></div>
+              <div class="tickets-category"><div class="tickets-category-icon">🚀</div><div><strong>Onboarding</strong></div></div>
+              <div class="tickets-category"><div class="tickets-category-icon">✨</div><div><strong>Feature</strong></div></div>
+            </div>
+
+          </div>
+
+          <!-- Right: My Tickets table -->
+          <div class="tickets-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+              <h3 style="margin: 0;">My Tickets</h3>
+              <div class="tickets-filters">
+                <select id="ticketStatusFilter" class="tickets-filter-select">
+                  <option value="all">All statuses</option>
+                  <option value="Open">Open</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Resolved">Resolved</option>
+                  <option value="Closed">Closed</option>
+                </select>
+                <select id="ticketSort" class="tickets-filter-select">
+                  <option value="recent">Newest first</option>
+                  <option value="oldest">Oldest first</option>
+                  <option value="priority">Highest priority</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="tickets-table-wrapper" style="width: 100%!important;" >
+              <div class="table-responsive" >
+              <table class="tickets-table" style="width: 100%!important;" >
+                <thead>
+                  <tr>
+                    <th>Ticket ID</th>
+                    <th>Subject</th>
+                    <th>Category</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="myTickets">
+                  {% if tickets %}
+                    {% for ticket in tickets %}
+                      <tr
+                        data-status="{{ ticket.status }}"
+                        data-priority="{{ ticket.priority }}"
+                        data-created="{{ ticket.created_at|date:'U' }}"
+                      >
+                        <td>{{ ticket.ticket_id }}</td>
+                        <td>{{ ticket.title }}</td>
+                        <td>{{ ticket.category|default:'-' }}</td>
+                        <td>
+                          <span class="badge-priority-{{ ticket.priority|lower }}">{{ ticket.priority }}</span>
+                        </td>
+                        <td>
+                          <span class="badge-status-{{ ticket.status|slugify }}">{{ ticket.status }}</span>
+                        </td>
+                        <td>{{ ticket.created_at|date:'d M Y, H:i' }}</td>
+                        <td>
+                          <div class="ts-actions">
+                            <button type="button" class="ts-actions__toggle" aria-label="Actions" aria-haspopup="menu" aria-expanded="false">
+                              <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </button>
+                            <div class="ts-actions__menu" role="menu">
+                              <a
+                                href="#"
+                                class="ts-actions__item ticket-view-link"
+                                role="menuitem"
+                                data-ticket-url="{% url 'dashboards:user_ticket_detail' ticket.ticket_id %}"
+                              >
+                                <i class="fa-regular fa-eye"></i>
+                                View
+                              </a>
+
+                              {% can_chat_with_ticket ticket request.user as can_chat %}
+                              {% get_chat_partner_id ticket request.user as chat_partner_id %}
+                              {% get_chat_display_text can_chat ticket as chat_text %}
+                              
+                              {% if can_chat is not None %}
+                              <a
+                                href="#"
+                                class="ts-actions__item chat-open"
+                                role="menuitem"
+                                data-ticket-id="{{ ticket.ticket_id }}"
+                                data-partner-id="{{ chat_partner_id }}"
+                                {% if not can_chat %}disabled{% endif %}
+                              >
+                                <i class="fa-regular fa-comments"></i>
+                                {{ chat_text }}
+                              </a>
+                              {% endif %}
+
+                              {% if ticket.status == 'Open' or ticket.status == 'In Progress' %}
+                                <a
+                                  href="#"
+                                  class="ts-actions__item ticket-edit-link"
+                                  role="menuitem"
+                                  data-ticket-url="{% url 'dashboards:user_ticket_edit' ticket.ticket_id %}"
+                                >
+                                  <i class="fa-regular fa-pen-to-square"></i>
+                                  Edit
+                                </a>
+                              {% endif %}
+
+                              {% if ticket.status == 'Resolved' or ticket.status == 'Closed' %}
+                                {% if ticket.assigned_to %}
+                                  <div class="ts-actions__divider"></div>
+                                  <div class="ts-actions__section" role="none">
+                                    {% if ticket.user_rating %}
+                                      <div class="ts-actions__muted"><i class="fa-solid fa-star"></i> Rated: {{ ticket.user_rating.rating }}/5</div>
+                                    {% else %}
+                                      <div class="ts-actions__label"><i class="fa-solid fa-star"></i> Rate</div>
+                                      <form method="post" action="{% url 'dashboards:user_ticket_rate' ticket.ticket_id %}" class="ticket-actions__rate-form" role="none">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="recommend" value="yes">
+                                        <div class="ticket-actions__stars" aria-label="Rate ticket">
+                                          <button type="submit" name="rating" value="1" class="ticket-actions__star" title="1"><i class="fa-solid fa-star"></i></button>
+                                          <button type="submit" name="rating" value="2" class="ticket-actions__star" title="2"><i class="fa-solid fa-star"></i></button>
+                                          <button type="submit" name="rating" value="3" class="ticket-actions__star" title="3"><i class="fa-solid fa-star"></i></button>
+                                          <button type="submit" name="rating" value="4" class="ticket-actions__star" title="4"><i class="fa-solid fa-star"></i></button>
+                                          <button type="submit" name="rating" value="5" class="ticket-actions__star" title="5"><i class="fa-solid fa-star"></i></button>
+                                        </div>
+                                      </form>
+                                    {% endif %}
+                                  </div>
+                                {% endif %}
+                              {% endif %}
+
+                              <div class="ts-actions__divider"></div>
+                              <form method="post" action="{% url 'dashboards:user_ticket_delete' ticket.ticket_id %}" class="ticket-actions__delete-form" role="none">
+                                {% csrf_token %}
+                                <button type="submit" class="ts-actions__item ts-actions__item--danger" role="menuitem">
+                                  <i class="fa-regular fa-trash-can"></i>
+                                  Delete
+                                </button>
+                              </form>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  {% else %}
+                    <tr>
+                      <td colspan="7">No tickets yet. Create your first ticket using the form.</td>
+                    </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Ticket detail modal overlay -->
+      <div id="ticketDetailOverlay" class="ticket-modal-overlay hidden">
+        <div class="ticket-modal">
+          <button type="button" id="ticketDetailClose" class="ticket-modal-close">&times;</button>
+          <div id="ticketDetailContent"></div>
+        </div>
+      </div>
+
+      <!-- Ticket edit modal overlay -->
+      <div id="ticketEditOverlay" class="ticket-modal-overlay hidden">
+        <div class="ticket-modal">
+          <button type="button" id="ticketEditClose" class="ticket-modal-close">&times;</button>
+          <div id="ticketEditContent"></div>
+        </div>
+      </div>
+
+      <!-- Ticket Chat modal overlay -->
+      <div id="ticketChatOverlay" class="ticket-modal-overlay hidden" aria-hidden="true">
+        <div class="ticket-modal ticket-chat-modal">
+          <button type="button" id="ticketChatClose" class="ticket-modal-close">&times;</button>
+          <div class="ticket-modal-header"><h3 id="ticketChatTitle">Chat</h3></div>
+          <div id="ticketChatContent" class="ticket-chat-content" style="min-height:220px; max-height:400px; overflow:auto; padding:1rem; background:#fff; border:1px solid #e9ecef;">
+            <!-- Messages will be appended here -->
+          </div>
+          <div class="ticket-chat-input" style="display:flex; gap:0.5rem; margin-top:0.75rem;">
+            <input id="ticketChatMessage" type="text" class="form-control" placeholder="Type a message...">
+            <button id="ticketChatSend" class="primary-button">Send</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="deleteConfirmOverlay" class="ts-confirm-overlay hidden" aria-hidden="true">
+        <div class="ts-confirm" role="dialog" aria-modal="true" aria-labelledby="deleteConfirmTitle" aria-describedby="deleteConfirmDesc">
+          <div class="ts-confirm__icon" aria-hidden="true">
+            <i class="fa-regular fa-trash-can"></i>
+          </div>
+          <div class="ts-confirm__content">
+            <h3 class="ts-confirm__title" id="deleteConfirmTitle">Delete ticket?</h3>
+            <p class="ts-confirm__desc" id="deleteConfirmDesc">This action can’t be undone. The ticket will be permanently removed.</p>
+          </div>
+          <div class="ts-confirm__actions">
+            <button type="button" class="secondary-button" id="deleteConfirmCancel">Cancel</button>
+            <button type="button" class="primary-button" id="deleteConfirmOk">Delete</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-content">© 2025 <a href="https://ultrakeyit.com/" target="_blank" rel="noopener noreferrer" class="text-decoration-none">Ultrakey It Solutions</a>. All rights reserved.</div>
+        </footer>
+
+         {% endblock %}
+    </main>
+
+</div>
+
+<!-- JS Files -->
+<!-- <script src="{% static 'userdashboard/js/layout.js' %}"></script> -->
+<script src="{% static 'userdashboard/js/script.js' %}"></script>
+<script src="{% static 'userdashboard/js/app.js' %}"></script>
+
+<script>
+  (function(){
+    function qs(selector, root=document){ return root.querySelector(selector); }
+
+    // Helper function to get CSRF token
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    // Helper function to get staff contact ID (for admin chat)
+    async function getAdminContactId() {
+      try {
+        // Try to get an admin user
+        const response = await fetch('/api/admin-users/');
+        if (response.ok) {
+          const admins = await response.json();
+          if (admins.results && admins.results.length > 0) {
+            return admins.results[0].id;
+          }
+        }
+      } catch (error) {
+        console.error('Error getting admin contact:', error);
+      }
+      // Fallback to a known admin user ID
+      return 1; // Adjust this based on your system
+    }
+
+    // Helper function to load chat history
+    async function loadChatHistory(ticketId, contentEl, partnerId) {
+      try {
+        console.log('Loading chat history for ticket:', ticketId, 'partnerId:', partnerId);
+        
+        let actualPartnerId = partnerId;
+        // If partnerId is 'admin', get actual admin ID
+        if (partnerId === 'admin') {
+          actualPartnerId = await getAdminContactId();
+        }
+        
+        const response = await fetch(`/api/chat/messages/?contact_id=${actualPartnerId}&ticket_id=${ticketId}`);
+        console.log('Chat history response status:', response.status);
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Chat history data:', data);
+          
+          // Clear existing content except the starting note
+          contentEl.innerHTML = '';
+          
+          if (data.results && data.results.length > 0) {
+            data.results.forEach(msg => {
+              const msgEl = document.createElement('div');
+              msgEl.className = `chat-message chat-message--${msg.direction}`;
+              msgEl.style.margin = '0.5rem 0';
+              
+              const bubbleColor = msg.direction === 'sent' ? '#0d6efd' : '#6c757d';
+              const textColor = msg.direction === 'sent' ? '#fff' : '#fff';
+              
+              msgEl.innerHTML = `<div style="background:${bubbleColor};color:${textColor};padding:0.5rem 0.75rem;border-radius:8px;display:inline-block;max-width:80%;">
+                ${msg.text}
+                <div style="font-size:0.7em;opacity:0.8;margin-top:0.25rem;">${msg.time}</div>
+              </div>`;
+              contentEl.appendChild(msgEl);
+            });
+          } else {
+            const partnerName = partnerId === 'admin' ? 'Admin' : 'Agent';
+            contentEl.innerHTML = `<div class="chat-note">No messages yet. Start the conversation with ${partnerName}!</div>`;
+          }
+          
+          contentEl.scrollTop = contentEl.scrollHeight;
+        } else {
+          const errorText = await response.text();
+          console.error('Chat history error:', errorText);
+          contentEl.innerHTML = '<div class="chat-note">Unable to load chat history. Please try again.</div>';
+        }
+      } catch (error) {
+        console.error('Error loading chat history:', error);
+        contentEl.innerHTML = '<div class="chat-note">Error loading chat history. Please refresh and try again.</div>';
+      }
+    }
+
+    // Open chat modal when Chat action clicked
+    document.addEventListener('click', async function(e){
+      const el = e.target.closest('.chat-open');
+      if(!el) return;
+      e.preventDefault();
+      
+      // Check if chat is disabled
+      if (el.hasAttribute('disabled')) {
+        alert('Chat is not available for this ticket.');
+        return;
+      }
+      
+      const ticketId = el.getAttribute('data-ticket-id') || 'unknown';
+      const partnerId = el.getAttribute('data-partner-id');
+      
+      if (!partnerId) {
+        alert('Chat partner information not available.');
+        return;
+      }
+      
+      const overlay = qs('#ticketChatOverlay');
+      const title = qs('#ticketChatTitle');
+      const content = qs('#ticketChatContent');
+      const input = qs('#ticketChatMessage');
+      if(!overlay || !content) return;
+      
+      const partnerName = partnerId === 'admin' ? 'Admin' : 'Agent';
+      title.textContent = `Chat - Ticket ${ticketId} (${partnerName})`;
+      content.innerHTML = '<div class="chat-note">Loading chat history...</div>';
+      input.value = '';
+      overlay.classList.remove('hidden');
+      overlay.removeAttribute('aria-hidden');
+      input.focus();
+      overlay.dataset.ticketId = ticketId;
+      overlay.dataset.partnerId = partnerId; // Store partner ID for this session
+      
+      // Load chat history with specific partner
+      await loadChatHistory(ticketId, content, partnerId);
+    });
+
+    // Close chat
+    qs('#ticketChatClose')?.addEventListener('click', function(){
+      const overlay = qs('#ticketChatOverlay');
+      if(overlay){ overlay.classList.add('hidden'); overlay.setAttribute('aria-hidden','true'); }
+    });
+
+    // Send message to backend API
+    qs('#ticketChatSend')?.addEventListener('click', async function(){
+      const overlay = qs('#ticketChatOverlay');
+      if(!overlay) return;
+      const ticketId = overlay.dataset.ticketId || 'unknown';
+      const input = qs('#ticketChatMessage');
+      const content = qs('#ticketChatContent');
+      const text = (input.value || '').trim();
+      if(!text) return;
+      
+      // Show sending indicator
+      const msgEl = document.createElement('div');
+      msgEl.className = 'chat-message chat-message--me';
+      msgEl.style.margin = '0.5rem 0';
+      msgEl.innerHTML = '<div style="background:#0d6efd;color:#fff;padding:0.5rem 0.75rem;border-radius:8px;display:inline-block;max-width:80%;">'+
+        text + '</div>';
+      content.appendChild(msgEl);
+      input.value = '';
+      content.scrollTop = content.scrollHeight;
+
+      try {
+        // Get partner ID from overlay data
+        let partnerId = overlay.dataset.partnerId;
+        if (!partnerId) {
+          alert('Chat partner information not available. Please refresh the page.');
+          return;
+        }
+        
+        // If partnerId is 'admin', get actual admin ID
+        let actualPartnerId = partnerId;
+        if (partnerId === 'admin') {
+          actualPartnerId = await getAdminContactId();
+        }
+        
+        console.log('Sending message to partnerId:', partnerId, 'actualPartnerId:', actualPartnerId, 'ticketId:', ticketId, 'text:', text);
+        
+        // Send to backend API
+        const response = await fetch('/api/chat/messages/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify({
+            contact_id: actualPartnerId,
+            ticket_id: ticketId,
+            text: text
+          })
+        });
+
+        console.log('Send message response status:', response.status);
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error('API Error:', errorData);
+          throw new Error(errorData.detail || 'Failed to send message');
+        }
+
+        const data = await response.json();
+        console.log('Message sent successfully:', data);
+        
+        // Message sent successfully - update with server timestamp
+        msgEl.innerHTML = `<div style="background:#0d6efd;color:#fff;padding:0.5rem 0.75rem;border-radius:8px;display:inline-block;max-width:80%;">
+          ${text}
+          <div style="font-size:0.7em;opacity:0.8;margin-top:0.25rem;">${data.time || 'Just now'}</div>
+        </div>`;
+        
+        // Reload chat history to show any new messages
+        await loadChatHistory(ticketId, content, partnerId);
+        
+      } catch (error) {
+        console.error('Error sending message:', error);
+        // Show error indicator
+        msgEl.style.opacity = '0.7';
+        msgEl.innerHTML += '<div style="color:#dc3545;font-size:0.8em;margin-top:0.25rem;">Failed to send: ' + error.message + '</div>';
+      }
+    });
+
+    // Allow Enter to send
+    qs('#ticketChatMessage')?.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); qs('#ticketChatSend').click(); } });
+
+    // Handle ticket edit modal
+    document.addEventListener('click', async function(e){
+      const el = e.target.closest('.ticket-edit-link');
+      if(!el) return;
+      e.preventDefault();
+      const editUrl = el.getAttribute('data-ticket-url');
+      const overlay = qs('#ticketEditOverlay');
+      const content = qs('#ticketEditContent');
+      if(!overlay || !content) return;
+      
+      // Load edit form
+      try {
+        const response = await fetch(editUrl);
+        if(response.ok){
+          const html = await response.text();
+          content.innerHTML = html;
+          overlay.classList.remove('hidden');
+          overlay.removeAttribute('aria-hidden');
+          
+          // Initialize Bootstrap modal if available
+          if(typeof bootstrap !== 'undefined' && bootstrap.Modal){
+            const modalEl = content.querySelector('.modal');
+            if(modalEl){
+              const modal = new bootstrap.Modal(modalEl);
+              modal.show();
+            }
+          }
+        } else {
+          content.innerHTML = '<div class="alert alert-danger">Error loading edit form. Please try again.</div>';
+          overlay.classList.remove('hidden');
+        }
+      } catch(error){
+        console.error('Error loading edit form:', error);
+        content.innerHTML = '<div class="alert alert-danger">Error loading edit form. Please try again.</div>';
+        overlay.classList.remove('hidden');
+      }
+    });
+
+    // Close edit modal
+    qs('#ticketEditClose')?.addEventListener('click', function(){
+      const overlay = qs('#ticketEditOverlay');
+      if(overlay){ 
+        overlay.classList.add('hidden'); 
+        overlay.setAttribute('aria-hidden','true'); 
+      }
+    });
+
+    // Close edit modal when clicking outside
+    qs('#ticketEditOverlay')?.addEventListener('click', function(e){
+      if(e.target === this){
+        this.classList.add('hidden');
+        this.setAttribute('aria-hidden','true');
+      }
+    });
+  })();
+</script>
+   
+</body>
+</html>

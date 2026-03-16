@@ -1,0 +1,479 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - My Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'agentdashboard/css/style.css' %}">
+     <style>
+        /* Show all profile sections without tabs */
+        #profileTabs { display: none !important; }
+        .tab-content .tab-pane {
+            display: block !important;
+            opacity: 1 !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Include Sidebar (server-side include to ensure visibility) -->
+        <div id="sidebar-container">
+            <!-- Content will be loaded by JavaScript -->
+        </div>
+
+        <div class="main-container">
+            <!-- Include Header (server-side include to ensure visibility) -->
+            <div id="header-container">
+                <!-- Content will be loaded by JavaScript -->
+            </div>
+
+           
+            <main class="content-area">
+                <div id="profile" class="page-content active">
+                    <div class="page-header">
+                        <div>
+                            <h2>My Profile</h2>
+                            <p class="text-muted">Manage your personal information, account and security settings</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button id="profile-refresh-btn" type="button" class="btn btn-outline-secondary" onclick="location.reload()"><i class="bi bi-arrow-repeat me-1"></i>Refresh</button>
+                            <button id="profile-saveall-btn" type="button" class="btn btn-primary" onclick="submitAllForms()"><i class="bi bi-save me-1"></i>Save Changes</button>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <!-- Left: Profile summary -->
+                        <div class="col-12 col-lg-4">
+                            <div class="card overflow-hidden">
+                                <div class="position-relative" style="height: 120px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); z-index: 1;"></div>
+                                <div class="card-body text-center" style="margin-top: -56px;">
+                                    {% if profile_obj.profile_picture %}
+                                        {% if profile_obj.profile_picture.name %}
+                                            <div class="mx-auto rounded-circle border border-3 border-white shadow" style="width: 112px; height: 112px; position: relative; z-index: 2; overflow: hidden;">
+                                                <img src="{{ profile_obj.profile_picture.url }}" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                        {% else %}
+                                            <div class="mx-auto rounded-circle d-flex align-items-center justify-content-center border border-3 border-white shadow" style="width: 112px; height: 112px; background:#f0f3ff; color:#6e8efb; font-weight: 700; font-size: 1.8rem; position: relative; z-index: 2;">
+                                                {{ profile_full_name|default:request.user.username|first|upper|default:'A' }}
+                                            </div>
+                                        {% endif %}
+                                    {% else %}
+                                        <div class="mx-auto rounded-circle d-flex align-items-center justify-content-center border border-3 border-white shadow" style="width: 112px; height: 112px; background:#f0f3ff; color:#6e8efb; font-weight: 700; font-size: 1.8rem; position: relative; z-index: 2;">
+                                            {{ profile_full_name|default:request.user.username|first|upper|default:'A' }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="mt-3">
+                                        <h4 class="mb-0">{{ profile_full_name|default:request.user.get_full_name|default:request.user.username }}</h4>
+                                        <div class="text-muted">{{ profile_role|default:'Agent' }}</div>
+                                        <div class="mt-2">
+                                            <span class="badge bg-success">Online</span>
+                                            <span class="badge bg-light text-dark ms-2">Technical Support</span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-center gap-3 mt-3">
+                                        <div>
+                                            <div class="fw-bold">{{ profile_tickets_closed|default:0 }}</div>
+                                            <small class="text-muted">Tickets Closed</small>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">{{ profile_avg_rating_display|default:"0.0/5" }}</div>
+                                            <small class="text-muted">Rating</small>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">{{ profile_avg_first_response_display|default:"0m" }}</div>
+                                            <small class="text-muted">Avg First Resp</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <button class="btn btn-outline-primary btn-sm"><i class="bi bi-envelope me-1"></i>Message</button>
+                                        <button class="btn btn-outline-secondary btn-sm"><i class="bi bi-share me-1"></i>Share</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Contact</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex align-items-start mb-3">
+                                        <div class="icon-square bg-light text-primary me-3 d-flex align-items-center justify-content-center" style="width:36px;height:36px;border-radius:8px"><i class="bi bi-envelope"></i></div>
+                                        <div>
+                                            <div class="fw-semibold">{{ profile_email|default:request.user.email }}</div>
+                                            <small class="text-muted">Primary Email</small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-start mb-3">
+                                        <div class="icon-square bg-light text-primary me-3 d-flex align-items-center justify-content-center" style="width:36px;height:36px;border-radius:8px"><i class="bi bi-telephone"></i></div>
+                                        <div>
+                                            <div class="fw-semibold">{{ profile_phone|default:'Not set' }}</div>
+                                            <small class="text-muted">Work Phone</small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-start mb-3">
+                                        <div class="icon-square bg-light text-primary me-3 d-flex align-items-center justify-content-center" style="width:36px;height:36px;border-radius:8px"><i class="bi bi-geo-alt"></i></div>
+                                        <div>
+                                            <div class="fw-semibold">{{ profile_address|default:'Not set' }}</div>
+                                            <small class="text-muted">Address</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Skills & Tags</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="skills-list" class="d-flex flex-wrap gap-2 mb-3">
+                                        <span class="badge bg-primary-subtle text-primary border">Billing</span>
+                                        <span class="badge bg-success-subtle text-success border">Technical</span>
+                                        <span class="badge bg-warning-subtle text-warning border">SLA</span>
+                                        <span class="badge bg-info-subtle text-info border">Chat</span>
+                                        <span class="badge bg-secondary-subtle text-secondary border">Escalation</span>
+                                    </div>
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" id="new-skill-input" class="form-control" placeholder="Add a skill or tag (e.g. Email Support)">
+                                        <button class="btn btn-outline-primary" type="button" id="add-skill-btn">Add</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Tabs and forms -->
+                        <div class="col-12 col-lg-8">
+                            <ul class="nav nav-pills mb-3" id="profileTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="overview-tab" data-bs-toggle="pill" data-bs-target="#overview" type="button" role="tab">Overview</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="account-tab" data-bs-toggle="pill" data-bs-target="#account" type="button" role="tab">Account</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="security-tab" data-bs-toggle="pill" data-bs-target="#security" type="button" role="tab">Security</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="notifications-tab" data-bs-toggle="pill" data-bs-target="#notifications" type="button" role="tab">Notifications</button>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content">
+                                <!-- Account -->
+                                <div class="tab-pane fade" id="account" role="tabpanel">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <form id="agent-account-form" method="post" enctype="multipart/form-data" class="row g-3">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="profile">
+                                                <div class="col-12 col-md-6">
+                                                    <label class="form-label" for="fullName">Full Name</label>
+                                                    <input id="fullName" name="fullName" type="text" class="form-control" placeholder="Your name" value="{{ profile_full_name }}">
+                                                </div>
+                                                <div class="col-12 col-md-6">
+                                                    <label class="form-label" for="email">Email</label>
+                                                    <input id="email" name="email" type="email" class="form-control" placeholder="you@example.com" value="{{ profile_email }}">
+                                                </div>
+                                                <div class="col-12 col-md-6">
+                                                    <label class="form-label" for="phone">Phone</label>
+                                                    <input id="phone" name="phone" type="tel" class="form-control" placeholder="+91 XXXXX XXXXX" value="{{ profile_phone }}">
+                                                </div>
+                                                <div class="col-12 col-md-6">
+                                                    <label class="form-label" for="department">Department</label>
+                                                    <input id="department" name="department" type="text" class="form-control" placeholder="Support / Sales" value="{{ profile_obj.department|default:'' }}">
+                                                </div>
+                                                <div class="col-12 col-md-6">
+                                                    <label class="form-label" for="address">Address</label>
+                                                    <input id="address" name="address" type="text" class="form-control" placeholder="Your address" value="{{ profile_obj.address|default:'' }}">
+                                                </div>
+                                                <div class="col-12">
+                                                    <label class="form-label" for="profile_picture">Profile Picture</label>
+                                                    <div class="d-flex gap-2 align-items-start">
+                                                        <div class="flex-grow-1">
+                                                            <input id="profile_picture" name="profile_picture" type="file" class="form-control" accept="image/*">
+                                                            {% if profile_obj.profile_picture %}
+                                                                {% if profile_obj.profile_picture.name %}
+                                                                    <small class="text-muted d-block mt-1">Current: <a href="{{ profile_obj.profile_picture.url }}" target="_blank">View picture</a></small>
+                                                                    <button type="button" class="btn btn-outline-danger btn-sm mt-2" onclick="removeProfilePicture()">
+                                                                        <i class="bi bi-trash me-1"></i>Remove
+                                                                    </button>
+                                                                {% else %}
+                                                                    <small class="text-muted d-block mt-1">File exists but no valid image</small>
+                                                                    <button type="button" class="btn btn-outline-danger btn-sm mt-2" onclick="removeProfilePicture()">
+                                                                        <i class="bi bi-trash me-1"></i>Clear
+                                                                    </button>
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 d-flex align-items-center gap-2">
+                                                    <button class="btn btn-primary" type="submit"><i class="bi bi-save me-1"></i>Save Account</button>
+                                                    <span class="text-success small">{% if profile_saved %}Saved.{% endif %}</span>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Security -->
+                                <div class="tab-pane fade" id="security" role="tabpanel">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <form method="post" class="row g-3">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="password">
+                                                <div class="col-12 col-md-6">
+                                                    <label class="form-label" for="password">New Password</label>
+                                                    <input id="password" name="password" type="password" class="form-control" placeholder="New password" autocomplete="new-password">
+                                                </div>
+                                                <div class="col-12 col-md-6">
+                                                    <label class="form-label" for="confirm">Confirm New Password</label>
+                                                    <input id="confirm" name="confirm" type="password" class="form-control" placeholder="Confirm new password" autocomplete="new-password">
+                                                </div>
+                                                <div class="col-12 d-flex align-items-center gap-2">
+                                                    <button class="btn btn-primary" type="submit"><i class="bi bi-shield-lock me-1"></i>Update Security</button>
+                                                    <span class="small text-danger">{% if password_error %}{{ password_error }}{% elif password_saved %}Password updated.{% endif %}</span>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Notifications -->
+                                <div class="tab-pane fade" id="notifications" role="tabpanel">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <form method="post" class="row g-3">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="notifications">
+                                                <div class="col-12">
+                                                    <label class="form-label">Email Notifications</label>
+                                                    <div class="d-flex flex-column gap-2">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" id="notif_email" name="email_notifications" {% if notif_email %}checked{% endif %}>
+                                                            <label class="form-check-label" for="notif_email">Email notifications</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" id="notif_desktop" name="desktop_notifications" {% if notif_desktop %}checked{% endif %}>
+                                                            <label class="form-check-label" for="notif_desktop">Desktop notifications</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <label class="form-label">In-App Visibility</label>
+                                                    <div class="d-flex flex-column gap-2">
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" id="notif_activity" name="show_activity_status" {% if notif_show_activity %}checked{% endif %}>
+                                                            <label class="form-check-label" for="notif_activity">Show my online status</label>
+                                                        </div>
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" id="notif_dm" name="allow_dm_from_non_contacts" {% if notif_allow_dm %}checked{% endif %}>
+                                                            <label class="form-check-label" for="notif_dm">Allow direct messages from non-contacts</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <button class="btn btn-primary" type="submit"><i class="bi bi-bell me-1"></i>Save Preferences</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <footer class="dashboard-footer mt-4 mb-2 text-muted small">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="https://ultrakeyit.com/" target="_blank" rel="noopener noreferrer" class="text-muted text-decoration-none"> Ultrakey IT Solutions</a>
+                        <span>All systems operational</span>
+                    </div>
+                </footer>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Include Modals (server-side include to ensure visibility) -->
+    <div id="modals-container">
+        <!-- Content will be loaded by JavaScript -->
+    </div>
+
+    <!-- Core JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+
+        
+    <!-- Load header/sidebar/modals via agent_dashboard_page -->
+    <script>
+        function loadComponent(url, elementId) {
+            return fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        element.innerHTML = html;
+                        
+                        // If loading the sidebar, set the active nav item
+                        if (url.includes('sidebar.html')) {
+                            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                            let pageName = currentPage.replace('.html', '') || 'dashboard';
+                            // Map index to dashboard so the correct nav item is highlighted
+                            if (pageName === 'index') pageName = 'dashboard';
+                            const activeNavItem = document.querySelector(`.nav-item[data-page="${pageName}"]`);
+                            if (activeNavItem) {
+                                // Remove active class from all nav items
+                                document.querySelectorAll('.nav-item').forEach(item => {
+                                    item.classList.remove('active');
+                                });
+                                activeNavItem.classList.add('active');
+                            }
+                        }
+                        
+                        // If loading the header, initialize it after a short delay
+                        if (url.includes('header.html') && window.initializeHeader) {
+                            setTimeout(() => {
+                                window.initializeHeader();
+                            }, 50);
+                        }
+                        
+                        return true;
+                    }
+                    return false;
+                })
+                .catch(error => {
+                    console.error('Error loading component:', error);
+                    return false;
+                });
+        }
+        
+        // Initialize components when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function(){
+            // Debug: Check if URLs are available
+            console.log('Header URL:', '{{ header_url }}');
+            console.log('Sidebar URL:', '{{ sidebar_url }}');
+            console.log('Modals URL:', '{{ modals_url }}');
+            
+            // Fallback URLs if template variables are not available
+            const headerUrl = '{{ header_url }}' || '/dashboard/agent-dashboard/partials/header.html';
+            const sidebarUrl = '{{ sidebar_url }}' || '/dashboard/agent-dashboard/partials/sidebar.html';
+            const modalsUrl = '{{ modals_url }}' || '/dashboard/agent-dashboard/partials/modals.html';
+            
+            // Header
+            loadComponent(headerUrl, 'header-container')
+                .then(function(success){
+                    if (success) {
+                        // Wait a bit for header to be fully loaded, then initialize
+                        setTimeout(() => {
+                            if (window.initializeHeader) {
+                                window.initializeHeader();
+                            } else {
+                                console.error('initializeHeader function not available');
+                            }
+                        }, 100);
+                    } else {
+                        console.error('Failed to load header component');
+                    }
+                });
+            // Sidebar & modals
+            loadComponent(sidebarUrl, 'sidebar-container');
+            loadComponent(modalsUrl, 'modals-container');
+            
+            // Listen for navigation events (for single-page navigation)
+            document.body.addEventListener('click', function(e) {
+                // Check if the click was on a navigation link
+                const navLink = e.target.closest('a[data-page]');
+                if (navLink) {
+                    // Re-initialize header after a short delay to allow the page to update
+                    setTimeout(() => {
+                        if (window.initializeHeader) {
+                            window.initializeHeader();
+                        }
+                    }, 100);
+                }
+            });
+        });
+    </script>
+
+    <!-- Profile form handling JavaScript -->
+    <script>
+        function submitAllForms() {
+            // Submit the account form (which contains profile picture)
+            const accountForm = document.getElementById('agent-account-form');
+            if (accountForm) {
+                accountForm.submit();
+            }
+        }
+
+        // Function to remove profile picture
+        function removeProfilePicture() {
+            if (confirm('Are you sure you want to remove your profile picture?')) {
+                // Create a form to submit the removal request
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = window.location.href;
+                form.style.display = 'none';
+                
+                // Add CSRF token
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+                if (csrfToken) {
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = 'csrfmiddlewaretoken';
+                    csrfInput.value = csrfToken.value;
+                    form.appendChild(csrfInput);
+                }
+                
+                // Add action field
+                const actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                actionInput.value = 'remove_profile_picture';
+                form.appendChild(actionInput);
+                
+                // Submit form
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        // Profile picture preview
+        document.addEventListener('DOMContentLoaded', function() {
+            const profilePictureInput = document.getElementById('profile_picture');
+            if (profilePictureInput) {
+                profilePictureInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file && file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            // Update the profile picture display in the header if it exists
+                            const profileDisplay = document.querySelector('.rounded-circle.d-flex.align-items-center.justify-content-center');
+                            if (profileDisplay) {
+                                profileDisplay.style.backgroundImage = `url(${e.target.result})`;
+                                profileDisplay.style.backgroundSize = 'cover';
+                                profileDisplay.style.backgroundPosition = 'center';
+                                profileDisplay.style.color = 'transparent';
+                                profileDisplay.innerHTML = '';
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+        });
+    </script>
+
+    <!-- Agent static JS -->
+    <script src="{% static 'agentdashboard/js/script.js' %}"></script>
+    <script src="{% static 'agentdashboard/js/header.js' %}"></script>
+</body>
+</html>

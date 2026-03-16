@@ -1,0 +1,482 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Users - SuperAdmin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Breadcrumb Navigation -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'superadmin:superadmin_dashboard' %}">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item active">Users</li>
+                </ol>
+            </nav>
+            
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Users</h1>
+                    <p class="text-muted mb-0">Manage all system users</p>
+                </div>
+                <div>
+                    <button class="btn btn-primary" data-bs-toggle="offcanvas" data-bs-target="#addUserOffcanvas">
+                        <i class="bi bi-plus-circle"></i> Add User
+                    </button>
+                </div>
+            </div>
+
+            <div class="card sa-card">
+                <div class="card-body">
+                    {% if users %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Joined</th>
+                                        <th>Last Login</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in users %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-primary text-white rounded d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px ; border-radius: 50%;">
+                                                    {{ user.username.0|upper }}
+                                                </div>
+                                                <div>
+                                                    <div class="fw-medium">{{ user.get_full_name|default:user.username }}</div>
+                                                    <small class="text-muted">@{{ user.username }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ user.email }}</td>
+                                        <td>
+                                            {% if user.userprofile.role %}
+                                                <span class="badge bg-info">{{ user.userprofile.role.name }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">No Role</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if user.is_active %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Inactive</span>
+                                            {% endif %}
+                                            {% if user.is_superuser %}
+                                                <span class="badge bg-warning ms-1">SuperAdmin</span>
+                                            {% elif user.is_staff %}
+                                                <span class="badge bg-info ms-1">Staff</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                                        <td>
+                                            {% if user.last_login %}
+                                                {{ user.last_login|date:"M d, Y H:i" }}
+                                            {% else %}
+                                                <span class="text-muted">Never</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{% url 'superadmin:user_detail' user.id %}" class="btn btn-outline-primary" title="View User">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a href="{% url 'superadmin:user_edit' user.id %}" class="btn btn-outline-secondary" title="Edit User">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination Controls -->
+                        {% if users.has_other_pages %}
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <div class="text-muted">
+                                Showing {{ users.start_index }}-{{ users.end_index }} of {{ users.paginator.count }} users
+                            </div>
+                            <nav>
+                                <ul class="pagination mb-0">
+                                    {% if users.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ users.previous_page_number }}">
+                                                <i class="bi bi-chevron-left"></i> Previous
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    
+                                    {% for num in users.paginator.page_range %}
+                                        {% if users.number == num %}
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ num }}</span>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if users.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ users.next_page_number }}">
+                                                Next <i class="bi bi-chevron-right"></i>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <i class="bi bi-people text-muted" style="font-size: 4rem;"></i>
+                            </div>
+                            <h4 class="text-muted">No Users Found</h4>
+                            <p class="text-muted">There are no users registered in the system yet.</p>
+                            <button class="btn btn-primary" disabled>
+                                <i class="bi bi-plus-circle"></i> Add First User
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add User Offcanvas -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="addUserOffcanvas" aria-labelledby="addUserOffcanvasLabel" style="width: 600px;">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="addUserOffcanvasLabel">
+            <i class="bi bi-person-plus me-2"></i>Add New User
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <form id="addUserForm">
+            {% csrf_token %}
+            
+            <!-- User Information -->
+            <div class="mb-4">
+                <h6 class="text-muted mb-3">User Information</h6>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="firstName" name="first_name" required>
+                        <div class="invalid-feedback">Please provide a first name.</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="lastName" name="last_name" required>
+                        <div class="invalid-feedback">Please provide a last name.</div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                        <div class="invalid-feedback">Please provide a username.</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                        <div class="invalid-feedback">Please provide a valid email address.</div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="invalid-feedback">Password must be at least 8 characters.</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="confirmPassword" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required>
+                        <div class="invalid-feedback">Passwords do not match.</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Role & Status -->
+            <div class="mb-4">
+                <h6 class="text-muted mb-3">Role & Status</h6>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="role" class="form-label">Role <span class="text-danger">*</span></label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="">Select Role</option>
+                            <option value="admin">Admin</option>
+                            <option value="manager">Manager</option>
+                            <option value="agent">Agent</option>
+                            <option value="user">User</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
+                        <select class="form-select" id="status" name="is_active" required>
+                            <option value="">Select Status</option>
+                            <option value="true">Active</option>
+                            <option value="false">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Company Assignment -->
+            <div class="mb-4">
+                <h6 class="text-muted mb-3">Company Assignment</h6>
+                
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <label for="company" class="form-label">Assign to Company <span class="text-danger">*</span></label>
+                        <select class="form-select" id="company" name="company" required>
+                            <option value="">Select Company</option>
+                            {% for company in all_companies %}
+                                <option value="{{ company.id }}">{{ company.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="offcanvas-footer" style="margin: 10px;">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="offcanvas">Cancel</button>
+        <button type="submit" form="addUserForm" class="btn btn-primary">
+            <i class="bi bi-person-plus me-2"></i>Add User
+        </button>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="text-center py-3 mt-4 mb-2 text-muted small border-top">
+    <div class="d-flex justify-content-between align-items-center">
+        <span>&copy; 2024 Ultrakey IT Solutions</span>
+        <span>Users Management</span>
+        <span>Support</span>
+    </div>
+</footer>
+
+{% endblock %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addUserForm = document.getElementById('addUserForm');
+    const offcanvasElement = document.getElementById('addUserOffcanvas');
+    let offcanvas;
+    
+    // Initialize Bootstrap offcanvas
+    offcanvas = new bootstrap.Offcanvas(offcanvasElement);
+    
+    // Form submission
+    addUserForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Reset previous validation states
+        const inputs = addUserForm.querySelectorAll('.form-control');
+        inputs.forEach(input => {
+            input.classList.remove('is-invalid');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            if (feedback) {
+                feedback.style.display = 'none';
+            }
+        });
+        
+        // Validate form
+        const firstName = document.getElementById('firstName');
+        const lastName = document.getElementById('lastName');
+        const username = document.getElementById('username');
+        const email = document.getElementById('email');
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const role = document.getElementById('role');
+        const company = document.getElementById('company');
+        
+        let isValid = true;
+        
+        // First Name validation
+        if (!firstName.value.trim()) {
+            firstName.classList.add('is-invalid');
+            firstName.parentNode.querySelector('.invalid-feedback').style.display = 'block';
+            isValid = false;
+        }
+        
+        // Last Name validation
+        if (!lastName.value.trim()) {
+            lastName.classList.add('is-invalid');
+            lastName.parentNode.querySelector('.invalid-feedback').style.display = 'block';
+            isValid = false;
+        }
+        
+        // Username validation
+        if (!username.value.trim() || username.value.length < 3) {
+            username.classList.add('is-invalid');
+            username.parentNode.querySelector('.invalid-feedback').style.display = 'block';
+            isValid = false;
+        }
+        
+        // Email validation
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email.value.trim() || !emailPattern.test(email.value)) {
+            email.classList.add('is-invalid');
+            email.parentNode.querySelector('.invalid-feedback').style.display = 'block';
+            isValid = false;
+        }
+        
+        // Password validation
+        if (!password.value || password.value.length < 8) {
+            password.classList.add('is-invalid');
+            password.parentNode.querySelector('.invalid-feedback').style.display = 'block';
+            isValid = false;
+        }
+        
+        // Confirm Password validation
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.classList.add('is-invalid');
+            confirmPassword.parentNode.querySelector('.invalid-feedback').style.display = 'block';
+            isValid = false;
+        }
+        
+        // Role validation
+        if (!role.value) {
+            role.classList.add('is-invalid');
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            return;
+        }
+        
+        // Submit form via AJAX
+        const formData = new FormData(addUserForm);
+        
+        fetch('/superadmin/users/create/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success toast
+                showToast('Success!', data.message, 'success');
+                
+                // Close offcanvas
+                offcanvas.hide();
+                
+                // Reset form
+                addUserForm.reset();
+                
+                // Refresh user list
+                refreshUserList();
+            } else {
+                // Show error toast
+                showToast('Error!', data.message, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error!', 'An unexpected error occurred. Please try again.', 'danger');
+        });
+    });
+    
+    // Cancel button handler
+    document.querySelector('[data-bs-dismiss="offcanvas"]').addEventListener('click', function() {
+        addUserForm.reset();
+        
+        // Reset validation states
+        const inputs = addUserForm.querySelectorAll('.form-control');
+        inputs.forEach(input => {
+            input.classList.remove('is-invalid');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            if (feedback) {
+                feedback.style.display = 'none';
+            }
+        });
+    });
+    
+    // Function to refresh user list
+    function refreshUserList() {
+        fetch(window.location.href + '?ajax=1')
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newTableBody = doc.querySelector('#usersTableBody');
+                const currentTableBody = document.querySelector('#usersTableBody');
+                
+                if (newTableBody && currentTableBody) {
+                    currentTableBody.innerHTML = newTableBody.innerHTML;
+                }
+            })
+            .catch(error => {
+                console.error('Error refreshing user list:', error);
+                showToast('Error!', 'Failed to refresh user list. Please refresh the page.', 'warning');
+            });
+    }
+    
+    // Toast notification function
+    function showToast(title, message, type = 'info') {
+        // Remove existing toasts
+        const existingToasts = document.querySelectorAll('.toast');
+        existingToasts.forEach(toast => toast.remove());
+        
+        // Create new toast
+        const toastContainer = document.createElement('div');
+        toastContainer.className = `toast align-items-center text-white bg-${type} border-0`;
+        toastContainer.setAttribute('role', 'alert');
+        toastContainer.setAttribute('aria-live', 'assertive');
+        toastContainer.setAttribute('aria-atomic', 'true');
+        
+        toastContainer.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+            </div>
+        `;
+        
+        // Add to page
+        document.body.appendChild(toastContainer);
+        
+        // Show toast
+        const bsToast = new bootstrap.Toast(toastContainer);
+        bsToast.show();
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            toastContainer.remove();
+        }, 5000);
+    }
+});
+
+// Function to confirm user deletion
+function confirmDeleteUser(userId, userName) {
+    if (confirm(`Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
+        window.location.href = `/superadmin/users/${userId}/delete/`;
+    }
+}
+</script>

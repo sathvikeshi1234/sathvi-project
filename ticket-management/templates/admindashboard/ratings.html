@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Ratings & Feedback</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@3.35.0/dist/apexcharts.min.css">
+    <link rel="stylesheet" href="{% static 'admindashboard/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'admindashboard/css/ratings.css' %}">
+</head>
+<body>
+    <div id="app">
+        <!-- Include Sidebar -->
+        <div id="sidebar-container">
+            <!-- Content will be loaded by JavaScript -->
+        </div>
+
+        <div class="main-container">
+            <!-- Include Header -->
+            <div id="header-container">
+                <!-- Content will be loaded by JavaScript -->
+            </div>
+
+            <!-- Main Content -->
+            <main class="content-area">
+                <!-- RATINGS PAGE CONTENT -->
+                <div id="ratings" class="page-content active">
+                    <div class="page-header">
+                        <div>
+                            <h2>Ratings & Feedback</h2>
+                        </div>
+                        <div class="d-flex">
+                            <div class="dropdown me-2">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-download me-1"></i> Export
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-excel me-2"></i>Excel</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-pdf me-2"></i>PDF</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-text me-2"></i>CSV</a></li>
+                                </ul>
+                            </div>
+                            <!-- <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ratingSettingsModal">
+                                <i class="bi bi-gear me-1"></i> Settings
+                            </button> -->
+                        </div>
+                    </div>
+                    
+                    <!-- Breadcrumbs -->
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="/dashboard/admin-dashboard/">
+                                    <i class="bi bi-house-door"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">
+                                Ratings
+                            </li>
+                        </ol>
+                    </nav>
+
+                    <!-- Summary Cards -->
+                    <div class="row mb-3">
+                        <div class="col-md-3 mb-2">
+                            <div class="card h-100">
+                                <div class="card-body py-2 px-3">
+                                    <div class="h4 fw-bold text-primary mb-1">{{ ratings_admin_avg|default:"0.0" }}</div>
+                                    <div class="text-muted small mb-1">Average Rating</div>
+                                    <div class="rating-stars mb-1">
+                                        {% with avg=ratings_admin_avg|default:0 %}
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= avg|floatformat:0 %}
+                                                    <i class="bi bi-star-fill" style="font-size: 12px;"></i>
+                                                {% else %}
+                                                    <i class="bi bi-star" style="font-size: 12px;"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endwith %}
+                                    </div>
+                                    <small class="text-muted">Based on {{ ratings_admin_total|default:"0" }} ratings</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <div class="card h-100">
+                                <div class="card-body py-2 px-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="card-title mb-0 small">Response Rate</h6>
+                                        <i class="bi bi-chat-square-text text-primary" style="font-size: 1.2rem;"></i>
+                                    </div>
+                                    <div class="d-flex align-items-end">
+                                        <div class="h4 fw-bold me-2">87%</div>
+                                        <div class="text-success small">
+                                            <i class="bi bi-arrow-up"></i> 5.2%
+                                        </div>
+                                    </div>
+                                    <div class="progress mt-1" style="height: 4px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 87%" aria-valuenow="87" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <small class="text-muted">Last 30 days</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <div class="card h-100">
+                                <div class="card-body py-2 px-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="card-title mb-0 small">Satisfaction</h6>
+                                        <i class="bi bi-emoji-smile text-warning" style="font-size: 1.2rem;"></i>
+                                    </div>
+                                    <div class="d-flex align-items-end">
+                                        <div class="h4 fw-bold me-2">92%</div>
+                                        <div class="text-success small">
+                                            <i class="bi bi-arrow-up"></i> 2.1%
+                                        </div>
+                                    </div>
+                                    <div class="progress mt-1" style="height: 4px;">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 92%" aria-valuenow="92" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <small class="text-muted">Positive feedback</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <div class="card h-100">
+                                <div class="card-body py-2 px-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="card-title mb-0 small">Response Time</h6>
+                                        <i class="bi bi-stopwatch text-info" style="font-size: 1.2rem;"></i>
+                                    </div>
+                                    <div class="d-flex align-items-end">
+                                        <div class="h4 fw-bold me-2">2.4</div>
+                                        <div class="text-danger small">
+                                            <i class="bi bi-arrow-down"></i> 0.8h
+                                        </div>
+                                    </div>
+                                    <div class="progress mt-1" style="height: 4px;">
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: 76%" aria-valuenow="76" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <small class="text-muted">Average in hours</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Left Column - Charts -->
+                        <div class="col-lg-8 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Rating Trends</h5>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary active">Week</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary">Month</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary">Quarter</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary">Year</button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <div id="rating-trends-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column - Rating Distribution -->
+                        <div class="col-lg-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Rating Distribution</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-4">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2">5 <i class="bi bi-star-fill text-warning"></i></span>
+                                            </div>
+                                            <span>{{ ratings_admin_count_5|default:"0" }}</span>
+                                        </div>
+                                        <div class="progress" style="height: 10px;">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" data-percent="{{ ratings_admin_percent_5|default:'0' }}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2">4 <i class="bi bi-star-fill text-warning"></i></span>
+                                            </div>
+                                            <span>{{ ratings_admin_count_4|default:"0" }}</span>
+                                        </div>
+                                        <div class="progress" style="height: 10px;">
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" data-percent="{{ ratings_admin_percent_4|default:'0' }}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2">3 <i class="bi bi-star-fill text-warning"></i></span>
+                                            </div>
+                                            <span>{{ ratings_admin_count_3|default:"0" }}</span>
+                                        </div>
+                                        <div class="progress" style="height: 10px;">
+                                            <div class="progress-bar bg-warning" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" data-percent="{{ ratings_admin_percent_3|default:'0' }}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2">2 <i class="bi bi-star-fill text-warning"></i></span>
+                                            </div>
+                                            <span>{{ ratings_admin_count_2|default:"0" }}</span>
+                                        </div>
+                                        <div class="progress" style="height: 10px;">
+                                            <div class="progress-bar bg-orange" role="progressbar" style="width: 0%; background-color: #fd7e14;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" data-percent="{{ ratings_admin_percent_2|default:'0' }}"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2">1 <i class="bi bi-star-fill text-warning"></i></span>
+                                            </div>
+                                            <span>{{ ratings_admin_count_1|default:"0" }}</span>
+                                        </div>
+                                        <div class="progress" style="height: 10px;">
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" data-percent="{{ ratings_admin_percent_1|default:'0' }}"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Feedback -->
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Recent Feedback</h5>
+                            <div class="d-flex align-items-center" style="gap: 0.75rem;">
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Feedback period filter">
+                                    <button type="button" class="btn btn-outline-secondary rating-period-btn active" data-period="all">All</button>
+                                    <button type="button" class="btn btn-outline-secondary rating-period-btn" data-period="week">Week</button>
+                                    <button type="button" class="btn btn-outline-secondary rating-period-btn" data-period="month">Month</button>
+                                    <button type="button" class="btn btn-outline-secondary rating-period-btn" data-period="quarter">Quarter</button>
+                                    <button type="button" class="btn btn-outline-secondary rating-period-btn" data-period="year">Year</button>
+                                </div>
+                                <div class="input-group" style="width: 260px;">
+                                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                    <input type="text" class="form-control" id="feedbackSearch" placeholder="Search feedback...">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Ticket</th>
+                                            <th>Rating</th>
+                                            <th>Feedback</th>
+                                            <th>Agent</th>
+                                            <th>Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="feedbackTableBody">
+                                        {% if ratings_admin_recent %}
+                                            {% for r in ratings_admin_recent %}
+                                                <tr class="feedback-row"
+                                                    data-created="{{ r.created_at|date:'c' }}"
+                                                    data-search="{{ r.ticket_reference }} {{ r.title }} {{ r.content }} {{ r.user.get_full_name|default:r.user.username }}">
+                                                    <td>
+                                                        {% if r.ticket_reference %}
+                                                            <a href="#" class="text-primary fw-bold">{{ r.ticket_reference }}</a>
+                                                        {% else %}
+                                                            <span class="text-muted">—</span>
+                                                        {% endif %}
+                                                        <div class="text-muted small">Customer feedback</div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="rating-stars">
+                                                            {% for i in "12345" %}
+                                                                {% if forloop.counter <= r.rating %}
+                                                                    <i class="bi bi-star-fill"></i>
+                                                                {% else %}
+                                                                    <i class="bi bi-star"></i>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </div>
+                                                        <div class="text-muted small">{{ r.rating }}/5</div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="rating-comment">
+                                                            {% if r.title %}<strong>{{ r.title }}</strong><br>{% endif %}
+                                                            {{ r.content|default:"—" }}
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            {% if r.agent %}
+                                                                <div class="agent-avatar me-2">{{ r.agent.username|first|upper }}</div>
+                                                                <div>
+                                                                    <div class="fw-medium">{{ r.agent.get_full_name|default:r.agent.username }}</div>
+                                                                    <div class="text-muted small">Agent</div>
+                                                                </div>
+                                                            {% else %}
+                                                                <div class="agent-avatar me-2">—</div>
+                                                                <div>
+                                                                    <div class="fw-medium">Unassigned</div>
+                                                                    <div class="text-muted small">Agent</div>
+                                                                </div>
+                                                            {% endif %}
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div>{{ r.created_at|date:"M d, Y" }}</div>
+                                                        <div class="text-muted small">{{ r.created_at|time:"H:i" }}</div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-sm btn-icon" type="button" data-bs-toggle="dropdown">
+                                                                <i class="bi bi-three-dots-vertical"></i>
+                                                            </button>
+                                                            <ul class="dropdown-menu">
+                                                                <li><a class="dropdown-item view-feedback-btn" href="#" data-feedback-id="{{ r.id }}"><i class="bi bi-eye me-2"></i>View Details</a></li>
+                                                                <li><a class="dropdown-item reply-feedback-btn" href="#" data-feedback-id="{{ r.id }}" data-customer="{{ r.user.get_full_name|default:r.user.username }}" data-customer-email="{{ r.user.email }}"><i class="bi bi-reply me-2"></i>Reply to Customer</a></li>
+                                                                <li><hr class="dropdown-divider"></li>
+                                                                <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash me-2"></i>Delete</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr class="feedback-empty">
+                                                <td colspan="6" class="text-center text-muted py-4">No feedback available yet.</td>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <nav aria-label="Feedback pagination">
+                                <ul class="pagination justify-content-center mb-0">
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                                    </li>
+                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <!-- Agent Performance -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Agent Performance</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Agent</th>
+                                            <th>Department</th>
+                                            <th>Avg. Rating</th>
+                                            <th>Response Time</th>
+                                            <th>Resolved</th>
+                                            <th>Satisfaction</th>
+                                            <th>Trend</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if ratings_agent_perf %}
+                                            {% for a in ratings_agent_perf %}
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="agent-avatar me-2">{{ a.initials }}</div>
+                                                            <div>
+                                                                <div class="fw-medium">{{ a.name }}</div>
+                                                                <div class="text-muted small">{{ a.email }}</div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>-</td>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <span class="me-2">{{ a.avg_rating }}</span>
+                                                            <div class="rating-stars" style="font-size: 0.9rem;">
+                                                                {% for i in "12345" %}
+                                                                    {% if forloop.counter <= a.avg_rating|floatformat:0 %}
+                                                                        <i class="bi bi-star-fill"></i>
+                                                                    {% else %}
+                                                                        <i class="bi bi-star"></i>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>-</td>
+                                                    <td>{{ a.rating_count }}</td>
+                                                    <td>-</td>
+                                                    <td>-</td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="7" class="text-center text-muted py-4">No agent ratings available yet.</td>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="dashboard-footer mt-4 mb-2 text-muted small">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>© Ultrakey IT Solutions</span>
+                        <span>All systems operational</span>
+                    </div>
+                </footer>
+            </main>
+        </div>
+    </div>
+
+    <!-- Include Modals -->
+    <div id="modals-container">
+        <!-- Content will be loaded by JavaScript -->
+        
+        <!-- Rating Settings Modal -->
+        <div class="modal fade" id="ratingSettingsModal" tabindex="-1" aria-labelledby="ratingSettingsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ratingSettingsModalLabel">Rating & Feedback Settings</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="ratingSettingsForm">
+                        <div class="modal-body">
+                            <ul class="nav nav-tabs mb-4" id="ratingSettingsTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general-settings" type="button" role="tab" aria-controls="general-settings" aria-selected="true">General</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="email-tab" data-bs-toggle="tab" data-bs-target="#email-settings" type="button" role="tab" aria-controls="email-settings" aria-selected="false">Email</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="questions-tab" data-bs-toggle="tab" data-bs-target="#questions-settings" type="button" role="tab" aria-controls="questions-settings" aria-selected="false">Questions</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications-settings" type="button" role="tab" aria-controls="notifications-settings" aria-selected="false">Notifications</button>
+                                </li>
+                            </ul>
+                            
+                            <div class="tab-content" id="ratingSettingsTabsContent">
+                                <!-- General Settings -->
+                                <div class="tab-pane fade show active" id="general-settings" role="tabpanel" aria-labelledby="general-tab">
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Rating System</h6>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="enableRatingSystem" checked>
+                                            <label class="form-check-label" for="enableRatingSystem">Enable rating system</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="requireRating" checked>
+                                            <label class="form-check-label" for="requireRating">Require rating when closing tickets</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="allowAnonymous" checked>
+                                            <label class="form-check-label" for="allowAnonymous">Allow anonymous ratings</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Rating Scale</h6>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="ratingScale" id="ratingScale5" value="5" checked>
+                                            <label class="form-check-label" for="ratingScale5">
+                                                5-point scale (1-5 stars)
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="ratingScale" id="ratingScale10" value="10">
+                                            <label class="form-check-label" for="ratingScale10">
+                                                10-point scale (1-10)
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="ratingScale" id="ratingScaleEmoticons" value="emoticons">
+                                            <label class="form-check-label" for="ratingScaleEmoticons">
+                                                Emoticons (Happy/Neutral/Sad)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Rating Display</h6>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="showRatingInTickets" checked>
+                                            <label class="form-check-label" for="showRatingInTickets">Show ratings in ticket list</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="showRatingToAgents" checked>
+                                            <label class="form-check-label" for="showRatingToAgents">Show ratings to agents</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="showRatingPublicly" checked>
+                                            <label class="form-check-label" for="showRatingPublicly">Show average rating publicly</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Email Settings -->
+                                <div class="tab-pane fade" id="email-settings" role="tabpanel" aria-labelledby="email-tab">
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Email Notifications</h6>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="sendRatingEmail" checked>
+                                            <label class="form-check-label" for="sendRatingEmail">Send rating request emails</label>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Send email after ticket is closed</label>
+                                            <div class="input-group" style="max-width: 200px;">
+                                                <input type="number" class="form-control" value="1" min="0" max="168">
+                                                <select class="form-select" style="max-width: 100px;">
+                                                    <option value="minutes">Minutes</option>
+                                                    <option value="hours" selected>Hours</option>
+                                                    <option value="days">Days</option>
+                                                </select>
+                                            </div>
+                                            <small class="form-text text-muted">Set to 0 to send immediately</small>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Email Subject</label>
+                                            <input type="text" class="form-control" value="How did we do? - Rate your support experience">
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Email Template</label>
+                                            <textarea class="form-control" rows="8">Hello {customer_name},
+
+Thank you for contacting our support team. We hope we were able to assist you with your issue.
+
+We would appreciate it if you could take a moment to rate your support experience by clicking the link below:
+
+[Rate Your Experience] ({rating_link})
+
+Your feedback helps us improve our service.
+
+Best regards,
+{company_name} Support Team</textarea>
+                                            <small class="form-text text-muted">
+                                                Available variables: {customer_name}, {ticket_id}, {agent_name}, {company_name}, {rating_link}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <h6 class="mb-3">Follow-up Emails</h6>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="sendFollowUpEmail" checked>
+                                            <label class="form-check-label" for="sendFollowUpEmail">Send follow-up email if no response</label>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Send follow-up after</label>
+                                            <div class="input-group" style="max-width: 200px;">
+                                                <input type="number" class="form-control" value="3" min="1" max="30">
+                                                <span class="input-group-text">days</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Questions Settings -->
+                                <div class="tab-pane fade" id="questions-settings" role="tabpanel" aria-labelledby="questions-tab">
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Feedback Questions</h6>
+                                        <p class="text-muted">Customize the questions shown to customers when they provide feedback.</p>
+                                        
+                                        <div class="card mb-3">
+                                            <div class="card-header bg-light">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span>Question 1</span>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Question Text</label>
+                                                    <input type="text" class="form-control" value="How would you rate your overall satisfaction with the support you received?">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Question Type</label>
+                                                    <select class="form-select">
+                                                        <option>Star Rating</option>
+                                                        <option>Number Scale</option>
+                                                        <option>Text</option>
+                                                        <option>Multiple Choice</option>
+                                                        <option>Yes/No</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="question1Required" checked>
+                                                    <label class="form-check-label" for="question1Required">Required</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="card mb-3">
+                                            <div class="card-header bg-light">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span>Question 2</span>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Question Text</label>
+                                                    <input type="text" class="form-control" value="How likely are you to recommend our service to others?">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Question Type</label>
+                                                    <select class="form-select">
+                                                        <option>Number Scale (0-10)</option>
+                                                        <option>Star Rating</option>
+                                                        <option>Text</option>
+                                                        <option>Multiple Choice</option>
+                                                        <option>Yes/No</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="question2Required" checked>
+                                                    <label class="form-check-label" for="question2Required">Required</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="card">
+                                            <div class="card-header bg-light">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span>Question 3</span>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Question Text</label>
+                                                    <input type="text" class="form-control" placeholder="Enter question text">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Question Type</label>
+                                                    <select class="form-select">
+                                                        <option>Text</option>
+                                                        <option>Star Rating</option>
+                                                        <option>Number Scale</option>
+                                                        <option>Multiple Choice</option>
+                                                        <option>Yes/No</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="question3Required">
+                                                    <label class="form-check-label" for="question3Required">Required</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <button type="button" class="btn btn-outline-primary mt-3">
+                                            <i class="bi bi-plus"></i> Add Question
+                                        </button>
+                                    </div>
+                                    
+                                    <div>
+                                        <h6 class="mb-3">Feedback Form Customization</h6>
+                                        <div class="mb-3">
+                                            <label class="form-label">Form Title</label>
+                                            <input type="text" class="form-control" value="How did we do?">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Form Description</label>
+                                            <textarea class="form-control" rows="2">We'd love to hear your feedback about your recent support experience.</textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Thank You Message</label>
+                                            <textarea class="form-control" rows="2">Thank you for your feedback! We appreciate you taking the time to help us improve our service.</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Notifications Settings -->
+                                <div class="tab-pane fade" id="notifications-settings" role="tabpanel" aria-labelledby="notifications-tab">
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Email Notifications</h6>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="notifyOnNewRating" checked>
+                                            <label class="form-check-label" for="notifyOnNewRating">Notify when a new rating is submitted</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="notifyOnLowRating" checked>
+                                            <label class="form-check-label" for="notifyOnLowRating">Notify on low ratings (below 3 stars)</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="notifyOnNegativeFeedback" checked>
+                                            <label class="form-check-label" for="notifyOnNegativeFeedback">Notify on negative feedback</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <h6 class="mb-3">Notification Recipients</h6>
+                                        <div class="mb-3">
+                                            <label class="form-label">Send notifications to</label>
+                                            <select class="form-select" multiple>
+                                                <option selected>Support Team</option>
+                                                <option selected>Team Leads</option>
+                                                <option>Managers</option>
+                                                <option>Administrators</option>
+                                                <option>Custom Email</option>
+                                            </select>
+                                            <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple options</small>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Additional Email Addresses</label>
+                                            <input type="text" class="form-control" placeholder="email@example.com, another@example.com">
+                                            <small class="form-text text-muted">Separate multiple emails with commas</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <h6 class="mb-3">In-App Notifications</h6>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="showInAppNotifications" checked>
+                                            <label class="form-check-label" for="showInAppNotifications">Show in-app notifications for new feedback</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="playSoundOnNotification" checked>
+                                            <label class="form-check-label" for="playSoundOnNotification">Play sound for new notifications</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Feedback Modal -->
+    <div class="modal fade" id="viewFeedbackModal" tabindex="-1" aria-labelledby="viewFeedbackModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewFeedbackModalLabel">Feedback Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6>Ticket Reference</h6>
+                            <p id="feedback_ticket_ref">-</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Customer</h6>
+                            <p id="feedback_customer">-</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6>Date & Time</h6>
+                            <p id="feedback_date">-</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Rating</h6>
+                            <div id="feedback_rating">-</div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6>Agent</h6>
+                            <p id="feedback_agent">-</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Status</h6>
+                            <p id="feedback_status">-</p>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Feedback Title</h6>
+                        <p id="feedback_title">-</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Feedback Content</h6>
+                        <p id="feedback_content">-</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" id="reply_feedback_id" value="">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="replyFromViewBtn" class="btn btn-primary">
+                        <i class="bi bi-reply me-2"></i>Reply to Customer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reply Feedback Modal -->
+    <div class="modal fade" id="replyFeedbackModal" tabindex="-1" aria-labelledby="replyFeedbackModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="replyFeedbackModalLabel">Reply to Customer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="replyFeedbackForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="reply_feedback_id" value="">
+                        
+                        <div class="mb-3">
+                            <h6>Customer Information</h6>
+                            <p id="reply_customer_info" class="text-muted">-</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6>Original Feedback</h6>
+                            <div id="reply_original_feedback" class="border rounded p-3 bg-light">-</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="reply_subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="reply_subject" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="reply_message" class="form-label">Reply Message</label>
+                            <textarea class="form-control" id="reply_message" rows="5" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-2"></i>Send Reply
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ApexCharts JS -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.35.0/dist/apexcharts.min.js"></script>
+    
+    <!-- Core JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Rating Trends Chart Initialization -->
+    <script>
+        let ratingTrendsChart = null;
+
+        function initRatingTrendsChart() {
+            updateRatingTrendsChart('week');
+        }
+
+        function updateRatingTrendsChart(period) {
+            let categories, data, title;
+
+            switch(period) {
+                case 'week':
+                    categories = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                    data = [4.2, 4.3, 4.1, 4.5, 4.4, 4.6, 4.3];
+                    title = 'Weekly Rating Trends';
+                    break;
+                case 'month':
+                    categories = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+                    data = [4.3, 4.5, 4.2, 4.6];
+                    title = 'Monthly Rating Trends';
+                    break;
+                case 'quarter':
+                    categories = ['Jan', 'Feb', 'Mar'];
+                    data = [4.4, 4.3, 4.5];
+                    title = 'Quarterly Rating Trends';
+                    break;
+                case 'year':
+                    categories = ['Q1', 'Q2', 'Q3', 'Q4'];
+                    data = [4.3, 4.5, 4.4, 4.6];
+                    title = 'Yearly Rating Trends';
+                    break;
+                default:
+                    categories = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                    data = [4.2, 4.3, 4.1, 4.5, 4.4, 4.6, 4.3];
+                    title = 'Weekly Rating Trends';
+            }
+
+            const ratingTrendsOptions = {
+                series: [{
+                    name: 'Average Rating',
+                    data: data
+                }],
+                chart: {
+                    height: 300,
+                    type: 'line',
+                    toolbar: {
+                        show: true,
+                        tools: {
+                            download: true,
+                            selection: true,
+                            zoom: true,
+                            zoomin: true,
+                            zoomout: true,
+                            pan: true,
+                            reset: true
+                        }
+                    }
+                },
+                colors: ['#ffc107'],
+                stroke: {
+                    curve: 'smooth',
+                    width: 3
+                },
+                markers: {
+                    size: 6,
+                    colors: ['#ffc107'],
+                    strokeColors: '#fff',
+                    strokeWidth: 2,
+                    hover: {
+                        size: 8
+                    }
+                },
+                xaxis: {
+                    categories: categories,
+                    labels: {
+                        style: {
+                            fontSize: '12px'
+                        }
+                    }
+                },
+                yaxis: {
+                    min: 3.5,
+                    max: 5,
+                    labels: {
+                        formatter: function(val) {
+                            return val.toFixed(1);
+                        }
+                    },
+                    title: {
+                        text: 'Rating',
+                        style: {
+                            fontSize: '12px'
+                        }
+                    }
+                },
+                grid: {
+                    borderColor: '#e0e0e0',
+                    strokeDashArray: 4
+                },
+                tooltip: {
+                    y: {
+                        formatter: function(val) {
+                            return val.toFixed(1) + ' / 5.0';
+                        }
+                    },
+                    theme: 'light'
+                }
+            };
+
+            if (ratingTrendsChart) {
+                ratingTrendsChart.updateOptions(ratingTrendsOptions);
+            } else {
+                ratingTrendsChart = new ApexCharts(document.querySelector("#rating-trends-chart"), ratingTrendsOptions);
+                ratingTrendsChart.render();
+            }
+        }
+        
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            // Create toast element if it doesn't exist
+            let toastContainer = document.getElementById('toastContainer');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toastContainer';
+                toastContainer.className = 'position-fixed top-0 end-0 p-3';
+                toastContainer.style.zIndex = '1050';
+                document.body.appendChild(toastContainer);
+            }
+            
+            const toastId = 'toast_' + Date.now();
+            const toastHtml = `
+                <div id="${toastId}" class="toast align-items-center text-white bg-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'primary'} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+            
+            toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+            
+            // Remove toast element after it's hidden
+            toastElement.addEventListener('hidden.bs.toast', () => {
+                toastElement.remove();
+            });
+        }
+    </script>
+
+    
+    <!-- Utility function for loading components -->
+    <script>
+        // Function to load HTML content into an element
+        function loadComponent(url, elementId) {
+            return fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        element.innerHTML = html;
+                        
+                        // If loading the sidebar, set the active nav item
+                        if (url.includes('sidebar.html')) {
+                            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                            const pageName = currentPage.replace('.html', '') || 'dashboard';
+                            const activeNavItem = document.querySelector(`.nav-item[data-page="${pageName}"]`);
+                            if (activeNavItem) {
+                                // Remove active class from all nav items
+                                document.querySelectorAll('.nav-item').forEach(item => {
+                                    item.classList.remove('active');
+                                });
+                                activeNavItem.classList.add('active');
+                            }
+                        }
+                        
+                        // If loading the header, initialize it after a short delay
+                        if (url.includes('header.html') && window.initializeHeader) {
+                            setTimeout(() => {
+                                window.initializeHeader();
+                            }, 50);
+                        }
+                        
+                        return true;
+                    }
+                    return false;
+                })
+                .catch(error => {
+                    console.error('Error loading component:', error);
+                    return false;
+                });
+        }
+        
+        // Initialize components when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set progress bar widths from data attributes
+            const progressBars = document.querySelectorAll('.progress-bar[data-percent]');
+            progressBars.forEach(bar => {
+                const percent = bar.dataset.percent;
+                if (percent && percent !== '0') {
+                    bar.style.width = percent + '%';
+                    bar.setAttribute('aria-valuenow', percent);
+                }
+            });
+            
+            // Initialize Rating Trends Chart
+            initRatingTrendsChart();
+            
+            // Add event listeners for rating trends period buttons
+            const ratingPeriodButtons = document.querySelectorAll('.btn-group .btn');
+            ratingPeriodButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    ratingPeriodButtons.forEach(btn => btn.classList.remove('active'));
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    // Update chart with selected period
+                    const period = this.textContent.toLowerCase();
+                    updateRatingTrendsChart(period);
+                });
+            });
+            
+            // Load header if container exists
+            if (document.getElementById('header-container')) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/header.html" %}', 'header-container');
+            }
+            
+            // Load sidebar if container exists
+            if (document.getElementById('sidebar-container')) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/sidebar.html" %}', 'sidebar-container');
+            }
+            
+            // Load modals if container exists
+            if (document.getElementById('modals-container')) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/modals.html" %}', 'modals-container');
+            }
+            
+            // Listen for navigation events (for single-page navigation)
+            document.body.addEventListener('click', function(e) {
+                // Check if the click was on a navigation link
+                const navLink = e.target.closest('a[data-page]');
+                if (navLink) {
+                    // Re-initialize header after a short delay to allow the page to update
+                    setTimeout(() => {
+                        if (window.initializeHeader) {
+                            window.initializeHeader();
+                        }
+                    }, 100);
+                }
+            });
+            
+            // Feedback Actions Event Listeners
+            document.addEventListener('click', function(e) {
+                // View Details button
+                if (e.target.closest('.view-feedback-btn')) {
+                    e.preventDefault();
+                    const btn = e.target.closest('.view-feedback-btn');
+                    const feedbackId = btn.dataset.feedbackId;
+                    viewFeedbackDetails(feedbackId);
+                }
+                
+                // Reply to Customer button
+                if (e.target.closest('.reply-feedback-btn')) {
+                    e.preventDefault();
+                    const btn = e.target.closest('.reply-feedback-btn');
+                    const feedbackId = btn.dataset.feedbackId;
+                    const customer = btn.dataset.customer;
+                    const customerEmail = btn.dataset.customerEmail;
+                    openReplyModal(feedbackId, customer, customerEmail);
+                }
+            });
+            
+            // Reply from View Details button
+            const replyFromViewBtn = document.getElementById('replyFromViewBtn');
+            if (replyFromViewBtn) {
+                replyFromViewBtn.addEventListener('click', function() {
+                    const feedbackId = document.getElementById('reply_feedback_id').value;
+                    const customer = document.getElementById('feedback_customer').textContent;
+                    const customerEmail = document.getElementById('feedback_customer').dataset.email || '';
+                    
+                    // Close view modal and open reply modal
+                    const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewFeedbackModal'));
+                    viewModal.hide();
+                    
+                    setTimeout(() => {
+                        openReplyModal(feedbackId, customer, customerEmail);
+                    }, 300);
+                });
+            }
+            
+            // Reply Feedback Form Submit
+            const replyFeedbackForm = document.getElementById('replyFeedbackForm');
+            if (replyFeedbackForm) {
+                replyFeedbackForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    submitFeedbackReply();
+                });
+            }
+            
+            // Period Filter Event Listeners
+            const periodButtons = document.querySelectorAll('.rating-period-btn');
+            periodButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    periodButtons.forEach(btn => btn.classList.remove('active'));
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    // Filter feedback by period
+                    const period = this.dataset.period;
+                    filterFeedbackByPeriod(period);
+                });
+            });
+            
+            // Search Functionality
+            const searchInput = document.getElementById('feedbackSearch');
+            if (searchInput) {
+                let searchTimeout;
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    const searchTerm = this.value.trim();
+                    
+                    // Debounce search to avoid too many requests
+                    searchTimeout = setTimeout(() => {
+                        searchFeedback(searchTerm);
+                    }, 300);
+                });
+            }
+        });
+        
+        // Feedback Functions
+        function viewFeedbackDetails(feedbackId) {
+            // Find the feedback row with this ID
+            const feedbackRow = document.querySelector(`[data-feedback-id="${feedbackId}"]`).closest('tr');
+            
+            // Extract data from the row
+            const ticketRef = feedbackRow.querySelector('td:first-child a')?.textContent || '—';
+            const customer = feedbackRow.querySelector('td:first-child .text-muted').textContent;
+            const rating = feedbackRow.querySelector('.rating-stars').innerHTML;
+            const agent = feedbackRow.querySelector('td:nth-child(4) .fw-medium').textContent;
+            const date = feedbackRow.querySelector('td:nth-child(5) div').textContent;
+            const time = feedbackRow.querySelector('td:nth-child(5) .text-muted').textContent;
+            const titleElement = feedbackRow.querySelector('.rating-comment strong');
+            const title = titleElement ? titleElement.textContent : '';
+            const content = feedbackRow.querySelector('.rating-comment').textContent.replace(title, '').trim();
+            
+            // Populate modal
+            document.getElementById('feedback_ticket_ref').textContent = ticketRef;
+            document.getElementById('feedback_customer').textContent = customer;
+            document.getElementById('feedback_date').textContent = date + ' at ' + time;
+            document.getElementById('feedback_rating').innerHTML = rating;
+            document.getElementById('feedback_agent').textContent = agent;
+            document.getElementById('feedback_status').textContent = 'Received';
+            document.getElementById('feedback_title').textContent = title;
+            document.getElementById('feedback_content').textContent = content;
+            
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('viewFeedbackModal'));
+            modal.show();
+        }
+        
+        function openReplyModal(feedbackId, customer, customerEmail) {
+            // Set feedback ID
+            document.getElementById('reply_feedback_id').value = feedbackId;
+            
+            // Set customer info
+            document.getElementById('reply_customer_info').textContent = customer + (customerEmail ? ' (' + customerEmail + ')' : '');
+            
+            // Find the feedback row to get original feedback
+            const feedbackRow = document.querySelector(`[data-feedback-id="${feedbackId}"]`).closest('tr');
+            const titleElement = feedbackRow.querySelector('.rating-comment strong');
+            const title = titleElement ? titleElement.textContent : 'Customer Feedback';
+            const content = feedbackRow.querySelector('.rating-comment').textContent.replace(title, '').trim();
+            
+            // Set original feedback
+            document.getElementById('reply_original_feedback').innerHTML = 
+                '<strong>' + title + '</strong><br>' + content;
+            
+            // Set default subject
+            document.getElementById('reply_subject').value = 'Re: ' + title;
+            
+            // Clear message
+            document.getElementById('reply_message').value = '';
+            
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('replyFeedbackModal'));
+            modal.show();
+        }
+        
+        function submitFeedbackReply() {
+            const form = document.getElementById('replyFeedbackForm');
+            const formData = new FormData(form);
+            
+            // Show loading state
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Sending...';
+            submitBtn.disabled = true;
+            
+            // Simulate API call (replace with actual API call)
+            setTimeout(() => {
+                // Reset button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('replyFeedbackModal'));
+                modal.hide();
+                
+                // Show success message
+                showToast('Reply sent successfully to customer!', 'success');
+                
+                // Reset form
+                form.reset();
+            }, 1500);
+        }
+        
+        // Period Filter Function
+        function filterFeedbackByPeriod(period) {
+            const feedbackRows = document.querySelectorAll('.feedback-row');
+            const now = new Date();
+            let cutoffDate;
+            
+            // Calculate cutoff date based on period
+            switch(period) {
+                case 'week':
+                    cutoffDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+                    break;
+                case 'month':
+                    cutoffDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                    break;
+                case 'quarter':
+                    cutoffDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+                    break;
+                case 'year':
+                    cutoffDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+                    break;
+                case 'all':
+                default:
+                    cutoffDate = null;
+                    break;
+            }
+            
+            let visibleCount = 0;
+            
+            feedbackRows.forEach(row => {
+                if (cutoffDate === null) {
+                    // Show all for 'all' period
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    // Check if row date is within the period
+                    const createdDateStr = row.dataset.created;
+                    if (createdDateStr) {
+                        const createdDate = new Date(createdDateStr);
+                        if (createdDate >= cutoffDate) {
+                            row.style.display = '';
+                            visibleCount++;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    } else {
+                        // If no date info, hide for filtered periods
+                        row.style.display = period === 'all' ? '' : 'none';
+                        if (period === 'all') visibleCount++;
+                    }
+                }
+            });
+            
+            // Show/hide empty message
+            const emptyRow = document.querySelector('.feedback-empty');
+            if (emptyRow) {
+                emptyRow.style.display = visibleCount > 0 ? 'none' : '';
+            }
+            
+            // Update UI to show filter is active
+            updateFilterStatus(period, visibleCount);
+        }
+        
+        // Search Function
+        function searchFeedback(searchTerm) {
+            const feedbackRows = document.querySelectorAll('.feedback-row');
+            let visibleCount = 0;
+            
+            if (!searchTerm) {
+                // If search is empty, show all rows (respect current period filter)
+                const activePeriodBtn = document.querySelector('.rating-period-btn.active');
+                const period = activePeriodBtn ? activePeriodBtn.dataset.period : 'all';
+                filterFeedbackByPeriod(period);
+                return;
+            }
+            
+            feedbackRows.forEach(row => {
+                const searchText = row.dataset.search ? row.dataset.search.toLowerCase() : '';
+                const searchLower = searchTerm.toLowerCase();
+                
+                if (searchText.includes(searchLower)) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Show/hide empty message
+            const emptyRow = document.querySelector('.feedback-empty');
+            if (emptyRow) {
+                emptyRow.style.display = visibleCount > 0 ? 'none' : '';
+                if (visibleCount === 0) {
+                    emptyRow.querySelector('td').textContent = `No feedback found matching "${searchTerm}".`;
+                }
+            }
+            
+            // Update search status
+            updateSearchStatus(searchTerm, visibleCount);
+        }
+        
+        // Update Filter Status
+        function updateFilterStatus(period, count) {
+            // You could update a status message here if desired
+            console.log(`Filter: ${period}, Showing: ${count} items`);
+        }
+        
+        // Update Search Status
+        function updateSearchStatus(searchTerm, count) {
+            // You could update a status message here if desired
+            console.log(`Search: "${searchTerm}", Found: ${count} items`);
+        }
+    </script>
+    
+    <!-- Application Scripts -->
+    <script src="{% static 'admindashboard/js/script.js' %}"></script>
+    <script src="{% static 'admindashboard/js/header.js' %}"></script>
+</body>
+</html>

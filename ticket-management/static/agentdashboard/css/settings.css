@@ -1,0 +1,75 @@
+
+        .settings-sidebar {
+            border-right: 1px solid #e9ecef;
+            height: 100%;
+        }
+        .settings-sidebar .nav-link {
+            color: #495057;
+            border-radius: 0.25rem;
+            padding: 0.5rem 1rem;
+            margin-bottom: 0.25rem;
+        }
+        .settings-sidebar .nav-link:hover, 
+        .settings-sidebar .nav-link.active {
+            background-color: #f8f9fa;
+            color: #0d6efd;
+        }
+        .settings-sidebar .nav-link i {
+            width: 24px;
+            text-align: center;
+            margin-right: 0.5rem;
+        }
+        .settings-content {
+            padding-left: 2rem;
+        }
+        .settings-section {
+            margin-bottom: 2.5rem;
+        }
+        .settings-section h4 {
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .settings-card {
+            border: 1px solid #e9ecef;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        .settings-card .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+        }
+        .settings-card .card-body {
+            padding: 1.5rem;
+        }
+        .form-check-label {
+            font-weight: 500;
+        }
+        .form-text {
+            color: #6c757d;
+        }
+        .select2-container {
+            width: 100% !important;
+        }
+        .logo-preview {
+            max-width: 200px;
+            max-height: 80px;
+            margin: 1rem 0;
+            display: block;
+        }
+        .theme-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 1px #dee2e6;
+        }
+        .theme-color.active {
+            box-shadow: 0 0 0 3px #0d6efd;
+        }

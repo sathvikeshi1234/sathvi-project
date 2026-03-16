@@ -1,0 +1,225 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Add Plan - SuperAdmin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'superadmin:plans_list' %}">Plans</a>
+                            </li>
+                            <li class="breadcrumb-item active">Add Plan</li>
+                        </ol>
+                    </nav>
+                    <h1 class="h3 mb-0">Add New Plan</h1>
+                    <p class="text-muted mb-0">Create a new subscription plan</p>
+                </div>
+                <div>
+                    <a href="{% url 'superadmin:plans_list' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Plans
+                    </a>
+                </div>
+            </div>
+
+            <!-- Add Plan Form -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card sa-card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Plan Information</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                <!-- Basic Plan Information -->
+                                <div class="mb-4">
+                                    <h6 class="text-muted mb-3">Basic Information</h6>
+                                    
+                                    <div class="mb-3">
+                                        <label for="planName" class="form-label">Plan Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="planName" name="name" required>
+                                        <div class="form-text">Enter a descriptive name for the plan</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="planDescription" class="form-label">Description <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="planDescription" name="description" rows="3" required></textarea>
+                                        <div class="form-text">Describe what this plan includes</div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="planPrice" class="form-label">Monthly Price <span class="text-danger">*</span></label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text">$</span>
+                                                    <input type="number" class="form-control" id="planPrice" name="price" step="0.01" min="0" required>
+                                                </div>
+                                                <div class="form-text">Monthly subscription price</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="planSetupFee" class="form-label">Setup Fee <span class="text-danger">*</span></label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text">$</span>
+                                                    <input type="number" class="form-control" id="planSetupFee" name="setup_fee" step="0.01" min="0" required>
+                                                </div>
+                                                <div class="form-text">One-time setup fee</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Plan Features -->
+                                <div class="mb-4">
+                                    <h6 class="text-muted mb-3">Plan Features</h6>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="maxUsers" class="form-label">Maximum Users <span class="text-danger">*</span></label>
+                                                <input type="number" class="form-control" id="maxUsers" name="max_users" min="1" required>
+                                                <div class="form-text">Number of users allowed</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="maxProjects" class="form-label">Maximum Projects <span class="text-danger">*</span></label>
+                                                <input type="number" class="form-control" id="maxProjects" name="max_projects" min="1" required>
+                                                <div class="form-text">Number of projects allowed</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="storageLimit" class="form-label">Storage Limit (GB) <span class="text-danger">*</span></label>
+                                                <input type="number" class="form-control" id="storageLimit" name="storage_limit" min="1" required>
+                                                <div class="form-text">Storage space in gigabytes</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="bandwidthLimit" class="form-label">Bandwidth Limit (GB) <span class="text-danger">*</span></label>
+                                                <input type="number" class="form-control" id="bandwidthLimit" name="bandwidth_limit" min="1" required>
+                                                <div class="form-text">Monthly bandwidth in gigabytes</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Additional Features -->
+                                <div class="mb-4">
+                                    <h6 class="text-muted mb-3">Additional Features</h6>
+                                    
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="featureApi" name="features" value="api_access">
+                                        <label class="form-check-label" for="featureApi">
+                                            API Access
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="featureSupport" name="features" value="priority_support">
+                                        <label class="form-check-label" for="featureSupport">
+                                            Priority Support
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="featureBackup" name="features" value="daily_backup">
+                                        <label class="form-check-label" for="featureBackup">
+                                            Daily Backup
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="featureSsl" name="features" value="ssl_certificate">
+                                        <label class="form-check-label" for="featureSsl">
+                                            SSL Certificate
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="featureCustom" name="features" value="custom_domain">
+                                        <label class="form-check-label" for="featureCustom">
+                                            Custom Domain
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Plan Status -->
+                                <div class="mb-4">
+                                    <h6 class="text-muted mb-3">Plan Status</h6>
+                                    
+                                    <div class="mb-3">
+                                        <label for="planStatus" class="form-label">Status <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="planStatus" name="is_active" required>
+                                            <option value="">Select Status</option>
+                                            <option value="true">Active</option>
+                                            <option value="false">Inactive</option>
+                                        </select>
+                                        <div class="form-text">Whether this plan is available for new subscriptions</div>
+                                    </div>
+                                </div>
+
+                                <!-- Form Actions -->
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle me-2"></i>Create Plan
+                                    </button>
+                                    <a href="{% url 'superadmin:plans_list' %}" class="btn btn-secondary">
+                                        <i class="bi bi-x-circle me-2"></i>Cancel
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plan Information Card -->
+                <div class="col-md-4">
+                    <div class="card sa-card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Plan Guidelines</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6 class="text-primary">Pricing Strategy</h6>
+                                <p class="small text-muted">Set competitive prices based on features and market demand. Consider offering multiple tiers to attract different customer segments.</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6 class="text-primary">Feature Allocation</h6>
+                                <p class="small text-muted">Ensure that resource limits are appropriate for price point. Higher tiers should offer significantly more value.</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6 class="text-primary">Plan Naming</h6>
+                                <p class="small text-muted">Use clear, descriptive names that help customers understand plan's purpose and target audience.</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6 class="text-primary">Active Plans</h6>
+                                <p class="small text-muted">Only set plans as active when they're ready for customers to purchase. Inactive plans won't appear in subscription options.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

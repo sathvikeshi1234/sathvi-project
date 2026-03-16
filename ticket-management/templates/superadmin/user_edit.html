@@ -1,0 +1,198 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Edit {{ user.get_full_name|default:user.username }} - User - SuperAdmin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'superadmin:users_list' %}">Users</a>
+                            </li>
+                            <li class="breadcrumb-item active">Edit User</li>
+                        </ol>
+                    </nav>
+                    <h1 class="h3 mb-0">Edit User</h1>
+                    <p class="text-muted mb-0">{{ user.get_full_name|default:user.username }}</p>
+                </div>
+                <div>
+                    <a href="{% url 'superadmin:users_list' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Users
+                    </a>
+                    <a href="{% url 'superadmin:user_detail' user.id %}" class="btn btn-info">
+                        <i class="bi bi-eye me-2"></i>View Details
+                    </a>
+                </div>
+            </div>
+
+            <!-- Edit User Form -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card sa-card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Edit User Information</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                <!-- User Information -->
+                                <div class="mb-4">
+                                    <h6 class="text-muted mb-3">User Information</h6>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" id="firstName" name="first_name" value="{{ user.first_name }}" required>
+                                                <div class="form-text">User's first name</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" id="lastName" name="last_name" value="{{ user.last_name }}" required>
+                                                <div class="form-text">User's last name</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+                                                <div class="form-text">Unique username for login</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                                <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                                                <div class="form-text">User's email address</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="role" class="form-label">Role <span class="text-danger">*</span></label>
+                                                <select class="form-select" id="role" name="role" required>
+                                                    <option value="">Select Role</option>
+                                                    <option value="SuperAdmin" {% if user.userprofile and user.userprofile.role and user.userprofile.role.name == 'SuperAdmin' %}selected{% endif %}>SuperAdmin</option>
+                                                    <option value="Admin" {% if user.userprofile and user.userprofile.role and user.userprofile.role.name == 'Admin' %}selected{% endif %}>Admin</option>
+                                                    <option value="Agent" {% if user.userprofile and user.userprofile.role and user.userprofile.role.name == 'Agent' %}selected{% endif %}>Agent</option>
+                                                    <option value="User" {% if user.userprofile and user.userprofile.role and user.userprofile.role.name == 'User' %}selected{% endif %}>User</option>
+                                                </select>
+                                                <div class="form-text">User's role and permissions</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
+                                                <select class="form-select" id="status" name="is_active" required>
+                                                    <option value="">Select Status</option>
+                                                    <option value="true" {% if user.is_active %}selected{% endif %}>Active</option>
+                                                    <option value="false" {% if not user.is_active %}selected{% endif %}>Inactive</option>
+                                                </select>
+                                                <div class="form-text">Account activation status</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Form Actions -->
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle me-2"></i>Update User
+                                    </button>
+                                    <a href="{% url 'superadmin:users_list' %}" class="btn btn-secondary">
+                                        <i class="bi bi-x-circle me-2"></i>Cancel
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Statistics Card -->
+                <div class="col-md-4">
+                    <div class="card sa-card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Current Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">User ID</label>
+                                <p class="form-control-plaintext">#{{ user.id }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Current Role</label>
+                                <p class="form-control-plaintext">
+                                    {% if user.userprofile and user.userprofile.role %}
+                                        <span class="badge bg-info">{{ user.userprofile.role.name }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">No Role</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Current Status</label>
+                                <p class="form-control-plaintext">
+                                    {% if user.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactive</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Staff Status</label>
+                                <p class="form-control-plaintext">
+                                    {% if user.is_superuser %}
+                                        <span class="badge bg-warning">SuperAdmin</span>
+                                    {% elif user.is_staff %}
+                                        <span class="badge bg-info">Staff</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Regular User</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Account Age</label>
+                                <p class="form-control-plaintext">{{ user.date_joined|timesince }} ago</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Last Login</label>
+                                <p class="form-control-plaintext">
+                                    {% if user.last_login %}
+                                        {{ user.last_login|date:"M d, Y H:i" }}
+                                    {% else %}
+                                        <span class="text-muted">Never</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

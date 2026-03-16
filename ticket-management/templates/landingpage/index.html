@@ -1,0 +1,1164 @@
+{% load static %}
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Ticket Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'landingpage/css/styles.css' %}">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top main-navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#home">
+                <div class="land-brand-logo">
+                    <img src="{% static 'landingpage/assets/Ultrakey_IT_Solutions_Private_Limited_Logo_Color-1.webp' %}"
+                        alt="">
+                </div>
+            </a>
+            <button class="navbar-toggler  badge bg-primary-gradient" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="#home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#testimonials">Testimonials</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#team">Team Features</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#pricing">Pricing</a></li>
+                </ul>
+                <div class="nav-actions ms-3 d-flex align-items-center">
+                    <!-- Auth Buttons (Visible when not logged in) -->
+                    <div class="auth-buttons">
+                        <a class="btn badge bg-primary-gradient btn-outline-light me-2" href="{% url 'users:login' %}">
+                            <i class="fas fa-right-to-bracket me-1"></i>Login
+                        </a>
+                        <a class="btn badge bg-primary-gradient btn-outline-light me-2" href="/user-signup/">
+                            <i class="fas fa-user-plus me-1"></i>Register
+                        </a>
+                        <a class="btn badge bg-warning-gradient btn-outline-light me-2" href="/admin-signup/">
+                            <i class="fas fa-user-shield me-1"></i>Admin Signup
+                        </a>
+                    </div>
+
+                    <!-- User Dropdown (Visible when logged in) -->
+                    <div class="user-dropdown d-none">
+                        <div class="dropdown">
+                            <button class="btn btn-light dropdown-toggle d-flex align-items-center" type="button"
+                                id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="user-avatar me-2">
+                                    <i class="fas fa-circle-user"></i>
+                                </div>
+                                <span class="user-name">User</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-ticket me-2"></i>My Tickets</a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item text-danger" href="#" id="logoutBtn"><i
+                                            class="fas fa-right-from-bracket me-2"></i>Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+
+
+                    <!-- Create Ticket Button (Visible when logged in) -->
+                    <button class="btn btn-primary-gradient ms-2 create-ticket-btn d-none" data-bs-toggle="modal"
+                        data-bs-target="#ticketModal">
+                        <i class="fas fa-plus me-2"></i>Create Ticket
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+        <div class="hero-grid-bg"></div>
+        <div class="container">
+            <div class="row align-items-center my-3">
+                <div class="col-lg-6 order-2 order-lg-1">
+                    <div class="hero-content">
+                        <div class="badge-animate">
+                            <span class="badge bg-primary-gradient">New Release v2.0</span>
+                        </div>
+                        <h1 class="display-4 fw-bold mb-4 text-gradient">
+                            Smart Ticket Management Made Simple
+                        </h1>
+                        <p class="lead mb-4 text-muted">
+                            Transform your support workflow with AI-powered prioritization, real-time collaboration, and
+                            intelligent automation. Reduce resolution time by 60%.
+                        </p>
+                        <div class="d-flex gap-3 flex-wrap mb-4">
+                            <button class="btn btn-primary-gradient btn-lg px-5" data-bs-toggle="modal"
+                                data-bs-target="#loginModal">
+                                <i class="fas fa-wand-magic-sparkles me-2"></i>Create Ticket
+                            </button>
+                            <button class="btn btn-outline-primary btn-lg px-5" data-bs-toggle="modal"
+                                data-bs-target="#demoModal">
+                                <i class="fas fa-play me-2"></i>Watch Demo
+                            </button>
+                        </div>
+                        <div class="trust-badges">
+                            <span class="trust-item"><i class="fas fa-star text-warning"></i> Trusted by 5000+
+                                Companies</span>
+                            <span class="trust-item"><i class="fas fa-shield-halved text-success"></i> Enterprise Grade
+                                Security</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 order-1 order-lg-2">
+                    <div class="hero-animation">
+                        <div class="floating-element element-1">
+                            <div class="icon-box">
+                                <i class="fas fa-circle-check"></i>
+                            </div>
+                            <p class="label">Resolved</p>
+                        </div>
+                        <div class="floating-element element-2">
+                            <div class="icon-box">
+                                <i class="fas fa-hourglass-half"></i>
+                            </div>
+                            <p class="label">In Progress</p>
+                        </div>
+                        <div class="floating-element element-3">
+                            <div class="icon-box">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <p class="label">Updates</p>
+                        </div>
+                        <div class="floating-element element-4">
+                            <div class="icon-box">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <p class="label">Team</p>
+                        </div>
+                        <div class="center-orb"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h3 class="stat-number">60%</h3>
+                        <p class="stat-text">Faster Resolution</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-face-smile"></i>
+                        </div>
+                        <h3 class="stat-number">98%</h3>
+                        <p class="stat-text">Satisfaction Rate</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="stat-number">10K+</h3>
+                        <p class="stat-text">Active Users</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <h3 class="stat-number">24/7</h3>
+                        <p class="stat-text">Global Support</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section id="about" class="about-section py-5 bg-light">
+        <div class="container">
+            <div class="section-header text-center mb-5">
+                <span class="badge bg-primary-gradient mb-3">About Us</span>
+                <h2 class="display-5 fw-bold mb-3">Who We Are</h2>
+                <p class="lead text-muted">Delivering exceptional ticketing solutions since 2023</p>
+            </div>
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <div class="about-image p-4">
+                        <img src="{% static 'landingpage/assets/undraw_ideas-flow_lwpa.svg' %}" alt="Our Team"
+                            class="img-fluid rounded-4 ">
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="about-content">
+                        <h3 class="fw-bold mb-4">Our Story</h3>
+                        <p class="mb-4">Founded in 2023, TicketHub Pro was born out of a simple idea: to revolutionize
+                            how businesses manage their ticketing and support systems. Our team of passionate developers
+                            and customer service experts came together to create a solution that's both powerful and
+                            easy to use.</p>
+
+                        <h4 class="fw-bold mb-3">Our Mission</h4>
+                        <p class="mb-4">To empower businesses of all sizes with intuitive, scalable, and efficient
+                            ticketing solutions that streamline operations and enhance customer satisfaction.</p>
+
+                        <div class="d-flex flex-wrap gap-3">
+                            <div class="feature-box p-3 bg-white rounded-3 shadow-sm">
+                                <i class="fas fa-circle-check text-primary mb-2"></i>
+                                <h6 class="mb-0 fw-bold">Expert Team</h6>
+                            </div>
+                            <div class="feature-box p-3 bg-white rounded-3 shadow-sm">
+                                <i class="fas fa-circle-check text-primary mb-2"></i>
+                                <h6 class="mb-0 fw-bold">24/7 Support</h6>
+                            </div>
+                            <div class="feature-box p-3 bg-white rounded-3 shadow-sm">
+                                <i class="fas fa-circle-check text-primary mb-2"></i>
+                                <h6 class="mb-0 fw-bold">Secure Platform</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section py-5">
+        <div class="container">
+            <div class="section-header text-center mb-5">
+                <span class="badge bg-primary-gradient mb-3">Our Features</span>
+                <h2 class="display-5 fw-bold mb-3">Powerful Tools for Every Team</h2>
+                <p class="lead text-muted">Everything you need to manage tickets like a pro</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-top">
+                            <div class="feature-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div class="feature-number">01</div>
+                        </div>
+                        <h3>Real-Time Updates</h3>
+                        <p>Instant notifications and live dashboard tracking for all ticket changes and updates.</p>
+                        <a href="#" class="feature-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-top">
+                            <div class="feature-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div class="feature-number">02</div>
+                        </div>
+                        <h3>AI-Powered Intelligence</h3>
+                        <p>Smart categorization, auto-routing, and intelligent prioritization using machine learning.
+                        </p>
+                        <a href="#" class="feature-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-top">
+                            <div class="feature-icon">
+                                <i class="fas fa-users-gear"></i>
+                            </div>
+                            <div class="feature-number">03</div>
+                        </div>
+                        <h3>Team Collaboration</h3>
+                        <p>Seamless commenting, assignments, and real-time collaboration with your entire team.</p>
+                        <a href="#" class="feature-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-top">
+                            <div class="feature-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="feature-number">04</div>
+                        </div>
+                        <h3>Advanced Analytics</h3>
+                        <p>Comprehensive reporting, metrics, and insights to optimize your support operations.</p>
+                        <a href="#" class="feature-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-top">
+                            <div class="feature-icon">
+                                <i class="fas fa-shield-halved"></i>
+                            </div>
+                            <div class="feature-number">05</div>
+                        </div>
+                        <h3>Enterprise Security</h3>
+                        <p>Bank-level encryption, SOC 2 compliance, and advanced access controls for safety.</p>
+                        <a href="#" class="feature-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-top">
+                            <div class="feature-icon">
+                                <i class="fas fa-puzzle-piece"></i>
+                            </div>
+                            <div class="feature-number">06</div>
+                        </div>
+                        <h3>Seamless Integrations</h3>
+                        <p>Connect with Slack, Jira, GitHub, Zendesk, and 100+ other tools effortlessly.</p>
+                        <a href="#" class="feature-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonials-section py-5">
+        <div class="container">
+            <div class="section-header text-center mb-5">
+                <span class="badge bg-primary-gradient mb-3">Testimonials</span>
+                <h2 class="display-5 fw-bold mb-3">Loved by Thousands of Teams</h2>
+                <p class="lead text-muted">See what our customers have to say</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-4">
+                    <div class="testimonial-card">
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">TicketHub has transformed how we handle support requests. Our
+                            resolution time dropped by 50% and team satisfaction increased dramatically.</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">JM</div>
+                            <div>
+                                <h6 class="mb-0">Jane Martinez</h6>
+                                <small class="text-muted">Support Manager, TechCorp</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="testimonial-card">
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">The AI prioritization is a game-changer. It automatically routes
+                            critical issues to the right team members, saving us hours every day.</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">RS</div>
+                            <div>
+                                <h6 class="mb-0">Robert Smith</h6>
+                                <small class="text-muted">CTO, Digital Solutions</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="testimonial-card">
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">Outstanding customer support and intuitive interface. Implementation
+                            was smooth and our team was productive on day one.</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">SC</div>
+                            <div>
+                                <h6 class="mb-0">Sarah Chen</h6>
+                                <small class="text-muted">Operations Lead, InnovateCo</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Collaboration Section -->
+    <section id="team" class="team-section py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="team-content">
+                        <span class="badge bg-primary-gradient mb-3">Team Features</span>
+                        <h2 class="display-5 fw-bold mb-4">Collaborate Like Never Before</h2>
+                        <p class="lead mb-4 text-muted">Keep your entire team in sync with powerful collaboration tools
+                            built for modern support teams.</p>
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <div class="item-icon">
+                                    <i class="fas fa-comments"></i>
+                                </div>
+                                <div>
+                                    <h5>Instant Messaging</h5>
+                                    <p>Real-time chat with team members and customers directly in tickets.</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="item-icon">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                                <div>
+                                    <h5>Smart Assignments</h5>
+                                    <p>Automatically assign tickets based on expertise and availability.</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="item-icon">
+                                    <i class="fas fa-clock-rotate-left"></i>
+                                </div>
+                                <div>
+                                    <h5>Activity Timeline</h5>
+                                    <p>Complete history of all changes and interactions on every ticket.</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="item-icon">
+                                    <i class="fas fa-bell"></i>
+                                </div>
+                                <div>
+                                    <h5>Smart Notifications</h5>
+                                    <p>Get notified only about what matters with intelligent alerts.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="team-illustration">
+                        <div class="collab-card card-1">
+                            <i class="fas fa-envelope"></i>
+                            <span>New Message</span>
+                        </div>
+                        <div class="collab-card card-2">
+                            <i class="fas fa-check"></i>
+                            <span>Assigned to You</span>
+                        </div>
+                        <div class="collab-card card-3">
+                            <i class="fas fa-exclamation"></i>
+                            <span>Status Update</span>
+                        </div>
+                        <div class="collab-center"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Integrations Section -->
+    <section class="integrations-section py-5">
+        <div class="container">
+            <div class="section-header text-center mb-5">
+                <span class="badge bg-primary-gradient mb-3">Integrations</span>
+                <h2 class="display-5 fw-bold mb-3">Connect Your Favorite Tools</h2>
+                <p class="lead text-muted">Works seamlessly with 100+ applications</p>
+            </div>
+            <div class="integrations-grid">
+                <div class="integration-logo"><i class="fab fa-slack"></i></div>
+                <div class="integration-logo"><i class="fab fa-github"></i></div>
+                <div class="integration-logo"><i class="fab fa-atlassian"></i></div>
+                <div class="integration-logo"><i class="fab fa-hubspot"></i></div>
+                <div class="integration-logo"><i class="fab fa-google"></i></div>
+                <div class="integration-logo"><i class="fab fa-microsoft"></i></div>
+                <div class="integration-logo"><i class="fab fa-aws"></i></div>
+                <div class="integration-logo"><i class="fab fa-stripe"></i></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing-section py-5">
+        <div class="container">
+            <div class="section-header text-center mb-5">
+                <span class="badge bg-primary-gradient mb-3">Pricing</span>
+                <h2 class="display-5 fw-bold mb-3">Plans for Every Team Size</h2>
+                <p class="lead text-muted">Flexible pricing that scales with your business</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-4">
+                    <div class="pricing-card">
+                        <div class="pricing-header">
+                            <h3>Startup</h3>
+                            <div class="price"><span class="currency">₹</span>199<span class="period">/mo</span></div>
+                        </div>
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check"></i> Up to 100 tickets/month</li>
+                            <li><i class="fas fa-check"></i> 1 team member</li>
+                            <li><i class="fas fa-check"></i> Email support</li>
+                            <li class="disabled"><i class="fas fa-times"></i> API access</li>
+                            <li class="disabled"><i class="fas fa-times"></i> Advanced analytics</li>
+                        </ul>
+                        <button class="btn btn-outline-primary w-100">Get Started</button>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="pricing-card featured">
+                        <div class="badge-featured">Most Popular</div>
+                        <div class="pricing-header">
+                            <h3>Professional</h3>
+                            <div class="price"><span class="currency">₹</span>399<span class="period">/mo</span></div>
+                        </div>
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check"></i> Unlimited tickets</li>
+                            <li><i class="fas fa-check"></i> Up to 5 team members</li>
+                            <li><i class="fas fa-check"></i> Priority support</li>
+                            <li><i class="fas fa-check"></i> API access</li>
+                            <li class="disabled"><i class="fas fa-times"></i> Custom integrations</li>
+                        </ul>
+                        <button class="btn btn-primary-gradient w-100">Start Free Trial</button>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="pricing-card">
+                        <div class="pricing-header">
+                            <h3>Enterprise</h3>
+                            <div class="price"><span class="currency">₹</span>599<span class="period">/mo</span></div>
+                        </div>
+                        <ul class="pricing-features">
+                            <li><i class="fas fa-check"></i> Unlimited everything</li>
+                            <li><i class="fas fa-check"></i> Unlimited team members</li>
+                            <li><i class="fas fa-check"></i> 24/7 phone support</li>
+                            <li><i class="fas fa-check"></i> Advanced API</li>
+                            <li><i class="fas fa-check"></i> Custom integrations</li>
+                        </ul>
+                        <button class="btn btn-outline-primary w-100">Contact Sales</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section py-5">
+        <div class="container">
+            <div class="cta-content text-center">
+                <h2 class="display-5 fw-bold mb-4">Ready to Transform Your Support?</h2>
+                <p class="lead mb-4">Join thousands of teams using TicketHub to deliver exceptional customer support</p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <button class="btn btn-primary-gradient btn-lg px-5" data-bs-toggle="modal"
+                        data-bs-target="#ticketModal">
+                        <i class="fas fa-rocket me-2"></i>Start Free Trial
+                    </button>
+                    <button class="btn btn-outline-light btn-lg px-5">
+                        <i class="fas fa-calendar me-2"></i>Schedule Demo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ticket Creation Modal -->
+    <div class="modal fade" id="ticketModal" tabindex="-1" backdrop="static">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content modal-premium">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fas fa-circle-plus me-2 text-primary"></i>Create New Ticket
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="ticketForm">
+                        <div class="mb-3">
+                            <label for="ticketTitle" class="form-label fw-bold">Ticket Title</label>
+                            <input type="text" class="form-control form-control-lg" id="ticketTitle"
+                                placeholder="Subject" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="ticketCategory" class="form-label fw-bold">Category</label>
+                                <div class="category-select-wrapper">
+                                    <div class="category-select-display" data-value="">
+                                        <span class="category-dot category-dot-muted"></span>
+                                        <span class="category-select-label">Select Category</span>
+                                        <i class="fas fa-chevron-down category-select-icon"></i>
+                                    </div>
+                                    <div class="category-select-menu">
+                                        <div class="category-option" data-value="bug">
+                                            <span class="category-dot category-dot-bug"></span>
+                                            <span>Bug Report</span>
+                                        </div>
+                                        <div class="category-option" data-value="feature">
+                                            <span class="category-dot category-dot-feature"></span>
+                                            <span>Feature Request</span>
+                                        </div>
+                                        <div class="category-option" data-value="support">
+                                            <span class="category-dot category-dot-support"></span>
+                                            <span>Technical Support</span>
+                                        </div>
+                                        <div class="category-option" data-value="billing">
+                                            <span class="category-dot category-dot-billing"></span>
+                                            <span>Billing Issue</span>
+                                        </div>
+                                        <div class="category-option" data-value="general">
+                                            <span class="category-dot category-dot-general"></span>
+                                            <span>General Inquiry</span>
+                                        </div>
+                                        <div class="category-option" data-value="other">
+                                            <span class="category-dot category-dot-other"></span>
+                                            <span>Other</span>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="ticketCategory" name="category" value="">
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="ticketPriority" class="form-label fw-bold">Priority</label>
+                                <div class="priority-select-wrapper">
+                                    <div class="priority-select-display" data-value="">
+                                        <span class="priority-dot priority-dot-muted"></span>
+                                        <span class="priority-select-label">Select Priority</span>
+                                        <i class="fas fa-chevron-down priority-select-icon"></i>
+                                    </div>
+                                    <div class="priority-select-menu">
+                                        <div class="priority-option" data-value="low">
+                                            <span class="priority-dot priority-dot-low"></span>
+                                            <span>Low</span>
+                                        </div>
+                                        <div class="priority-option" data-value="medium">
+                                            <span class="priority-dot priority-dot-medium"></span>
+                                            <span>Medium</span>
+                                        </div>
+                                        <div class="priority-option" data-value="high">
+                                            <span class="priority-dot priority-dot-high"></span>
+                                            <span>High</span>
+                                        </div>
+                                        <div class="priority-option" data-value="critical">
+                                            <span class="priority-dot priority-dot-critical"></span>
+                                            <span>Critical</span>
+                                        </div>
+                                    </div>
+                                    <!-- hidden field that your backend will read -->
+                                    <input type="hidden" id="ticketPriority" name="priority" value="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ticketEmail" class="form-label fw-bold">Email Address</label>
+                            <input type="email" class="form-control form-control-lg" id="ticketEmail"
+                                placeholder="your@email.com" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="Phone" class="form-label fw-bold">Phone (Optional)</label>
+                            <input type="phone" class="form-control form-control-lg" id="phone" placeholder="123"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ticketDescription" class="form-label fw-bold">Description</label>
+                            <textarea class="form-control" id="ticketDescription" rows="5"
+                                placeholder="Provide detailed information about your issue..." required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ticketAttachment" class="form-label fw-bold">Attachment (Optional)</label>
+                            <div class="upload-area">
+                                <i class="fas fa-cloud-arrow-up"></i>
+                                <p>Drag files here or click to select</p>
+                                <input type="file" id="ticketAttachment" class="d-none">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary-gradient btn-lg px-4" id="submitTicket">
+                        <i class="fas fa-paper-plane me-2"></i>Submit Ticket
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Modal -->
+    <div class="modal fade" id="dashboardModal" tabindex="-1" backdrop="static">
+        <div class="modal-dialog modal-fullscreen modal-dialog-centered">
+            <div class="modal-content modal-premium">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fas fa-chart-line me-2"></i>Ticket Dashboard
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-4 g-3">
+                        <div class="col-md-3">
+                            <div class="dashboard-stat-card">
+                                <div class="stat-icon"><i class="fas fa-ticket"></i></div>
+                                <div class="stat-content">
+                                    <div class="stat-label">Total Tickets</div>
+                                    <div class="stat-value" id="statTotal">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="dashboard-stat-card">
+                                <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
+                                <div class="stat-content">
+                                    <div class="stat-label">In Progress</div>
+                                    <div class="stat-value" id="statPending">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="dashboard-stat-card">
+                                <div class="stat-icon"><i class="fas fa-circle-check"></i></div>
+                                <div class="stat-content">
+                                    <div class="stat-label">Resolved</div>
+                                    <div class="stat-value" id="statResolved">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="dashboard-stat-card">
+                                <div class="stat-icon"><i class="fas fa-circle-exclamation"></i></div>
+                                <div class="stat-content">
+                                    <div class="stat-label">Critical</div>
+                                    <div class="stat-value" id="statCritical">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-table-section">
+                        <div class="table-header">
+                            <h6>Ticket Management</h6>
+                            <input type="text" class="form-control search-input" placeholder="Search tickets..."
+                                id="searchTickets">
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table dashboard-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Title</th>
+                                        <th>Category</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ticketsTableBody">
+                                </tbody>
+                            </table>
+                            <div id="noTicketsMessage" class="text-center py-5">
+                                <p class="text-muted">No tickets yet. Create one to get started!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary-gradient" onclick="exportTickets()">
+                        <i class="fas fa-download me-2"></i>Export CSV
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Demo Modal -->
+    <div class="modal fade" id="demoModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-premium">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Watch Demo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="demo-video">
+                        <div class="ratio ratio-16x9">
+                            <video id="demoVideo" src="{% static 'landingpage/assets/videoplayback.mp4' %}"
+                                class="w-100 h-100" controls>
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer -->
+    <footer class="footer pt-5">
+        <div class="container">
+            <div class="row gy-4">
+
+                <!-- Column 1: Logo & About -->
+                <div class="col-md-4 text-center text-md-start">
+                    <img src="{% static 'landingpage/assets/Ultrakey_IT_Solutions_Private_Limited_Logo_Color-1.webp' %}"
+                        alt="Ultrakey Logo" class="mb-3" height="50" />
+                    <p class="text-muted small">
+                        We provide premium, customizable eCommerce and WordPress templates
+                        to help businesses build fast, responsive, and successful websites.
+                    </p>
+
+                    <div class="social-links mt-3">
+                        <a href="https://www.facebook.com/ultrakeyit/" target="_blank" rel="noopener noreferrer"><i
+                                class="fab fa-facebook-f"></i></a>
+                        <a href="https://x.com/ultrakeyit" target="_blank" rel="noopener noreferrer"><i
+                                class="fab fa-twitter"></i></a>
+                        <a href="https://www.linkedin.com/company/ultrakeyit/?originalSubdomain=in" target="_blank"
+                            rel="noopener noreferrer"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.instagram.com/ultrakey_it/" target="_blank" rel="noopener noreferrer"><i
+                                class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+
+                <!-- Column 2: Quick Links -->
+                <div class="col-md-3">
+                    <h6 class="fw-bold mb-3">Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#aboutus">About Us</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <!-- <li><a href="#">Blog</a></li> -->
+                        <li><a href="#">Resources</a></li>
+
+                    </ul>
+                </div>
+
+                <div class="col-md-3">
+                    <h6 class="fw-bold mb-3">Policies</h6>
+                    <ul class="list-unstyled">
+
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms & Conditions</a></li>
+                        <li><a href="#">FAQ’s</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Contact Info -->
+                <div class="col-md-2 text-left ">
+                    <h6 class="fw-bold mb-3">Business Contact</h6>
+                    <p class="small mb-1">
+                        Flat No: 204, 2nd Floor, Indira Nagar,<br />
+                        Gachibowli, Hyderabad, Telangana 500032
+                    </p>
+                    <p class="small mb-1">📞 +91 63004 40316</p>
+                    <p class="small mb-1">📧 hr@ultrakeyit.com</p>
+                    <a href="https://maps.app.goo.gl/ySpsSJAjf9jRbrLQ8" target="_blank" rel="noopener noreferrer"
+                        class="btn btn-outline-primary btn-sm mt-2">Get Direction</a>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <hr class="my-4" />
+
+            <!-- Payment + Copyright -->
+            <div class="row align-items-center text-center text-md-start">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <!-- <div class="payment-icons">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Visa_2021.svg" alt="Visa" />
+          <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png" alt="Mastercard" />
+          <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/UPI-Logo-vector.svg" alt="UPI" />
+          <img src="https://upload.wikimedia.org/wikipedia/commons/c/cb/PayPal_Logo.svg" alt="PayPal" />
+          <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/PhonePe-Logo.svg" alt="PhonePe" />
+          <img src="https://upload.wikimedia.org/wikipedia/commons/2/2d/Google_Pay_Logo.svg" alt="Google Pay" />
+        </div> -->
+                </div>
+
+                <div class="col-md-6 text-muted small text-md-end">
+                    © 2025 <a href="https://ultrakeyit.com/" target="_blank" rel="noopener noreferrer"
+                        class="text-muted text-decoration-none">Ultrakey IT Solutions Private Limited</a> — All Rights
+                    Reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- Contact Modal -->
+    <div class="modal fade" id="contactModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Contact Us</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="contactForm">
+                        <div class="mb-3">
+                            <label for="contactName" class="form-label">Your Name</label>
+                            <input type="text" class="form-control" id="contactName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contactEmail" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="contactEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contactSubject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="contactSubject" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contactMessage" class="form-label">Message</label>
+                            <textarea class="form-control" id="contactMessage" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="successToast" class="toast" role="alert">
+            <div class="toast-body bg-success text-white rounded">
+                <i class="fas fa-circle-check me-2"></i><span id="toastMessage"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Login to Your Account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm" method="post" action="{% url 'users:login' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="loginEmail" class="form-label">Email or Username</label>
+                            <input type="text" class="form-control" id="loginEmail" name="username" required
+                                autocomplete="username" placeholder="Enter email or username">
+                        </div>
+                        <div class="mb-3">
+                            <label for="loginPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="loginPassword" name="password" required
+                                autocomplete="current-password">
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="rememberMe">
+                                <label class="form-check-label" for="rememberMe">Remember me</label>
+                            </div>
+                            <a href="{% url 'users:forgot_password' %}" class="text-decoration-none">Forgot
+                                password?</a>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <p class="mb-0">Don't have an account? <a href="#" data-bs-toggle="modal"
+                                data-bs-target="#registerModal" data-bs-dismiss="modal"
+                                class="text-primary">Register</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create an Account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="registerForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="firstName" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="firstName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="lastName" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerEmail" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="registerEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="registerPassword"
+                                autocomplete="new-password" required>
+                            <div class="form-text">Password must be at least 8 characters long</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirmPassword" autocomplete="new-password"
+                                required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="termsAgree" required>
+                            <label class="form-check-label" for="termsAgree">I agree to the <a href="#"
+                                    class="text-primary">Terms of Service</a> and <a href="#"
+                                    class="text-primary">Privacy Policy</a></label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Create Account</button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <p class="mb-0">Already have an account? <a href="#" data-bs-toggle="modal"
+                                data-bs-target="#loginModal" data-bs-dismiss="modal" class="text-primary">Login</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function initCustomDropdown(wrapperSelector, dotBaseClass, defaultLabel) {
+                const wrapper = document.querySelector(wrapperSelector);
+                if (!wrapper) return;
+
+                const display = wrapper.querySelector(`${wrapperSelector} .display`); // not used, keep generic
+            }
+
+            // Priority dropdown
+            (function () {
+                const wrapper = document.querySelector('#ticketModal .priority-select-wrapper');
+                if (!wrapper) return;
+
+                const display = wrapper.querySelector('.priority-select-display');
+                const options = wrapper.querySelectorAll('.priority-option');
+                const hiddenInput = wrapper.querySelector('#ticketPriority');
+                const labelEl = wrapper.querySelector('.priority-select-label');
+                const dotEl = wrapper.querySelector('.priority-dot');
+
+                function closeMenu() {
+                    wrapper.classList.remove('open');
+                }
+
+                display.addEventListener('click', function () {
+                    wrapper.classList.toggle('open');
+                });
+
+                options.forEach(function (opt) {
+                    opt.addEventListener('click', function () {
+                        const value = opt.getAttribute('data-value') || '';
+                        const text = opt.querySelector('span:nth-child(2)')?.textContent || 'Select Priority';
+
+                        hiddenInput.value = value;
+                        labelEl.textContent = text;
+
+                        options.forEach(o => o.classList.remove('active'));
+                        opt.classList.add('active');
+
+                        if (dotEl) {
+                            dotEl.className = 'priority-dot';
+                            if (value) {
+                                dotEl.classList.add('priority-dot-' + value);
+                            } else {
+                                dotEl.classList.add('priority-dot-muted');
+                            }
+                        }
+
+                        closeMenu();
+                    });
+                });
+
+                document.addEventListener('click', function (e) {
+                    if (!wrapper.contains(e.target)) {
+                        closeMenu();
+                    }
+                });
+            })();
+
+            // Category dropdown
+            (function () {
+                const wrapper = document.querySelector('#ticketModal .category-select-wrapper');
+                if (!wrapper) return;
+
+                const display = wrapper.querySelector('.category-select-display');
+                const options = wrapper.querySelectorAll('.category-option');
+                const hiddenInput = wrapper.querySelector('#ticketCategory');
+                const labelEl = wrapper.querySelector('.category-select-label');
+                const dotEl = wrapper.querySelector('.category-dot');
+
+                function closeMenu() {
+                    wrapper.classList.remove('open');
+                }
+
+                display.addEventListener('click', function () {
+                    wrapper.classList.toggle('open');
+                });
+
+                options.forEach(function (opt) {
+                    opt.addEventListener('click', function () {
+                        const value = opt.getAttribute('data-value') || '';
+                        const text = opt.querySelector('span:nth-child(2)')?.textContent || 'Select Category';
+
+                        hiddenInput.value = value;
+                        labelEl.textContent = text;
+
+                        options.forEach(o => o.classList.remove('active'));
+                        opt.classList.add('active');
+
+                        if (dotEl) {
+                            dotEl.className = 'category-dot';
+                            if (value) {
+                                dotEl.classList.add('category-dot-' + value);
+                            } else {
+                                dotEl.classList.add('category-dot-muted');
+                            }
+                        }
+
+                        closeMenu();
+                    });
+                });
+
+                document.addEventListener('click', function (e) {
+                    if (!wrapper.contains(e.target)) {
+                        closeMenu();
+                    }
+                });
+            })();
+
+            // Pause and reset local demo video when demo modal is closed
+            const demoModalEl = document.getElementById('demoModal');
+            const demoVideo = document.getElementById('demoVideo');
+            if (demoModalEl && demoVideo) {
+                demoModalEl.addEventListener('hidden.bs.modal', function () {
+                    if (typeof demoVideo.pause === 'function') {
+                        demoVideo.pause();
+                        demoVideo.currentTime = 0;
+                    }
+                });
+            }
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'landingpage/js/script.js' %}"></script>
+</body>
+
+</html>

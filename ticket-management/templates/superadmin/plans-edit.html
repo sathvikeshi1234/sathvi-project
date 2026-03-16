@@ -1,0 +1,65 @@
+{% extends 'superadmin/base.html' %}
+{% block title %}Edit Plan · Super Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Edit Plan</h4>
+        <a href="{% url 'superadmin:plans_list' %}" class="btn btn-secondary btn-sm">Back to Plans</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="plan_id" value="{{ plan.id }}">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Plan Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="name" placeholder="e.g., Basic" value="{{ plan.name }}" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Price <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" class="form-control" name="price" step="0.01" min="0" placeholder="e.g., 29" value="{{ plan.price }}" required />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Billing Cycle <span class="text-danger">*</span></label>
+                        <select class="form-select" name="billing_cycle" required>
+                            <option value="monthly" {% if plan.billing_cycle == 'monthly' %}selected{% endif %}>Monthly</option>
+                            <option value="yearly" {% if plan.billing_cycle == 'yearly' %}selected{% endif %}>Yearly</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Users <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" name="users" min="1" placeholder="e.g., 5" value="{{ plan.users }}" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Storage <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="storage" placeholder="e.g., 10GB" value="{{ plan.storage }}" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Status <span class="text-danger">*</span></label>
+                        <select class="form-select" name="status" required>
+                            <option value="active" {% if plan.status == 'active' %}selected{% endif %}>Active</option>
+                            <option value="inactive" {% if plan.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Created Date</label>
+                        <input type="date" class="form-control" name="created_date" value="{{ plan.created_date|date:'Y-m-d' }}" />
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Update Plan</button>
+                    <a href="{% url 'superadmin:plans_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

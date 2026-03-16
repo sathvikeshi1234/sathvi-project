@@ -1,0 +1,34 @@
+{% load static %}
+<div class="modal fade" id="ticketDetailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Ticket Details - {{ ticket.ticket_id }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="mb-2"><strong>Subject:</strong> {{ ticket.title }}</div>
+            <div class="mb-2"><strong>Customer:</strong> {{ ticket.created_by.username }}</div>
+            <div class="mb-2"><strong>Status:</strong> {{ ticket.status }}</div>
+            <div class="mb-2"><strong>Priority:</strong> {{ ticket.priority }}</div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-2"><strong>Category:</strong> {{ ticket.category }}</div>
+            <div class="mb-2"><strong>Created:</strong> {{ ticket.created_at }}</div>
+            <div class="mb-2"><strong>Updated:</strong> {{ ticket.updated_at }}</div>
+          </div>
+        </div>
+        <hr>
+        <div>
+          <strong>Description</strong>
+          <p class="mt-2">{{ ticket.description|linebreaksbr }}</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

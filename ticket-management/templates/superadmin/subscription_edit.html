@@ -1,0 +1,227 @@
+{% extends 'superadmin/base.html' %}
+{% block title %}Edit Subscription · Super Admin{% endblock %}
+{% block content %}
+<main class="nxl-container">
+    <div class="nxl-content">
+        <!-- [Page Header] Start -->
+        <div class="page-header">
+            <div class="page-header-left d-flex align-items-center">
+                <div class="page-header-title">
+                    <h5 class="m-b-10">Edit Subscription</h5>
+                    <p class="mb-0">Modify subscription details</p>
+                </div>
+            </div>
+            <div class="page-header-right ms-auto">
+                <a href="{% url 'superadmin:superadmin_page' 'subscriptions' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Subscriptions
+                </a>
+            </div>
+        </div>
+        <!-- [Page Header] End -->
+
+        <!-- [Main Content] Start -->
+        <div class="main-content">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Edit Subscription Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" id="subscriptionEditForm">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Subscription ID</label>
+                                            <input type="text" class="form-control" value="{{ subscription.subscription_id }}" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Company</label>
+                                            <input type="text" class="form-control" value="{{ subscription.company }}" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Plan</label>
+                                            <input type="text" class="form-control" value="{{ subscription.plan }}" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Status</label>
+                                            <select class="form-control" name="status" id="status">
+                                                <option value="active" {% if subscription.status == 'active' %}selected{% endif %}>Active</option>
+                                                <option value="trial" {% if subscription.status == 'trial' %}selected{% endif %}>Trial</option>
+                                                <option value="suspended" {% if subscription.status == 'suspended' %}selected{% endif %}>Suspended</option>
+                                                <option value="expired" {% if subscription.status == 'expired' %}selected{% endif %}>Expired</option>
+                                                <option value="cancelled" {% if subscription.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Billing Cycle</label>
+                                            <select class="form-control" name="billing_cycle" id="billing_cycle">
+                                                <option value="monthly" {% if subscription.billing_cycle == 'monthly' %}selected{% endif %}>Monthly</option>
+                                                <option value="quarterly" {% if subscription.billing_cycle == 'quarterly' %}selected{% endif %}>Quarterly</option>
+                                                <option value="yearly" {% if subscription.billing_cycle == 'yearly' %}selected{% endif %}>Yearly</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Total Amount</label>
+                                            <input type="number" class="form-control" name="total_amount" id="total_amount" value="{{ subscription.total_amount }}" step="0.01">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Start Date</label>
+                                            <input type="date" class="form-control" name="start_date" id="start_date" value="{{ subscription.start_date|date:'Y-m-d' }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">End Date</label>
+                                            <input type="date" class="form-control" name="end_date" id="end_date" value="{{ subscription.end_date|date:'Y-m-d' }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Next Billing Date</label>
+                                            <input type="date" class="form-control" name="next_billing_date" id="next_billing_date" value="{{ subscription.next_billing_date|date:'Y-m-d' }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-check-circle me-1"></i> Save Changes
+                                        </button>
+                                        <a href="{% url 'superadmin:subscriptions_summary' %}" class="btn btn-secondary">
+                                            <i class="bi bi-x-circle me-1"></i> Cancel
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions Card -->
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Quick Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                {% if subscription.status == 'active' %}
+                                    <button class="btn btn-warning" onclick="suspendSubscription({{ subscription.id }})">
+                                        <i class="bi bi-pause me-1"></i> Suspend Subscription
+                                    </button>
+                                {% endif %}
+                                {% if subscription.status == 'trial' or subscription.status == 'suspended' %}
+                                    <button class="btn btn-success" onclick="activateSubscription({{ subscription.id }})">
+                                        <i class="bi bi-play-circle me-1"></i> Activate Subscription
+                                    </button>
+                                {% endif %}
+                                <button class="btn btn-danger" onclick="cancelSubscription({{ subscription.id }})">
+                                    <i class="bi bi-trash me-1"></i> Cancel Subscription
+                                </button>
+                                <a href="{% url 'superadmin:subscription_view' subscription.id %}" class="btn btn-info">
+                                    <i class="bi bi-eye me-1"></i> View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- [Main Content] End -->
+    </div>
+</main>
+
+<script>
+// Handle form submission
+document.getElementById('subscriptionEditForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const subscriptionId = {{ subscription.id }};
+    
+    fetch(`/superadmin/subscriptions/${subscriptionId}/edit/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Subscription updated successfully!');
+            window.location.href = '{% url "superadmin:subscriptions_summary" %}';
+        } else {
+            alert('Error updating subscription: ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating subscription. Please try again.');
+    });
+});
+
+// Action functions (reuse from all_subscriptions.html)
+function suspendSubscription(subscriptionId) {
+    if (confirm('Are you sure you want to suspend this subscription?')) {
+        performSubscriptionAction(subscriptionId, 'suspend', 'Subscription suspended successfully!', 'Error suspending subscription');
+    }
+}
+
+function activateSubscription(subscriptionId) {
+    if (confirm('Are you sure you want to activate this subscription?')) {
+        performSubscriptionAction(subscriptionId, 'activate', 'Subscription activated successfully!', 'Error activating subscription');
+    }
+}
+
+function cancelSubscription(subscriptionId) {
+    if (confirm('Are you sure you want to cancel this subscription? This action cannot be undone.')) {
+        performSubscriptionAction(subscriptionId, 'cancel', 'Subscription cancelled successfully!', 'Error cancelling subscription');
+    }
+}
+
+function performSubscriptionAction(subscriptionId, action, successMessage, errorMessage) {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    const formData = new FormData();
+    formData.append('subscription_id', subscriptionId);
+    formData.append('action', action);
+    formData.append('csrfmiddlewaretoken', csrfToken);
+    
+    fetch('{% url "superadmin:bulk_subscription_action" %}', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(successMessage);
+            window.location.href = '{% url "superadmin:subscriptions_summary" %}';
+        } else {
+            alert(errorMessage + ': ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(errorMessage + '. Please try again.');
+    });
+}
+</script>
+{% endblock %}

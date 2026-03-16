@@ -1,0 +1,161 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Ticket Management System</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- User Dashboard CSS -->
+    <link rel="stylesheet" href="{% static 'userdashboard/css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'userdashboard/css/chat.css' %}">
+</head>
+
+<body class="app-body" data-page="dashboard">
+
+<div class="app-root">
+
+       <!-- Include Sidebar -->
+  {% include 'userdashboard/partials/sidebar.html' %}
+
+    <!-- Main Content -->
+    <main class="main">
+
+        <!-- Include Header -->
+  {% include 'userdashboard/partials/header.html' %}
+
+  {% if support_admin %}
+  {{ chat_ticket_ids|json_script:"user-chat-ticket-ids" }}
+  <div id="user-chat-bootstrap"
+       data-contact-id="{{ support_admin.id }}"
+       data-contact-name="{{ support_admin.get_full_name|default:support_admin.username|escape }}"
+       data-ticket-id="{{ chat_ticket_id|default:''|escape }}"
+       hidden></div>
+  <script>
+    (function () {
+      const el = document.getElementById('user-chat-bootstrap');
+      window.USER_CHAT_CONTACT_ID = el ? parseInt(el.getAttribute('data-contact-id') || '', 10) : null;
+      window.USER_CHAT_CONTACT_NAME = el ? (el.getAttribute('data-contact-name') || '') : '';
+      window.USER_CHAT_TICKET_ID = el ? (el.getAttribute('data-ticket-id') || '') : '';
+      window.USER_CHAT_TICKET_IDS = JSON.parse(document.getElementById('user-chat-ticket-ids').textContent || '[]');
+    })();
+  </script>
+  {% else %}
+  <script>
+    window.USER_CHAT_CONTACT_ID = null;
+    window.USER_CHAT_CONTACT_NAME = "";
+    window.USER_CHAT_TICKET_ID = "";
+    window.USER_CHAT_TICKET_IDS = [];
+  </script>
+  {% endif %}
+
+    {% block content %}
+
+       <div class="content-wrapper">
+                <section class="page">
+                    <div class="page-header">
+                        <h1 class="section-title">Live Chat Support</h1>
+                        <p class="page-subtitle">Chat with our support agents in real-time</p>
+                    </div>
+
+                    <div class="chat-container">
+                        <!-- Chat sidebar -->
+                        <div class="chat-sidebar">
+                            <div class="chat-header">
+                                <h3>Conversations</h3>
+                                <button class="btn btn-primary btn-sm" id="newChatBtn">
+                                    <i class="fas fa-plus"></i> New Chat
+                                </button>
+                            </div>
+                            <div class="chat-search">
+                                <input type="text" class="search-input" placeholder="Search conversations...">
+                            </div>
+                            <div class="conversation-list" id="conversationList">
+                                <!-- Conversations will be populated by JavaScript -->
+                                {% if support_admin %}
+                                <div class="conversation active" data-conversation-id="{{ support_admin.id }}">
+                                    <div class="conversation-header">
+                                        <span class="conversation-name">
+                                            {% if chat_ticket_id %}Ticket: {{ chat_ticket_id }}{% else %}{{ support_admin.get_full_name|default:support_admin.username }}{% endif %}
+                                        </span>
+                                        <span class="conversation-time"></span>
+                                    </div>
+                                    <div class="conversation-preview">
+                                        Chat with our support team
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="empty-state">
+                                    <i class="far fa-comment-dots"></i>
+                                    <p>No active conversations</p>
+                                    <button class="btn btn-primary mt-2" id="startNewChatBtn">Start New Chat</button>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Main chat area -->
+                        <div class="chat-main">
+                            <!-- <div class="agent-status">
+                                <div class="status-dot"></div>
+                                <span class="status-text">Support team is online</span>
+                            </div> -->
+                            
+                            <div class="chat-messages" id="chatMessages">
+                                <div class="empty-state">
+                                    <i class="far fa-comments"></i>
+                                    <h3>Welcome to TicketHub Support</h3>
+                                    <p>Start a conversation with our support team. We're here to help!</p>
+                                    <div class="quick-actions mt-2">
+                                        <button class="btn btn-outline btn-sm mr-1">Common Issues</button>
+                                        <button class="btn btn-outline btn-sm mr-1">Billing Help</button>
+                                        <button class="btn btn-outline btn-sm">Technical Support</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="chat-input-container">
+                                <!-- Hidden file input -->
+                                <input type="file" id="fileUpload" class="file-upload-input" multiple>
+                                
+                                <!-- File preview area -->
+                                <div id="filePreviews" class="file-previews" style="display: none;"></div>
+                                
+                                <div class="chat-input-wrapper">
+                                    <button type="button" class="action-button" id="attachFileBtn" title="Attach file">
+                                        <i class="fas fa-paperclip"></i>
+                                    </button>
+                                    <div class="chat-input" contenteditable="true" placeholder="Type your message..."></div>
+                                    <div class="chat-actions">
+                                       
+                                        <button class="send-button" id="sendMessage">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-content">© 2025 <a href="https://ultrakeyit.com/" target="_blank" rel="noopener noreferrer" class="text-decoration-none">Ultrakey It Solutions</a>. All rights reserved.</div>
+        </footer>
+         {% endblock %}
+
+    </main>
+
+</div>
+
+<!-- JS Files -->
+<!-- <script src="{% static 'userdashboard/js/layout.js' %}"></script> -->
+<script src="{% static 'userdashboard/js/script.js' %}"></script>
+<script src="{% static 'userdashboard/js/app.js' %}"></script>
+<script src="{% static 'userdashboard/js/chat.js' %}"></script>
+
+</body>
+</html>

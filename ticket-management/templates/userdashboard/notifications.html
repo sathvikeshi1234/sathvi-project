@@ -1,0 +1,175 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Ticket Management System</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- User Dashboard CSS -->
+    <link rel="stylesheet" href="{% static 'userdashboard/css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'userdashboard/css/notifications.css' %}">
+</head>
+
+<body class="app-body" data-page="dashboard">
+
+<div class="app-root">
+
+       <!-- Include Sidebar -->
+  {% include 'userdashboard/partials/sidebar.html' %}
+
+    <!-- Main Content -->
+    <main class="main">
+
+        <!-- Include Header -->
+  {% include 'userdashboard/partials/header.html' %}
+
+    {% block content %}
+
+       <section class="page">
+
+                <div class="page-header">
+                    <h1 class="page-title">Notifications</h1>
+
+                    <div class="notification-actions">
+                        <button class="btn btn-icon" id="markAllRead">
+                            <i class="fas fa-check-double"></i> Mark all as read
+                        </button>
+
+                        <button class="btn btn-icon" id="clearAll">
+                            <i class="fas fa-trash"></i> Clear all
+                        </button>
+                    </div>
+                </div>
+
+                <!-- FILTERS -->
+                <div class="notification-filters">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="unread">Unread</button>
+                    <button class="filter-btn" data-filter="tickets">Tickets</button>
+                    <button class="filter-btn" data-filter="system">System</button>
+                </div>
+
+                <!-- NOTIFICATIONS LIST (dynamic) -->
+                <div class="notifications-container">
+                    {% if notifications_groups %}
+                        {% for group in notifications_groups %}
+                            <div class="notification-group">
+                                <h3 class="notification-date">{{ group.label }}</h3>
+
+                                {% for n in group.items %}
+                                <div class="notification-item {% if n.is_unread %}unread{% endif %}" data-type="{{ n.category }}">
+                                    <div class="notification-icon">
+                                        <i class="{{ n.icon }}"></i>
+                                    </div>
+
+                                    <div class="notification-content">
+                                        <p class="notification-text">
+                                            {{ n.text }}
+                                            <span class="notification-time">{{ n.timestamp|timesince }} ago</span>
+                                        </p>
+
+                                        {% if n.actions %}
+                                        <div class="notification-actions">
+                                            {% for action in n.actions %}
+                                                {% if 'user-dashboard/ticket/' in action.url %}
+                                                  <a href="#" class="action-btn ticket-view-link" data-ticket-url="{{ action.url }}">{{ action.label }}</a>
+                                                {% else %}
+                                                  <a href="{{ action.url }}" class="action-btn">{{ action.label }}</a>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="no-notifications">No notifications yet.</p>
+                    {% endif %}
+                </div>
+
+                <!-- PREFERENCES -->
+                <div class="notification-preferences">
+                    <h3>Notification Preferences</h3>
+
+                    <div class="preferences-grid">
+
+                        <div class="preference-item">
+                            <div class="preference-info">
+                                <h4>Email Notifications</h4>
+                                <p>Receive email notifications for important updates</p>
+                            </div>
+
+                            <label class="switch">
+                                <input type="checkbox" {% if settings_email_notifications %}checked{% endif %} disabled />
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+
+                        <div class="preference-item">
+                            <div class="preference-info">
+                                <h4>Desktop Notifications</h4>
+                                <p>Get browser notifications for new updates</p>
+                            </div>
+
+                            <label class="switch">
+                                <input type="checkbox" {% if settings_desktop_notifications %}checked{% endif %} disabled />
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+
+                        <div class="preference-item">
+                            <div class="preference-info">
+                                <h4>Ticket Updates</h4>
+                                <p>Notify me when my tickets are updated</p>
+                            </div>
+
+                            <label class="switch">
+                                <input type="checkbox" checked />
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+
+                        <div class="preference-item">
+                            <div class="preference-info">
+                                <h4>Mentions</h4>
+                                <p>Notify me when I'm mentioned</p>
+                            </div>
+
+                            <label class="switch">
+                                <input type="checkbox" checked />
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+
+                    </div>
+
+                    <button class="btn btn-primary save-preferences">Save Preferences</button>
+                </div>
+
+            </section>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-content">© 2025 <a href="https://ultrakeyit.com/" target="_blank" rel="noopener noreferrer" class="text-decoration-none">Ultrakey It Solutions</a>. All rights reserved.</div>
+        </footer>
+
+         {% endblock %}
+    </main>
+
+</div>
+
+<!-- JS Files -->
+<!-- <script src="{% static 'userdashboard/js/layout.js' %}"></script> -->
+<script src="{% static 'userdashboard/js/script.js' %}"></script>
+<script src="{% static 'userdashboard/js/app.js' %}"></script>
+
+<!-- Include Payment Modal -->
+{% include 'admin_payment_modal.html' %}
+
+</body>
+</html>

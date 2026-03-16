@@ -1,0 +1,5 @@
+SUCCESS: Emoji stored and retrieved
+Original: Hello 😀
+Stored: Hello 😀
+JSON: Hello 😀
+Lengths: orig=7, stored=7, json=7

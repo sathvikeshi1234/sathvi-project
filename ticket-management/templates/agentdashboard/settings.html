@@ -1,0 +1,1453 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Agent Settings</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'agentdashboard/css/style.css' %}">
+</head>
+<body>
+    <div id="app">
+        <!-- Include Sidebar (server-side include to ensure visibility) -->
+        <div id="sidebar-container">
+            <!-- Content will be loaded by JavaScript -->
+        </div>
+
+        <div class="main-container">
+            <!-- Include Header (server-side include to ensure visibility) -->
+            <div id="header-container">
+                <!-- Content will be loaded by JavaScript -->
+            </div>
+
+                 <!-- Main Content -->
+            <main class="content-area">
+                <!-- SETTINGS PAGE CONTENT -->
+                <div id="settings" class="page-content active">
+                    <div class="page-header">
+                        <div>
+                            <h2>Settings</h2>
+                            <p class="text-muted">Configure system settings and preferences</p>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-secondary me-2" id="resetDefaults">
+                                <i class="bi bi-arrow-counterclockwise"></i> Reset to Defaults
+                            </button>
+                            <button class="btn btn-primary" id="saveSettings">
+                                <i class="bi bi-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                       
+
+                        <!-- Settings Content -->
+                        <div class="col">
+                            <div class="settings-content card-body">
+                                <form method="post" id="agent-settings-form">
+                                    {% csrf_token %}
+                                    <div class="tab-content">
+                                        <!-- General Settings -->
+                                        <div class="tab-pane fade show active" id="general">
+                                            <div class="settings-section">
+                                                <h4>General Settings</h4>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">Company Information</div>
+                                                    <div class="card-body">
+                                                        <div class="row mb-3">
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">Company Name</label>
+                                                                <input type="text" class="form-control"
+                                                                    name="company_name"
+                                                                    value="{{ agent_settings.company_name }}">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">Website URL</label>
+                                                                <input type="url" class="form-control"
+                                                                    name="website_url"
+                                                                    value="{{ agent_settings.website_url }}">
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mb-3">
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">Contact Email</label>
+                                                                <input type="email" class="form-control"
+                                                                    name="contact_email"
+                                                                    value="{{ agent_settings.contact_email }}">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">Contact Phone</label>
+                                                                <input type="tel" class="form-control"
+                                                                    name="contact_phone"
+                                                                    value="{{ agent_settings.contact_phone }}">
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Address</label>
+                                                            <textarea class="form-control" rows="2"
+                                                                name="address">{{ agent_settings.address }}</textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">Localization</div>
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="col-md-4 mb-3">
+                                                                <label class="form-label">Default Language</label>
+                                                                <select class="form-select" name="default_language">
+                                                                    {% if agent_settings.default_language == "English (United States)" %}
+                                                                        <option value="English (United States)" selected>English (United States)</option>
+                                                                    {% else %}
+                                                                        <option value="English (United States)">English (United States)</option>
+                                                                    {% endif %}
+                                                                    {% if agent_settings.default_language == "Español (Spanish)" %}
+                                                                        <option value="Español (Spanish)" selected>Español (Spanish)</option>
+                                                                    {% else %}
+                                                                        <option value="Español (Spanish)">Español (Spanish)</option>
+                                                                    {% endif %}
+                                                                    {% if agent_settings.default_language == "Français (French)" %}
+                                                                        <option value="Français (French)" selected>Français (French)</option>
+                                                                    {% else %}
+                                                                        <option value="Français (French)">Français (French)</option>
+                                                                    {% endif %}
+                                                                    {% if agent_settings.default_language == "Deutsch (German)" %}
+                                                                        <option value="Deutsch (German)" selected>Deutsch (German)</option>
+                                                                    {% else %}
+                                                                        <option value="Deutsch (German)">Deutsch (German)</option>
+                                                                    {% endif %}
+                                                                    {% if agent_settings.default_language == "中文 (Chinese)" %}
+                                                                        <option value="中文 (Chinese)" selected>中文 (Chinese)</option>
+                                                                    {% else %}
+                                                                        <option value="中文 (Chinese)">中文 (Chinese)</option>
+                                                                    {% endif %}
+                                                                    {% if agent_settings.default_language == "日本語 (Japanese)" %}
+                                                                        <option value="日本語 (Japanese)" selected>日本語 (Japanese)</option>
+                                                                    {% else %}
+                                                                        <option value="日本語 (Japanese)">日本語 (Japanese)</option>
+                                                                    {% endif %}
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4 mb-3">
+                                                                <label class="form-label">Time Zone</label>
+                                                                <select class="form-select" name="time_zone">
+                                                                    <option value="(UTC-08:00) Pacific Time (US & Canada)" {% if agent_settings.time_zone == "(UTC-08:00) Pacific Time (US & Canada)" %}selected{% endif %}>(UTC-08:00) Pacific Time (US & Canada)</option>
+                                                                    <option value="(UTC-07:00) Mountain Time (US & Canada)" {% if agent_settings.time_zone == "(UTC-07:00) Mountain Time (US & Canada)" %}selected{% endif %}>(UTC-07:00) Mountain Time (US & Canada)</option>
+                                                                    <option value="(UTC-05:00) Eastern Time (US & Canada)" {% if agent_settings.time_zone == "(UTC-05:00) Eastern Time (US & Canada)" %}selected{% endif %}>(UTC-05:00) Eastern Time (US & Canada)</option>
+                                                                    <option value="(UTC) London" {% if agent_settings.time_zone == "(UTC) London" %}selected{% endif %}>(UTC) London</option>
+                                                                    <option value="(UTC+01:00) Berlin" {% if agent_settings.time_zone == "(UTC+01:00) Berlin" %}selected{% endif %}>(UTC+01:00) Berlin</option>
+                                                                    <option value="(UTC+05:30) India" {% if agent_settings.time_zone == "(UTC+05:30) India" %}selected{% endif %}>(UTC+05:30) India</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4 mb-3">
+                                                                <label class="form-label">Date Format</label>
+                                                                <select class="form-select" name="date_format">
+                                                                    <option value="MM/DD/YYYY" {% if agent_settings.date_format == "MM/DD/YYYY" %}selected{% endif %}>MM/DD/YYYY</option>
+                                                                    <option value="DD/MM/YYYY" {% if agent_settings.date_format == "DD/MM/YYYY" %}selected{% endif %}>DD/MM/YYYY</option>
+                                                                    <option value="YYYY-MM-DD" {% if agent_settings.date_format == "YYYY-MM-DD" %}selected{% endif %}>YYYY-MM-DD</option>
+                                                                    <option value="Month D, YYYY" {% if agent_settings.date_format == "Month D, YYYY" %}selected{% endif %}>Month D, YYYY</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-4">
+                                                                <label class="form-label">Time Format</label>
+                                                                <select class="form-select" name="time_format">
+                                                                    <option value="12-hour" {% if agent_settings.time_format == "12-hour" %}selected{% endif %}>12-hour (2:30 PM)</option>
+                                                                    <option value="24-hour" {% if agent_settings.time_format == "24-hour" %}selected{% endif %}>24-hour (14:30)</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="form-label">First Day of Week</label>
+                                                                <select class="form-select" name="first_day_of_week">
+                                                                    <option value="0" {% if agent_settings.first_day_of_week == 0 %}selected{% endif %}>Sunday</option>
+                                                                    <option value="1" {% if agent_settings.first_day_of_week == 1 %}selected{% endif %}>Monday</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="form-label">Currency</label>
+                                                                <select class="form-select" name="currency">
+                                                                    <option value="USD - US Dollar ($)" {% if agent_settings.currency == "USD - US Dollar ($)" %}selected{% endif %}>USD - US Dollar ($)</option>
+                                                                    <option value="EUR - Euro (€)" {% if agent_settings.currency == "EUR - Euro (€)" %}selected{% endif %}>EUR - Euro (€)</option>
+                                                                    <option value="GBP - British Pound (£)" {% if agent_settings.currency == "GBP - British Pound (£)" %}selected{% endif %}>GBP - British Pound (£)</option>
+                                                                    <option value="JPY - Japanese Yen (¥)" {% if agent_settings.currency == "JPY - Japanese Yen (¥)" %}selected{% endif %}>JPY - Japanese Yen (¥)</option>
+                                                                    <option value="INR - Indian Rupee (₹)" {% if agent_settings.currency == "INR - Indian Rupee (₹)" %}selected{% endif %}>INR - Indian Rupee (₹)</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">System Settings</div>
+                                                    <div class="card-body">
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="maintenanceMode" name="maintenance_mode" {% if agent_settings.maintenance_mode %}checked{% endif %}>
+                                                            <label class="form-check-label"
+                                                                for="maintenanceMode">Maintenance Mode</label>
+                                                            <div class="form-text">When enabled, only administrators can
+                                                                access the system.</div>
+                                                        </div>
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="userRegistration" name="user_registration" {% if agent_settings.user_registration == True %}checked{% endif %}>
+                                                            <label class="form-check-label" for="userRegistration">Allow
+                                                                User Registration</label>
+                                                            <div class="form-text">Allow new users to create accounts.
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="emailVerification" name="email_verification" {% if agent_settings.email_verification == True %}checked{% endif %}>
+                                                            <label class="form-check-label"
+                                                                for="emailVerification">Require Email
+                                                                Verification</label>
+                                                            <div class="form-text">Users must verify their email address
+                                                                before accessing the system.</div>
+                                                        </div>
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="rememberMe" name="remember_me" {% if agent_settings.remember_me == True %}checked{% endif %}>
+                                                            <label class="form-check-label" for="rememberMe">Enable
+                                                                "Remember Me" on Login</label>
+                                                        </div>
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="showTutorial" name="show_tutorial" {% if agent_settings.show_tutorial %}checked{% endif %}>
+                                                            <label class="form-check-label" for="showTutorial">Show
+                                                                Tutorial for New Users</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Appearance Settings -->
+                                        <div class="tab-pane fade" id="appearance">
+                                            <div class="settings-section">
+                                                <h4>Appearance</h4>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">Theme & Layout</div>
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="col-md-6 mb-4">
+                                                                <label class="form-label">Theme</label>
+                                                                <div class="d-flex align-items-center mb-3">
+                                                                    <div class="form-check me-4">
+                                                                        <input class="form-check-input" type="radio"
+                                                                            name="theme" id="lightTheme" checked>
+                                                                        <label class="form-check-label"
+                                                                            for="lightTheme">
+                                                                            <i class="bi bi-sun"></i> Light
+                                                                        </label>
+                                                                    </div>
+                                                                    <div class="form-check me-4">
+                                                                        <input class="form-check-input" type="radio"
+                                                                            name="theme" id="darkTheme">
+                                                                        <label class="form-check-label" for="darkTheme">
+                                                                            <i class="bi bi-moon"></i> Dark
+                                                                        </label>
+                                                                    </div>
+                                                                    <div class="form-check">
+                                                                        <input class="form-check-input" type="radio"
+                                                                            name="theme" id="systemTheme">
+                                                                        <label class="form-check-label"
+                                                                            for="systemTheme">
+                                                                            <i class="bi bi-laptop"></i> System
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+
+                                                                <label class="form-label">Primary Color</label>
+                                                                <div class="d-flex align-items-center mb-3">
+                                                                    <span class="theme-color active"
+                                                                        style="background-color: #0d6efd;"
+                                                                        data-color="#0d6efd"></span>
+                                                                    <span class="theme-color"
+                                                                        style="background-color: #6610f2;"
+                                                                        data-color="#6610f2"></span>
+                                                                    <span class="theme-color"
+                                                                        style="background-color: #6f42c1;"
+                                                                        data-color="#6f42c1"></span>
+                                                                    <span class="theme-color"
+                                                                        style="background-color: #d63384;"
+                                                                        data-color="#d63384"></span>
+                                                                    <span class="theme-color"
+                                                                        style="background-color: #dc3545;"
+                                                                        data-color="#dc3545"></span>
+                                                                    <span class="theme-color"
+                                                                        style="background-color: #fd7e14;"
+                                                                        data-color="#fd7e14"></span>
+                                                                    <span class="theme-color"
+                                                                        style="background-color: #ffc107;"
+                                                                        data-color="#ffc107"></span>
+                                                                    <span class="theme-color"
+                                                                        style="background-color: #198754;"
+                                                                        data-color="#198754"></span>
+                                                                    <span class="theme-color"
+                                                                        style="background-color: #20c997;"
+                                                                        data-color="#20c997"></span>
+                                                                    <button
+                                                                        class="btn btn-sm btn-outline-secondary ms-2"
+                                                                        type="button" data-bs-toggle="modal"
+                                                                        data-bs-target="#colorPickerModal">
+                                                                        <i class="bi bi-eyedropper"></i>
+                                                                    </button>
+                                                                </div>
+
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Layout Style</label>
+                                                                    <select class="form-select">
+                                                                        <option>Default</option>
+                                                                        <option>Boxed</option>
+                                                                        <option>Compact</option>
+                                                                        <option>Modern</option>
+                                                                    </select>
+                                                                </div>
+
+                                                                <div class="form-check form-switch mb-3">
+                                                                    <input class="form-check-input" type="checkbox"
+                                                                        id="fixedHeader" checked>
+                                                                    <label class="form-check-label"
+                                                                        for="fixedHeader">Fixed Header</label>
+                                                                </div>
+                                                                <div class="form-check form-switch mb-3">
+                                                                    <input class="form-check-input" type="checkbox"
+                                                                        id="fixedSidebar" checked>
+                                                                    <label class="form-check-label"
+                                                                        for="fixedSidebar">Fixed Sidebar</label>
+                                                                </div>
+                                                                <div class="form-check form-switch">
+                                                                    <input class="form-check-input" type="checkbox"
+                                                                        id="collapsedSidebar">
+                                                                    <label class="form-check-label"
+                                                                        for="collapsedSidebar">Collapsed Sidebar by
+                                                                        Default</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">Logo</label>
+                                                                <div class="mb-3">
+                                                                    <img src="https://via.placeholder.com/200x80?text=Logo"
+                                                                        alt="Logo" class="logo-preview"
+                                                                        id="logoPreview">
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <input type="file" class="form-control"
+                                                                        id="logoUpload" accept="image/*">
+                                                                    <div class="form-text">Recommended size: 200x80px,
+                                                                        Max size: 2MB</div>
+                                                                </div>
+
+                                                                <label class="form-label">Favicon</label>
+                                                                <div class="mb-3">
+                                                                    <img src="https://via.placeholder.com/32x32?text=Fav"
+                                                                        alt="Favicon" class="logo-preview"
+                                                                        style="max-width: 32px; max-height: 32px;"
+                                                                        id="faviconPreview">
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <input type="file" class="form-control"
+                                                                        id="faviconUpload"
+                                                                        accept="image/x-icon,image/png">
+                                                                    <div class="form-text">Recommended size: 32x32px,
+                                                                        .ico or .png</div>
+                                                                </div>
+
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Login Background</label>
+                                                                    <input type="file" class="form-control"
+                                                                        id="loginBgUpload" accept="image/*">
+                                                                    <div class="form-text">Recommended size: 1920x1080px
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">Custom CSS & JavaScript</div>
+                                                    <div class="card-body">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Custom CSS</label>
+                                                            <textarea class="form-control" rows="5"
+                                                                placeholder="/* Add your custom CSS here */"></textarea>
+                                                            <div class="form-text">This CSS will be loaded on all pages.
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Custom JavaScript (Header)</label>
+                                                            <textarea class="form-control" rows="5"
+                                                                placeholder="// Add your custom JavaScript here"></textarea>
+                                                            <div class="form-text">This JavaScript will be loaded in the
+                                                                &lt;head&gt; section.</div>
+                                                        </div>
+                                                        <div>
+                                                            <label class="form-label">Custom JavaScript (Footer)</label>
+                                                            <textarea class="form-control" rows="5"
+                                                                placeholder="// Add your custom JavaScript here"></textarea>
+                                                            <div class="form-text">This JavaScript will be loaded before
+                                                                the closing &lt;/body&gt; tag.</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Email Settings -->
+                                        <div class="tab-pane fade" id="email">
+                                            <div class="settings-section">
+                                                <h4>Email Settings</h4>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">SMTP Configuration</div>
+                                                    <div class="card-body">
+                                                        <div class="row mb-3">
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">SMTP Host</label>
+                                                                <input type="text" class="form-control"
+                                                                    placeholder="smtp.example.com">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">SMTP Port</label>
+                                                                <input type="number" class="form-control"
+                                                                    placeholder="587">
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mb-3">
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">SMTP Username</label>
+                                                                <input type="text" class="form-control"
+                                                                    placeholder="username">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">SMTP Password</label>
+                                                                <input type="password" class="form-control"
+                                                                    placeholder="••••••••">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="smtpAuth">
+                                                            <label class="form-check-label" for="smtpAuth">SMTP
+                                                                Authentication</label>
+                                                        </div>
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="smtpSecure" checked>
+                                                            <label class="form-check-label" for="smtpSecure">Use
+                                                                SSL/TLS</label>
+                                                        </div>
+                                                        <button class="btn btn-primary">Test SMTP Connection</button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">Email Templates</div>
+                                                    <div class="card-body">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Default From Email</label>
+                                                            <input type="email" class="form-control"
+                                                                value="support@tickethub.example.com">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Default From Name</label>
+                                                            <input type="text" class="form-control"
+                                                                value="TicketHub Support">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Email Header</label>
+                                                            <textarea class="form-control" rows="3"
+                                                                placeholder="Your custom email header"></textarea>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Email Footer</label>
+                                                            <textarea class="form-control" rows="3"
+                                                                placeholder="Your custom email footer"></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Notifications Settings -->
+                                        <div class="tab-pane fade" id="notifications">
+                                            <div class="settings-section">
+                                                <h4>Notification Settings</h4>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">Email Notifications</div>
+                                                    <div class="card-body">
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="emailNotifications" checked>
+                                                            <label class="form-check-label"
+                                                                for="emailNotifications">Enable Email
+                                                                Notifications</label>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Notification Email</label>
+                                                            <input type="email" class="form-control"
+                                                                value="notifications@tickethub.example.com">
+                                                        </div>
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="ticketAssigned" checked>
+                                                            <label class="form-check-label" for="ticketAssigned">Ticket
+                                                                Assigned</label>
+                                                        </div>
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="ticketUpdated" checked>
+                                                            <label class="form-check-label" for="ticketUpdated">Ticket
+                                                                Updated</label>
+                                                        </div>
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="ticketClosed" checked>
+                                                            <label class="form-check-label" for="ticketClosed">Ticket
+                                                                Closed</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">In-App Notifications</div>
+                                                    <div class="card-body">
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="inAppNotifications" checked>
+                                                            <label class="form-check-label"
+                                                                for="inAppNotifications">Enable In-App
+                                                                Notifications</label>
+                                                        </div>
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="desktopNotifications" checked>
+                                                            <label class="form-check-label"
+                                                                for="desktopNotifications">Enable Desktop
+                                                                Notifications</label>
+                                                        </div>
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="soundNotifications" checked>
+                                                            <label class="form-check-label"
+                                                                for="soundNotifications">Enable Sound
+                                                                Notifications</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Tickets Settings -->
+                                        <div class="tab-pane fade" id="tickets">
+                                            <div class="settings-section">
+                                                <h4>Ticket Settings</h4>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">General Ticket Settings</div>
+                                                    <div class="card-body">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Default Ticket Status</label>
+                                                            <select class="form-select">
+                                                                <option>Open</option>
+                                                                <option>In Progress</option>
+                                                                <option>On Hold</option>
+                                                                <option>Resolved</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Default Priority</label>
+                                                            <select class="form-select">
+                                                                <option>Low</option>
+                                                                <option selected>Medium</option>
+                                                                <option>High</option>
+                                                                <option>Urgent</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="ticketAssignment" checked>
+                                                            <label class="form-check-label"
+                                                                for="ticketAssignment">Enable Automatic Ticket
+                                                                Assignment</label>
+                                                        </div>
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="ticketReopen" checked>
+                                                            <label class="form-check-label" for="ticketReopen">Allow
+                                                                Customers to Reopen Tickets</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">SLA (Service Level Agreement)</div>
+                                                    <div class="card-body">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">First Response Time
+                                                                (hours)</label>
+                                                            <input type="number" class="form-control" value="24">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Resolution Time (hours)</label>
+                                                            <input type="number" class="form-control" value="72">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Business Hours</label>
+                                                            <select class="form-select">
+                                                                <option>24/7</option>
+                                                                <option selected>Business Hours (9 AM - 5 PM, Mon-Fri)
+                                                                </option>
+                                                                <option>Custom</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Users & Roles Settings -->
+                                        <div class="tab-pane fade" id="users">
+                                            <div class="settings-section">
+                                                <h4>Users & Roles</h4>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">User Registration</div>
+                                                    <div class="card-body">
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="userRegistration" checked>
+                                                            <label class="form-check-label" for="userRegistration">Allow
+                                                                User Registration</label>
+                                                        </div>
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="emailVerification" checked>
+                                                            <label class="form-check-label"
+                                                                for="emailVerification">Require Email
+                                                                Verification</label>
+                                                        </div>
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="adminApproval">
+                                                            <label class="form-check-label" for="adminApproval">Require
+                                                                Admin Approval</label>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Default User Role</label>
+                                                            <select class="form-select">
+                                                                <option>Customer</option>
+                                                                <option>Agent</option>
+                                                                <option>Manager</option>
+                                                                <option>Administrator</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">Password Policy</div>
+                                                    <div class="card-body">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Minimum Password Length</label>
+                                                            <input type="number" class="form-control" value="8">
+                                                        </div>
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="requireUppercase" checked>
+                                                            <label class="form-check-label"
+                                                                for="requireUppercase">Require Uppercase Letter</label>
+                                                        </div>
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="requireNumber" checked>
+                                                            <label class="form-check-label" for="requireNumber">Require
+                                                                Number</label>
+                                                        </div>
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="requireSpecialChar" checked>
+                                                            <label class="form-check-label"
+                                                                for="requireSpecialChar">Require Special
+                                                                Character</label>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Password Expiration (days)</label>
+                                                            <input type="number" class="form-control" value="90">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Custom Fields Settings -->
+                                        <div class="tab-pane fade" id="custom-fields">
+                                            <div class="settings-section">
+                                                <h4>Custom Fields</h4>
+
+                                                <div class="settings-card">
+                                                    <div
+                                                        class="card-header d-flex justify-content-between align-items-center">
+                                                        Custom Fields
+                                                        <button class="btn btn-sm btn-primary">
+                                                            <i class="bi bi-plus"></i> Add Field
+                                                        </button>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-hover">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Field Name</th>
+                                                                        <th>Field Type</th>
+                                                                        <th>Entity</th>
+                                                                        <th>Required</th>
+                                                                        <th>Actions</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td>Department</td>
+                                                                        <td>Dropdown</td>
+                                                                        <td>Ticket</td>
+                                                                        <td><span class="badge bg-success">Yes</span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <button
+                                                                                class="btn btn-sm btn-outline-primary me-1"><i
+                                                                                    class="bi bi-pencil"></i></button>
+                                                                            <button
+                                                                                class="btn btn-sm btn-outline-danger"><i
+                                                                                    class="bi bi-trash"></i></button>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Priority</td>
+                                                                        <td>Radio Buttons</td>
+                                                                        <td>Ticket</td>
+                                                                        <td><span class="badge bg-success">Yes</span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <button
+                                                                                class="btn btn-sm btn-outline-primary me-1"><i
+                                                                                    class="bi bi-pencil"></i></button>
+                                                                            <button
+                                                                                class="btn btn-sm btn-outline-danger"><i
+                                                                                    class="bi bi-trash"></i></button>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Website</td>
+                                                                        <td>URL</td>
+                                                                        <td>User</td>
+                                                                        <td><span class="badge bg-secondary">No</span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <button
+                                                                                class="btn btn-sm btn-outline-primary me-1"><i
+                                                                                    class="bi bi-pencil"></i></button>
+                                                                            <button
+                                                                                class="btn btn-sm btn-outline-danger"><i
+                                                                                    class="bi bi-trash"></i></button>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Automation Settings -->
+                                        <div class="tab-pane fade" id="automation">
+                                            <div class="settings-section">
+                                                <h4>Automation Rules</h4>
+
+                                                <div class="settings-card">
+                                                    <div
+                                                        class="card-header d-flex justify-content-between align-items-center">
+                                                        Automation Rules
+                                                        <button class="btn btn-sm btn-primary">
+                                                            <i class="bi bi-plus"></i> Add Rule
+                                                        </button>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-hover">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Rule Name</th>
+                                                                        <th>Trigger</th>
+                                                                        <th>Conditions</th>
+                                                                        <th>Actions</th>
+                                                                        <th>Status</th>
+                                                                        <th>Actions</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td>Assign to Support Team</td>
+                                                                        <td>New Ticket Created</td>
+                                                                        <td>Department = Support</td>
+                                                                        <td>Assign to Support Team</td>
+                                                                        <td><span class="badge bg-success">Active</span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <button
+                                                                                class="btn btn-sm btn-outline-primary me-1"><i
+                                                                                    class="bi bi-pencil"></i></button>
+                                                                            <button
+                                                                                class="btn btn-sm btn-outline-danger"><i
+                                                                                    class="bi bi-trash"></i></button>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>High Priority Alert</td>
+                                                                        <td>Ticket Priority Changed</td>
+                                                                        <td>Priority = High</td>
+                                                                        <td>Notify Manager</td>
+                                                                        <td><span class="badge bg-success">Active</span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <button
+                                                                                class="btn btn-sm btn-outline-primary me-1"><i
+                                                                                    class="bi bi-pencil"></i></button>
+                                                                            <button
+                                                                                class="btn btn-sm btn-outline-danger"><i
+                                                                                    class="bi bi-trash"></i></button>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Follow Up</td>
+                                                                        <td>No Response in 24h</td>
+                                                                        <td>Status = Waiting on Customer</td>
+                                                                        <td>Send Follow-up Email</td>
+                                                                        <td><span
+                                                                                class="badge bg-secondary">Inactive</span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <button
+                                                                                class="btn btn-sm btn-outline-primary me-1"><i
+                                                                                    class="bi bi-pencil"></i></button>
+                                                                            <button
+                                                                                class="btn btn-sm btn-outline-danger"><i
+                                                                                    class="bi bi-trash"></i></button>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Integrations Settings -->
+                                        <div class="tab-pane fade" id="integrations">
+                                            <div class="settings-section">
+                                                <h4>Integrations</h4>
+
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-4">
+                                                        <div class="card h-100">
+                                                            <div class="card-body text-center">
+                                                                <div class="mb-3">
+                                                                    <i class="bi bi-google"
+                                                                        style="font-size: 2.5rem; color: #4285F4;"></i>
+                                                                </div>
+                                                                <h5 class="card-title">Google Workspace</h5>
+                                                                <p class="card-text text-muted">Connect with Google
+                                                                    Calendar and Gmail</p>
+                                                                <button class="btn btn-outline-primary">Connect</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6 mb-4">
+                                                        <div class="card h-100">
+                                                            <div class="card-body text-center">
+                                                                <div class="mb-3">
+                                                                    <i class="bi bi-microsoft"
+                                                                        style="font-size: 2.5rem; color: #00A4EF;"></i>
+                                                                </div>
+                                                                <h5 class="card-title">Microsoft 365</h5>
+                                                                <p class="card-text text-muted">Connect with Outlook and
+                                                                    OneDrive</p>
+                                                                <button class="btn btn-outline-primary">Connect</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6 mb-4">
+                                                        <div class="card h-100">
+                                                            <div class="card-body text-center">
+                                                                <div class="mb-3">
+                                                                    <i class="bi bi-slack"
+                                                                        style="font-size: 2.5rem; color: #4A154B;"></i>
+                                                                </div>
+                                                                <h5 class="card-title">Slack</h5>
+                                                                <p class="card-text text-muted">Get notifications in
+                                                                    Slack</p>
+                                                                <button class="btn btn-outline-primary">Connect</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6 mb-4">
+                                                        <div class="card h-100">
+                                                            <div class="card-body text-center">
+                                                                <div class="mb-3">
+                                                                    <i class="bi bi-github"
+                                                                        style="font-size: 2.5rem; color: #181717;"></i>
+                                                                </div>
+                                                                <h5 class="card-title">GitHub</h5>
+                                                                <p class="card-text text-muted">Link GitHub issues to
+                                                                    tickets</p>
+                                                                <button class="btn btn-outline-primary">Connect</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- API Settings -->
+                                        <div class="tab-pane fade" id="api">
+                                            <div class="settings-section">
+                                                <h4>API Settings</h4>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">API Access</div>
+                                                    <div class="card-body">
+                                                        <div class="alert alert-info">
+                                                            <i class="bi bi-info-circle me-2"></i> Use the API to
+                                                            integrate with external applications and services.
+                                                        </div>
+
+                                                        <div class="mb-3">
+                                                            <label class="form-label">API Status</label>
+                                                            <div class="form-check form-switch">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    id="apiEnabled" checked>
+                                                                <label class="form-check-label" for="apiEnabled">Enable
+                                                                    API Access</label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="mb-3">
+                                                            <label class="form-label">API Base URL</label>
+                                                            <div class="input-group">
+                                                                <input type="text" class="form-control"
+                                                                    value="https://api.tickethub.example.com/v1"
+                                                                    readonly>
+                                                                <button class="btn btn-outline-secondary" type="button"
+                                                                    id="copyApiUrl">
+                                                                    <i class="bi bi-clipboard"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="mb-3">
+                                                            <label class="form-label">API Documentation</label>
+                                                            <p>View our <a href="#" target="_blank">API
+                                                                    documentation</a> for detailed information on how to
+                                                                use the API.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="settings-card">
+                                                    <div
+                                                        class="card-header d-flex justify-content-between align-items-center">
+                                                        API Keys
+                                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                                            data-bs-target="#createApiKeyModal">
+                                                            <i class="bi bi-plus"></i> Create API Key
+                                                        </button>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-hover">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Name</th>
+                                                                        <th>Key</th>
+                                                                        <th>Created</th>
+                                                                        <th>Last Used</th>
+                                                                        <th>Status</th>
+                                                                        <th>Actions</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td>Mobile App</td>
+                                                                        <td>tk_*****abc123</td>
+                                                                        <td>2023-10-15</td>
+                                                                        <td>2023-11-05</td>
+                                                                        <td><span class="badge bg-success">Active</span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <button
+                                                                                class="btn btn-sm btn-outline-primary me-1"><i
+                                                                                    class="bi bi-pencil"></i></button>
+                                                                            <button
+                                                                                class="btn btn-sm btn-outline-danger"><i
+                                                                                    class="bi bi-trash"></i></button>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Webhook</td>
+                                                                        <td>tk_*****xyz789</td>
+                                                                        <td>2023-09-20</td>
+                                                                        <td>2023-10-28</td>
+                                                                        <td><span
+                                                                                class="badge bg-secondary">Inactive</span>
+                                                                        </td>
+                                                                        <td>
+                                                                            <button
+                                                                                class="btn btn-sm btn-outline-primary me-1"><i
+                                                                                    class="bi bi-pencil"></i></button>
+                                                                            <button
+                                                                                class="btn btn-sm btn-outline-danger"><i
+                                                                                    class="bi bi-trash"></i></button>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Backup & Restore Settings -->
+                                        <div class="tab-pane fade" id="backup">
+                                            <div class="settings-section">
+                                                <h4>Backup & Restore</h4>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">Backup Database</div>
+                                                    <div class="card-body">
+                                                        <p>Create a backup of your database for safekeeping or before
+                                                            making major changes.</p>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Backup Options</label>
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox" value=""
+                                                                    id="backupDatabase" checked>
+                                                                <label class="form-check-label" for="backupDatabase">
+                                                                    Database
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox" value=""
+                                                                    id="backupAttachments" checked>
+                                                                <label class="form-check-label" for="backupAttachments">
+                                                                    Attachments
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox" value=""
+                                                                    id="backupEmails">
+                                                                <label class="form-check-label" for="backupEmails">
+                                                                    Email Templates
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <button class="btn btn-primary">
+                                                            <i class="bi bi-download me-1"></i> Create Backup
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">Restore Database</div>
+                                                    <div class="card-body">
+                                                        <div class="alert alert-warning">
+                                                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                                            <strong>Warning:</strong> Restoring from a backup will
+                                                            overwrite your current data. This action cannot be undone.
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="backupFile" class="form-label">Select Backup
+                                                                File</label>
+                                                            <input class="form-control" type="file" id="backupFile">
+                                                        </div>
+                                                        <div class="form-check mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="confirmRestore">
+                                                            <label class="form-check-label" for="confirmRestore">
+                                                                I understand that this will overwrite my current data
+                                                            </label>
+                                                        </div>
+                                                        <button class="btn btn-danger" disabled>
+                                                            <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
+                                                            from Backup
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">Scheduled Backups</div>
+                                                    <div class="card-body">
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="scheduledBackups" checked>
+                                                            <label class="form-check-label"
+                                                                for="scheduledBackups">Enable Scheduled Backups</label>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Frequency</label>
+                                                                    <select class="form-select">
+                                                                        <option>Daily</option>
+                                                                        <option selected>Weekly</option>
+                                                                        <option>Monthly</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Time</label>
+                                                                    <input type="time" class="form-control"
+                                                                        value="02:00">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Backup Retention</label>
+                                                            <select class="form-select">
+                                                                <option>Keep all backups</option>
+                                                                <option selected>Keep for 30 days</option>
+                                                                <option>Keep for 90 days</option>
+                                                                <option>Keep for 1 year</option>
+                                                            </select>
+                                                        </div>
+                                                        <button class="btn btn-outline-primary">
+                                                            <i class="bi bi-save me-1"></i> Save Schedule
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Updates Settings -->
+                                        <div class="tab-pane fade" id="updates">
+                                            <div class="settings-section">
+                                                <h4>Updates</h4>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">System Information</div>
+                                                    <div class="card-body">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-borderless">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <th style="width: 200px;">Current Version</th>
+                                                                        <td>v2.5.1 <span
+                                                                                class="badge bg-success">Latest</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th>Last Checked</th>
+                                                                        <td>2023-11-08 14:30:45</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th>PHP Version</th>
+                                                                        <td>8.1.12</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th>Database Version</th>
+                                                                        <td>MySQL 8.0.32</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th>Server Software</th>
+                                                                        <td>Apache/2.4.54 (Ubuntu)</td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">Check for Updates</div>
+                                                    <div class="card-body">
+                                                        <p>Check if there are any updates available for your system.</p>
+                                                        <button class="btn btn-primary">
+                                                            <i class="bi bi-arrow-repeat me-1"></i> Check for Updates
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">Automatic Updates</div>
+                                                    <div class="card-body">
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="autoUpdate" checked>
+                                                            <label class="form-check-label" for="autoUpdate">Enable
+                                                                Automatic Updates</label>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Update Channel</label>
+                                                            <select class="form-select">
+                                                                <option value="stable" selected>Stable (Recommended)
+                                                                </option>
+                                                                <option value="beta">Beta (For testing only)</option>
+                                                                <option value="alpha">Alpha (Unstable)</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="backupBeforeUpdate" checked>
+                                                            <label class="form-check-label"
+                                                                for="backupBeforeUpdate">Create
+                                                                backup before
+                                                                updating</label>
+                                                        </div>
+                                                        <button class="btn btn-outline-primary">
+                                                            <i class="bi bi-save me-1"></i> Save Settings
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Maintenance Settings -->
+                                        <div class="tab-pane fade" id="maintenance">
+                                            <div class="settings-section">
+                                                <h4>Maintenance Mode</h4>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">Maintenance Mode</div>
+                                                    <div class="card-body">
+                                                        <div class="alert alert-warning">
+                                                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                                            <strong>Warning:</strong> Enabling maintenance mode will
+                                                            restrict access to all users except administrators.
+                                                        </div>
+
+                                                        <div class="form-check form-switch mb-3">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="maintenanceMode">
+                                                            <label class="form-check-label" for="maintenanceMode">Enable
+                                                                Maintenance Mode</label>
+                                                        </div>
+
+                                                        <div id="maintenanceSettings" style="display: none;">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Maintenance Message</label>
+                                                                <textarea class="form-control" rows="4"
+                                                                    placeholder="We're currently performing scheduled maintenance. We'll be back shortly."></textarea>
+                                                            </div>
+
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Allow Access For</label>
+                                                                <select class="form-select" multiple>
+                                                                    <option selected>Administrators</option>
+                                                                    <option>Agents</option>
+                                                                    <option>API</option>
+                                                                </select>
+                                                                <div class="form-text">Hold down the Ctrl (Windows) or
+                                                                    Command (Mac) button to select multiple options.
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Scheduled Maintenance</label>
+                                                                <div class="row">
+                                                                    <div class="col-md-6">
+                                                                        <label class="form-label">Start Time</label>
+                                                                        <input type="datetime-local"
+                                                                            class="form-control">
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <label class="form-label">End Time</label>
+                                                                        <input type="datetime-local"
+                                                                            class="form-control">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <button class="btn btn-primary">
+                                                            <i class="bi bi-save me-1"></i> Save Settings
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">System Logs</div>
+                                                    <div class="card-body">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Log Level</label>
+                                                            <select class="form-select">
+                                                                <option>Debug</option>
+                                                                <option>Info</option>
+                                                                <option selected>Warning</option>
+                                                                <option>Error</option>
+                                                                <option>Critical</option>
+                                                            </select>
+                                                        </div>
+
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Log Retention</label>
+                                                            <select class="form-select">
+                                                                <option>1 day</option>
+                                                                <option>7 days</option>
+                                                                <option selected>30 days</option>
+                                                                <option>90 days</option>
+                                                                <option>1 year</option>
+                                                                <option>Forever</option>
+                                                            </select>
+                                                        </div>
+
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <button class="btn btn-outline-primary">
+                                                                <i class="bi bi-download me-1"></i> Download Logs
+                                                            </button>
+                                                            <button class="btn btn-outline-danger">
+                                                                <i class="bi bi-trash me-1"></i> Clear Logs
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <footer class="dashboard-footer mt-4 mb-2 text-muted small">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="https://ultrakeyit.com/" target="_blank" rel="noopener noreferrer"
+                            class="text-muted text-decoration-none">Ultrakey IT Solutions</a>
+                        <span>All systems operational</span>
+                    </div>
+                </footer>
+
+            </main>
+        </div>
+    </div>
+
+ 
+
+    <!-- Core JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+        <!-- Load header/sidebar/modals via agent_dashboard_page -->
+    <script>
+        function loadComponent(url, elementId) {
+            return fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        element.innerHTML = html;
+                        
+                        // If loading the sidebar, set the active nav item
+                        if (url.includes('sidebar.html')) {
+                            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                            let pageName = currentPage.replace('.html', '') || 'dashboard';
+                            // Map index to dashboard so the correct nav item is highlighted
+                            if (pageName === 'index') pageName = 'dashboard';
+                            const activeNavItem = document.querySelector(`.nav-item[data-page="${pageName}"]`);
+                            if (activeNavItem) {
+                                // Remove active class from all nav items
+                                document.querySelectorAll('.nav-item').forEach(item => {
+                                    item.classList.remove('active');
+                                });
+                                activeNavItem.classList.add('active');
+                            }
+                        }
+                        
+                        // If loading the header, initialize it after a short delay
+                        if (url.includes('header.html') && window.initializeHeader) {
+                            setTimeout(() => {
+                                window.initializeHeader();
+                            }, 50);
+                        }
+                        
+                        return true;
+                    }
+                    return false;
+                })
+                .catch(error => {
+                    console.error('Error loading component:', error);
+                    console.error('URL:', url, 'Element:', elementId);
+                    return false;
+                });
+        }
+        
+        // Initialize components when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function(){
+            // Debug: Check if URLs are available
+            console.log('Header URL:', '{{ header_url }}');
+            console.log('Sidebar URL:', '{{ sidebar_url }}');
+            console.log('Modals URL:', '{{ modals_url }}');
+            
+            // Fallback URLs if template variables are not available
+            const headerUrl = '{{ header_url }}' || '/dashboard/agent-dashboard/partials/header.html';
+            const sidebarUrl = '{{ sidebar_url }}' || '/dashboard/agent-dashboard/partials/sidebar.html';
+            const modalsUrl = '{{ modals_url }}' || '/dashboard/agent-dashboard/partials/modals.html';
+            
+            // Header
+            loadComponent(headerUrl, 'header-container')
+                .then(function(success){
+                    if (success) {
+                        // Wait a bit for header to be fully loaded, then initialize
+                        setTimeout(() => {
+                            if (window.initializeHeader) {
+                                window.initializeHeader();
+                            } else {
+                                console.error('initializeHeader function not available');
+                            }
+                        }, 100);
+                    } else {
+                        console.error('Failed to load header component');
+                    }
+                });
+            // Sidebar & modals
+            loadComponent(sidebarUrl, 'sidebar-container');
+            loadComponent(modalsUrl, 'modals-container');
+            
+            // Listen for navigation events (for single-page navigation)
+            document.body.addEventListener('click', function(e) {
+                // Check if the click was on a navigation link
+                const navLink = e.target.closest('a[data-page]');
+                if (navLink) {
+                    e.preventDefault(); // Prevent default navigation
+                    const page = navLink.getAttribute('data-page');
+                    const url = navLink.getAttribute('href');
+                    
+                    console.log('Navigating to:', page, 'URL:', url);
+                    
+                    // For now, just do a full page reload to ensure it works
+                    window.location.href = url;
+                }
+            });
+        });
+    </script>
+
+    <!-- Agent static JS -->
+    <script src="{% static 'agentdashboard/js/script.js' %}"></script>
+    <script src="{% static 'agentdashboard/js/header.js' %}"></script>
+    <script src="{% static 'agentdashboard/js/settings.js' %}?v=202502131008&r={{ settings_saved|yesno:'1,0' }}{{ settings_saved|yesno:'123,456' }}"></script>
+</body>
+</html>

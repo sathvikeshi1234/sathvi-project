@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Verify Code</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin: 0px auto;
+            max-width: 900px;
+            width: 90%;
+        }
+
+        .login-left {
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .login-logo img {
+            width: 90%;
+            height: 90%;
+        }
+
+        .login-header h2 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .login-header p {
+            color: #999;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            text-align: center;
+            letter-spacing: 0.3em;
+            font-weight: 700;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 14px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(124, 58, 237, 0.3);
+        }
+
+        .signup-link {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .signup-link a {
+            color: #7c3aed;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        .login-right {
+            background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .illustration {
+            text-align: center;
+            color: white;
+            z-index: 2;
+        }
+
+        .illustration-icon {
+            font-size: 150px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .illustration h3 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .illustration p {
+            font-size: 16px;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .shape1 {
+            width: 300px;
+            height: 300px;
+            background: white;
+            top: -100px;
+            right: -100px;
+        }
+
+        .shape2 {
+            width: 200px;
+            height: 200px;
+            background: white;
+            bottom: -50px;
+            left: -50px;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                grid-template-columns: 1fr;
+            }
+
+            .login-right {
+                display: none;
+            }
+
+            .login-left {
+                padding: 40px 30px;
+            }
+
+            .login-header h2 {
+                font-size: 24px;
+            }
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .success-message {
+            background: #ecfdf5;
+            color: #065f46;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .hint {
+            color: #6b7280;
+            font-size: 13px;
+            margin-top: -10px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="login-left">
+        <div class="login-logo">
+            {% if site_settings and site_settings.company_logo %}
+                <img src="{{ site_settings.company_logo.url }}" alt="TicketHub">
+            {% else %}
+                <img src="{% static 'assets/images/logo.jpg' %}" alt="TicketHub">
+            {% endif %}
+        </div>
+
+        <div class="login-header">
+            <h2>Verify Code</h2>
+            <p>Enter the 6-digit code sent to your email</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% if error %}
+                <div class="error-message">{{ error }}</div>
+            {% endif %}
+            {% if success %}
+                <div class="success-message">{{ success }}</div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="code">Verification Code</label>
+                <input type="text" id="code" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" required>
+            </div>
+
+            <div class="hint">If you didn’t receive the code, go back and try again.</div>
+
+            <button class="btn-login" type="submit">
+                <i class="fas fa-check"></i> Verify
+            </button>
+        </form>
+
+        <div class="signup-link">
+            <a href="{% url 'users:forgot_password' %}">Back</a>
+        </div>
+    </div>
+
+    <div class="login-right">
+        <div class="shape shape1"></div>
+        <div class="shape shape2"></div>
+
+        <div class="illustration">
+            <div class="illustration-icon">🔑</div>
+            <h3>Verify Access</h3>
+            <p>Confirm your email to continue password reset</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+{% endblock %}

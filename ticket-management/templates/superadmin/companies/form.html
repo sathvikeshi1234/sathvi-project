@@ -1,0 +1,155 @@
+{% extends "superadmin/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">{{ title }}</h4>
+        <a href="{% url 'superadmin:companies_list' %}" class="btn btn-secondary btn-sm">Back to Companies</a>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Company Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Company Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="name" value="{{ company.name }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" name="email" value="{{ company.email }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" name="phone" value="{{ company.phone }}">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Address</label>
+                                <textarea class="form-control" rows="2" name="address">{{ company.address }}</textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" name="is_active">
+                                    <option value="on" {% if company.is_active %}selected{% endif %}>Active</option>
+                                    <option value="" {% if not company.is_active %}selected{% endif %}>Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="card-title">Subscription Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Select Plan</label>
+                                <select class="form-select" name="plan" id="planSelect">
+                                    <option value="">Select a plan</option>
+                                    <option value="free_trial" {% if company.subscription_status == 'trial' %}selected{% endif %}>🎯 Free Trial (7 days)</option>
+                                    {% for plan in plans %}
+                                    <option value="{{ plan.id }}" {% if company.plan.id == plan.id %}selected{% endif %}>{{ plan.name }} - ₹{{ plan.price }}/{{ plan.billing_cycle }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Subscription Status</label>
+                                <select class="form-select" name="subscription_status">
+                                    <option value="trial" {% if company.subscription_status == 'trial' %}selected{% endif %}>Trial</option>
+                                    <option value="active" {% if company.subscription_status == 'active' %}selected{% endif %}>Active</option>
+                                    <option value="expired" {% if company.subscription_status == 'expired' %}selected{% endif %}>Expired</option>
+                                    <option value="cancelled" {% if company.subscription_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Subscription Start Date</label>
+                                <input type="date" class="form-control" name="subscription_start_date" value="{{ company.subscription_start_date|date:'Y-m-d' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Plan Expiry Date</label>
+                                <input type="date" class="form-control" name="plan_expiry_date" value="{{ company.plan_expiry_date|date:'Y-m-d' }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="feather-save me-1"></i> Save Company
+                            </button>
+                            <a href="{% url 'superadmin:companies_list' %}" class="btn btn-outline-secondary">
+                                <i class="feather-x me-1"></i> Cancel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Initialize select2
+        $('.form-select').select2({
+            minimumResultsForSearch: Infinity,
+            width: '100%'
+        });
+
+        // Handle plan selection - auto-set subscription status
+        $('#planSelect').on('change', function() {
+            const selectedPlan = $(this).val();
+            const statusSelect = $('select[name="subscription_status"]');
+            
+            if (selectedPlan === 'free_trial') {
+                // Auto-set to trial when free trial is selected
+                statusSelect.val('trial').trigger('change');
+            } else if (selectedPlan && selectedPlan !== '') {
+                // Auto-set to active when paid plan is selected
+                statusSelect.val('active').trigger('change');
+            }
+        });
+
+        // Style free trial option differently
+        $('#planSelect').on('select2:open', function() {
+            setTimeout(function() {
+                $('.select2-results__option:contains("Free Trial")')
+                    .css({
+                        'background-color': '#e8f5e8',
+                        'border': '1px solid #28a745',
+                        'font-weight': 'bold'
+                    });
+            }, 10);
+        });
+    });
+</script>
+
+<style>
+/* Style for free trial option */
+.select2-results__option[data-select2-id*="free_trial"] {
+    background-color: #e8f5e8 !important;
+    border: 1px solid #28a745 !important;
+    font-weight: bold !important;
+    color: #155724 !important;
+}
+</style>
+{% endblock %}

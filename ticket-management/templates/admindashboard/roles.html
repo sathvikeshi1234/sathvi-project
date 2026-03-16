@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<!-- <html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Role Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'admindashboard/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'admindashboard/css/roles.css' %}">
+</head>
+<body>
+    <div id="app">
+        Include Sidebar -->
+        <!-- <div id="sidebar-container">
+             Content will be loaded by JavaScript -->
+        </div> -->
+
+        <!-- <div class="main-container">
+            <!-- Include Header -->
+            <div id="header-container">
+                <!-- Content will be loaded by JavaScript -->
+            </div>
+
+            <!-- Main Content
+            <main class="content-area">
+                <!-- ROLES PAGE CONTENT -->
+                <div id="roles" class="page-content active">
+                    <div class="page-header">
+                        <div>
+                            <h2>Role Management</h2>
+                            <p class="text-muted">Manage user roles and their permissions</p>
+                        </div>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRoleModal">
+                            <i class="bi bi-plus"></i> Add Role
+                        </button>
+                    </div>
+
+                    <div class="row" id="roles-container">
+                        <!-- Role cards will be rendered here dynamically -->
+                    </div>
+                </div>
+
+                <footer class="dashboard-footer mt-4 mb-2 text-muted small">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>©Ultrakey IT Solutions</span>
+                        <span>All systems operational</span>
+                    </div>
+                </footer>
+            </main>
+        </div>
+    </div> -->
+
+    <!-- Include Modals -->
+    <div id="modals-container">
+        <!-- Content will be loaded by JavaScript -->
+        
+        <!-- New Role Modal -->
+        <div class="modal fade" id="newRoleModal" tabindex="-1" aria-labelledby="newRoleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="newRoleModalLabel">Create New Role</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="newRoleForm">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Role Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" placeholder="e.g., Support Manager" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" rows="2" placeholder="Brief description of the role"></textarea>
+                            </div>
+                            
+                            <div class="permission-group">
+                                <h6 class="mb-3">General Permissions</h6>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="accessDashboard">
+                                    <label class="form-check-label" for="accessDashboard">Access Dashboard</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="viewReports">
+                                    <label class="form-check-label" for="viewReports">View Reports</label>
+                                </div>
+                            </div>
+                            
+                            <div class="permission-group">
+                                <h6 class="mb-3">Ticket Management</h6>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="createTickets">
+                                    <label class="form-check-label" for="createTickets">Create Tickets</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="editTickets">
+                                    <label class="form-check-label" for="editTickets">Edit Tickets</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="deleteTickets">
+                                    <label class="form-check-label" for="deleteTickets">Delete Tickets</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="assignTickets">
+                                    <label class="form-check-label" for="assignTickets">Assign Tickets</label>
+                                </div>
+                            </div>
+                            
+                            <div class="permission-group">
+                                <h6 class="mb-3">User Management</h6>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="manageUsers">
+                                    <label class="form-check-label" for="manageUsers">Manage Users</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="manageRoles">
+                                    <label class="form-check-label" for="manageRoles">Manage Roles & Permissions</label>
+                                </div>
+                            </div>
+                            
+                            <div class="permission-group">
+                                <h6 class="mb-3">System Settings</h6>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="systemSettings">
+                                    <label class="form-check-label" for="systemSettings">System Configuration</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Create Role</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Edit Role Modal -->
+        <div class="modal fade" id="editRoleModal" tabindex="-1" aria-labelledby="editRoleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editRoleModalLabel">Edit Role</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="editRoleForm">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Role Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" value="Manager" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" rows="2">Can manage tickets, agents, and view reports. Limited system access.</textarea>
+                            </div>
+                            
+                            <div class="permission-group">
+                                <h6 class="mb-3">General Permissions</h6>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="editAccessDashboard" checked>
+                                    <label class="form-check-label" for="editAccessDashboard">Access Dashboard</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="editViewReports" checked>
+                                    <label class="form-check-label" for="editViewReports">View Reports</label>
+                                </div>
+                            </div>
+                            
+                            <div class="permission-group">
+                                <h6 class="mb-3">Ticket Management</h6>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="editCreateTickets" checked>
+                                    <label class="form-check-label" for="editCreateTickets">Create Tickets</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="editEditTickets" checked>
+                                    <label class="form-check-label" for="editEditTickets">Edit Tickets</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="editDeleteTickets" checked>
+                                    <label class="form-check-label" for="editDeleteTickets">Delete Tickets</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="editAssignTickets" checked>
+                                    <label class="form-check-label" for="editAssignTickets">Assign Tickets</label>
+                                </div>
+                            </div>
+                            
+                            <div class="permission-group">
+                                <h6 class="mb-3">User Management</h6>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="editManageUsers">
+                                    <label class="form-check-label" for="editManageUsers">Manage Users</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="editManageRoles" disabled>
+                                    <label class="form-check-label" for="editManageRoles">Manage Roles & Permissions</label>
+                                </div>
+                            </div>
+                            
+                            <div class="permission-group">
+                                <h6 class="mb-3">System Settings</h6>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="editSystemSettings" disabled>
+                                    <label class="form-check-label" for="editSystemSettings">System Configuration</label>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-warning mt-3">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                Some permissions are restricted for this role type and cannot be modified.
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-danger me-auto" data-bs-dismiss="modal">
+                                <i class="bi bi-trash me-1"></i> Delete Role
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    
+    
+
+    <!-- Core JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Utility function for loading components and roles -->
+    <script>
+        // Function to load HTML content into an element
+        function loadComponent(url, elementId) {
+            return fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        element.innerHTML = html;
+                        
+                        // If loading the sidebar, set the active nav item
+                        if (url.includes('sidebar.html')) {
+                            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                            const pageName = currentPage.replace('.html', '') || 'dashboard';
+                            const activeNavItem = document.querySelector(`.nav-item[data-page="${pageName}"]`);
+                            if (activeNavItem) {
+                                // Remove active class from all nav items
+                                document.querySelectorAll('.nav-item').forEach(item => {
+                                    item.classList.remove('active');
+                                });
+                                activeNavItem.classList.add('active');
+                            }
+                        }
+                        
+                        // If loading the header, initialize it after a short delay
+                        if (url.includes('header.html') && window.initializeHeader) {
+                            setTimeout(() => {
+                                window.initializeHeader();
+                            }, 50);
+                        }
+                        
+                        return true;
+                    }
+                    return false;
+                })
+                .catch(error => {
+                    console.error('Error loading component:', error);
+                    return false;
+                });
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function deleteRole(roleId, deletable) {
+            if (!deletable) {
+                return;
+            }
+            if (!confirm('Are you sure you want to delete this role?')) {
+                return;
+            }
+            const csrftoken = getCookie('csrftoken');
+            fetch(`/api/roles/${roleId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': csrftoken || ''
+                },
+                credentials: 'same-origin'
+            })
+                .then(response => {
+                    if (!response.ok && response.status !== 204) {
+                        return response.json().then(data => {
+                            throw new Error(data.detail || 'Failed to delete role');
+                        });
+                    }
+                    // Reload roles after successful delete
+                    loadRoles();
+                })
+                .catch(error => {
+                    console.error('Error deleting role:', error);
+                    alert(error.message || 'Failed to delete role.');
+                });
+        }
+
+        // Fetch roles from backend and render cards dynamically
+        function loadRoles() {
+            const container = document.getElementById('roles-container');
+            if (!container) return;
+
+            // Clear any existing content
+            container.innerHTML = '<div class="text-muted">Loading roles...</div>';
+
+            fetch('/api/roles/', { credentials: 'same-origin' })
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to load roles');
+                    return response.json();
+                })
+                .then(data => {
+                    const results = data.results || [];
+                    container.innerHTML = '';
+
+                    if (!results.length) {
+                        container.innerHTML = '<div class="text-muted">No roles found.</div>';
+                        return;
+                    }
+
+                    results.forEach(role => {
+                        const col = document.createElement('div');
+                        col.className = 'col-md-6 col-lg-4 mb-4';
+
+                        const card = document.createElement('div');
+                        card.className = 'card h-100 role-card';
+
+                        const header = document.createElement('div');
+                        header.className = 'card-header d-flex justify-content-between align-items-center';
+
+                        const nameSpan = document.createElement('span');
+                        nameSpan.textContent = role.label || role.name;
+
+                        const badgeSpan = document.createElement('span');
+                        const badgeClass = role.badge_class || 'bg-info';
+                        badgeSpan.className = `badge ${badgeClass}`;
+                        badgeSpan.textContent = role.badge || 'Custom';
+
+                        header.appendChild(nameSpan);
+                        header.appendChild(badgeSpan);
+
+                        const body = document.createElement('div');
+                        body.className = 'card-body';
+
+                        const descP = document.createElement('p');
+                        descP.className = 'text-muted small mb-3';
+                        descP.textContent = role.description || 'Custom role defined in the system.';
+
+                        const footerRow = document.createElement('div');
+                        footerRow.className = 'd-flex justify-content-between align-items-center';
+
+                        const countSpan = document.createElement('span');
+                        countSpan.className = 'text-muted small';
+                        const count = role.user_count || 0;
+                        countSpan.textContent = `${count} user${count === 1 ? '' : 's'}`;
+
+                        const actionsDiv = document.createElement('div');
+
+                        const editBtn = document.createElement('button');
+                        editBtn.className = 'btn btn-sm btn-outline-primary me-1';
+                        editBtn.setAttribute('data-bs-toggle', 'modal');
+                        editBtn.setAttribute('data-bs-target', '#editRoleModal');
+                        editBtn.innerHTML = '<i class="bi bi-pencil"></i>';
+
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.className = 'btn btn-sm btn-outline-danger';
+                        if (!role.deletable) {
+                            deleteBtn.className = 'btn btn-sm btn-outline-secondary';
+                            deleteBtn.disabled = true;
+                        }
+                        deleteBtn.innerHTML = '<i class="bi bi-trash"></i>';
+                        deleteBtn.addEventListener('click', function () {
+                            deleteRole(role.id, role.deletable);
+                        });
+
+                        actionsDiv.appendChild(editBtn);
+                        actionsDiv.appendChild(deleteBtn);
+
+                        footerRow.appendChild(countSpan);
+                        footerRow.appendChild(actionsDiv);
+
+                        body.appendChild(descP);
+                        body.appendChild(footerRow);
+
+                        card.appendChild(header);
+                        card.appendChild(body);
+                        col.appendChild(card);
+                        container.appendChild(col);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading roles:', error);
+                    container.innerHTML = '<div class="text-danger">Failed to load roles.</div>';
+                });
+        }
+        
+        // Initialize components when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load header if container exists
+            if (document.getElementById('header-container')) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/header.html" %}', 'header-container');
+            }
+            
+            // Load sidebar if container exists
+            if (document.getElementById('sidebar-container')) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/sidebar.html" %}', 'sidebar-container');
+            }
+            
+            // Load modals only if container exists and is empty, so page-specific modals are not overwritten
+            const modalsContainer = document.getElementById('modals-container');
+            if (modalsContainer && !modalsContainer.hasChildNodes()) {
+                loadComponent('{% url "dashboards:admin_dashboard_page" "partials/modals.html" %}', 'modals-container');
+            }
+
+            // Load roles list for this page
+            loadRoles();
+            
+            // Listen for navigation events (for single-page navigation)
+            document.body.addEventListener('click', function(e) {
+                // Check if the click was on a navigation link
+                const navLink = e.target.closest('a[data-page]');
+                if (navLink) {
+                    // Re-initialize header after a short delay to allow the page to update
+                    setTimeout(() => {
+                        if (window.initializeHeader) {
+                            window.initializeHeader();
+                        }
+                    }, 100);
+                }
+            });
+        });
+    </script>
+    
+    <!-- Application Scripts -->
+    <script src="{% static 'admindashboard/js/script.js' %}"></script>
+    <script src="{% static 'admindashboard/js/header.js' %}"></script>
+</body>
+</html>- -->

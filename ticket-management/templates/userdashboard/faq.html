@@ -1,0 +1,483 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Ticket Management System</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- User Dashboard CSS -->
+    <link rel="stylesheet" href="{% static 'userdashboard/css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'userdashboard/css/faq.css' %}">
+</head>
+
+<body class="app-body" data-page="dashboard">
+
+<div class="app-root">
+
+     <!-- Include Sidebar -->
+  {% include 'userdashboard/partials/sidebar.html' %}
+
+    <!-- Main Content -->
+    <main class="main">
+
+                <!-- Include Header -->
+  {% include 'userdashboard/partials/header.html' %}
+
+    {% block content %}
+
+       <section class="page">
+
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Help Center</h1>
+                        <p class="page-subtitle">
+                            Find answers to common questions and get help with TicketHub
+                        </p>
+                    </div>
+
+                    <div class="search-container">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="faq-search" placeholder="Search help articles...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-container">
+
+                    <!-- Left Sidebar Categories -->
+                    <div class="categories-sidebar">
+                        <div class="category active" data-category="all">
+                            <i class="fas fa-home"></i><span>All Topics</span>
+                        </div>
+
+                        <div class="category" data-category="getting-started">
+                            <i class="fas fa-rocket"></i><span>Getting Started</span>
+                        </div>
+
+                        <div class="category" data-category="tickets">
+                            <i class="fas fa-ticket-alt"></i><span>Tickets</span>
+                        </div>
+
+                        <div class="category" data-category="billing">
+                            <i class="fas fa-credit-card"></i><span>Billing</span>
+                        </div>
+
+                        <div class="category" data-category="account">
+                            <i class="fas fa-user"></i><span>Account</span>
+                        </div>
+
+                        <div class="category" data-category="troubleshooting">
+                            <i class="fas fa-tools"></i><span>Troubleshooting</span>
+                        </div>
+
+                        <div class="help-card">
+                            <i class="fas fa-headset"></i>
+                            <h4>Need more help?</h4>
+                            <p>Our support team is here to assist you.</p>
+                            <a href="/dashboard/user-dashboard/chat/" class="btn btn-outline">
+                                <i class="fas fa-envelope"></i> Contact Support
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Right FAQ Content -->
+                    <div class="faq-content">
+
+                        <!-- Featured Articles (dynamic) -->
+                        <div class="featured-articles">
+                            <h2 class="section-title">Featured Articles</h2>
+
+                            <div class="articles-grid">
+                                {% for item in featured_faqs %}
+                                <a href="#" class="article-card">
+                                    <div class="article-icon">
+                                        <i class="fas fa-question-circle"></i>
+                                    </div>
+                                    <h3>{{ item.question }}</h3>
+                                    <p>{{ item.answer|truncatechars:120 }}</p>
+                                    <span class="article-category">{{ item.category }}</span>
+                                </a>
+                                {% empty %}
+                                <p class="no-articles">No featured articles available.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- FAQ Sections (dynamic) -->
+                        <div class="faq-sections">
+                            {% for section in faq_sections %}
+                            <section class="faq-section" data-category="{{ section.key }}">
+                                <h2 class="faq-section-title">{{ section.title }}</h2>
+                                {% if section.description %}
+                                <p class="faq-section-description">{{ section.description }}</p>
+                                {% endif %}
+
+                                <div class="faq-list">
+                                    {% for item in section.items %}
+                                    <div class="faq-item">
+                                        <button type="button" class="faq-question">
+                                            {{ item.question }}
+                                            <span class="faq-toggle-icon">+</span>
+                                        </button>
+                                        <div class="faq-answer">
+                                            <p>{{ item.answer }}</p>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </section>
+                            {% empty %}
+                            <p class="no-faqs">No FAQs available yet. Please check back later.</p>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Contact Support -->
+                <div class="contact-support">
+                    <div class="support-content">
+                        <h2>Still need help?</h2>
+                        <p>Our support team is available 24/7 to assist you.</p>
+
+                        <div class="support-options">
+                            <a href="/dashboard/user-dashboard/chat/" class="btn btn-primary">
+                                <i class="fas fa-comments"></i> Chat with Us
+                            </a>
+                            <a href="mailto:support@tickethub.com" class="btn btn-outline">
+                                <i class="fas fa-envelope"></i> Email Us
+                            </a>
+                            <a href="tel:+18005551234" class="btn btn-outline">
+                                <i class="fas fa-phone"></i> Call Us
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-content">© 2025 <a href="https://ultrakeyit.com/" target="_blank" rel="noopener noreferrer" class="text-decoration-none">Ultrakey It Solutions</a>. All rights reserved.</div>
+        </footer>
+ {% endblock %}
+    </main>
+
+</div>
+
+<!-- JS Files -->
+<!-- <script src="{% static 'userdashboard/js/layout.js' %}"></script> -->
+<script src="{% static 'userdashboard/js/script.js' %}"></script>
+<script src="{% static 'userdashboard/js/app.js' %}"></script>
+
+   <script>
+        // FAQ Accordion Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle FAQ answers
+            const faqQuestions = document.querySelectorAll('.faq-question');
+            
+            faqQuestions.forEach(question => {
+                question.addEventListener('click', () => {
+                    const item = question.parentNode;
+                    const isOpen = item.classList.contains('active');
+                    
+                    // Close all other items
+                    document.querySelectorAll('.faq-item').forEach(el => {
+                        el.classList.remove('active');
+                    });
+                    
+                    // Toggle current item
+                    if (!isOpen) {
+                        item.classList.add('active');
+                    }
+                });
+            });
+            
+            // Initialize - show all FAQ sections by default
+            const faqSections = document.querySelectorAll('.faq-section');
+            faqSections.forEach(section => {
+                section.style.display = 'block';
+            });
+            
+            // Category filtering
+            const categories = document.querySelectorAll('.category');
+            
+            categories.forEach(category => {
+                category.addEventListener('click', () => {
+                    const categoryName = category.getAttribute('data-category');
+                    
+                    // Update active category
+                    categories.forEach(c => c.classList.remove('active'));
+                    category.classList.add('active');
+                    
+                    // Show/hide FAQ sections
+                    if (categoryName === 'all') {
+                        faqSections.forEach(section => {
+                            section.style.display = 'block';
+                        });
+                    } else {
+                        faqSections.forEach(section => {
+                            if (section.getAttribute('data-category') === categoryName) {
+                                section.style.display = 'block';
+                            } else {
+                                section.style.display = 'none';
+                            }
+                        });
+                    }
+                    
+                    // Hide featured articles when specific category is selected
+                    const featuredArticles = document.querySelector('.featured-articles');
+                    if (featuredArticles) {
+                        if (categoryName === 'all') {
+                            featuredArticles.style.display = 'block';
+                        } else {
+                            featuredArticles.style.display = 'none';
+                        }
+                    }
+                });
+            });
+            
+            // Search functionality (backend-driven)
+            const searchInput = document.getElementById('faq-search');
+            const faqSearchApi = '{% url "dashboards:faq_search_api" %}';
+            let faqSearchTimeout = null;
+
+            function showAllFaqs() {
+                document.querySelectorAll('.faq-item').forEach(item => { item.style.display = 'block'; });
+                faqSections.forEach(section => { section.style.display = 'block'; });
+            }
+
+            searchInput.addEventListener('input', (e) => {
+                const term = (e.target.value || '').trim();
+
+                clearTimeout(faqSearchTimeout);
+                if (term.length < 3) {
+                    // short terms: reset to client-side view
+                    faqSearchTimeout = setTimeout(() => showAllFaqs(), 150);
+                    return;
+                }
+
+                // debounce and call backend
+                faqSearchTimeout = setTimeout(() => {
+                    fetch(faqSearchApi + '?q=' + encodeURIComponent(term), { credentials: 'same-origin' })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (!data || !data.success) {
+                                showAllFaqs();
+                                return;
+                            }
+
+                            // hide everything then reveal matches
+                            document.querySelectorAll('.faq-item').forEach(item => { item.style.display = 'none'; });
+                            document.querySelectorAll('.faq-section').forEach(section => { section.style.display = 'none'; });
+
+                            const results = data.results || [];
+                            if (results.length === 0) {
+                                // show no-results notice
+                                let nr = document.querySelector('.faq-no-results');
+                                if (!nr) {
+                                    nr = document.createElement('p');
+                                    nr.className = 'faq-no-results';
+                                    nr.textContent = 'No results found.';
+                                    document.querySelector('.faq-sections').prepend(nr);
+                                }
+                                return;
+                            }
+
+                            // remove any existing no-results note
+                            const existing = document.querySelector('.faq-no-results');
+                            if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+
+                            results.forEach(res => {
+                                // find matching question in DOM by text match
+                                const questionElems = Array.from(document.querySelectorAll('.faq-question'));
+                                const matched = questionElems.find(q => q.textContent.trim() === res.question);
+                                if (matched) {
+                                    const item = matched.parentNode;
+                                    const section = item.closest('.faq-section');
+                                    if (item) item.style.display = 'block';
+                                    if (section) section.style.display = 'block';
+                                }
+                            });
+                        })
+                        .catch(err => {
+                            console.error('FAQ search error', err);
+                            showAllFaqs();
+                        });
+                }, 300);
+            });
+        });
+    </script>
+
+    <style>
+        /* FAQ Section Styles */
+        .faq-section {
+            display: block;
+            margin-bottom: 2rem;
+        }
+        
+        .faq-section[data-category="getting-started"] {
+            display: block;
+        }
+        
+        .faq-section-title {
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #007bff;
+        }
+        
+        .faq-section-description {
+            color: #666;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+        
+        .faq-item {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .faq-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1);
+            border-color: #007bff;
+        }
+        
+        .faq-item.active {
+            border-color: #007bff;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+        }
+        
+        .faq-question {
+            width: 100%;
+            padding: 1.25rem;
+            background: #f8f9fa;
+            border: none;
+            text-align: left;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .faq-question:hover {
+            background: #e9ecef;
+            color: #007bff;
+        }
+        
+        .faq-item.active .faq-question {
+            background: #007bff;
+            color: white;
+        }
+        
+        .faq-toggle-icon {
+            font-size: 1.25rem;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+        
+        .faq-item.active .faq-toggle-icon {
+            transform: rotate(45deg);
+        }
+        
+        .faq-answer {
+            padding: 0 1.25rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .faq-item.active .faq-answer {
+            padding: 1.25rem;
+            max-height: 500px;
+        }
+        
+        .faq-answer p {
+            color: #666;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        /* Category active state */
+        .category.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .category.active:hover {
+            background: #0056b3;
+            color: white;
+        }
+        
+        /* Featured articles */
+        .featured-articles {
+            margin-bottom: 2rem;
+        }
+        
+        .article-card {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+        }
+        
+        .article-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1);
+            transform: translateY(-2px);
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .article-icon {
+            width: 48px;
+            height: 48px;
+            background: #f8f9fa;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            color: #007bff;
+            font-size: 1.25rem;
+        }
+        
+        .article-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        .article-card p {
+            color: #666;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .article-category {
+            color: #007bff;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</body>
+</html>

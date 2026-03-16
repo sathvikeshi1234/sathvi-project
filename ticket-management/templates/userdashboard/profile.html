@@ -1,0 +1,215 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TicketHub - Ticket Management System</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <!-- User Dashboard CSS -->
+  <link rel="stylesheet" href="{% static 'userdashboard/css/styles.css' %}">
+  <link rel="stylesheet" href="{% static 'userdashboard/css/profile.css' %}">
+</head>
+
+<body class="app-body" data-page="dashboard">
+
+  <div class="app-root">
+
+    <!-- Include Sidebar -->
+    {% include 'userdashboard/partials/sidebar.html' %}
+
+    <!-- Main Content -->
+    <main class="main">
+
+      <!-- Include Header -->
+      {% include 'userdashboard/partials/header.html' %}
+
+      {% block content %}
+
+      <!-- Content -->
+      <section class="page">
+        <section class="tickets">
+          <div>
+
+          </div>
+          <div>
+            <img class="avatar" src="{% static 'userdashboard/assets/cute-woman-avatar.avif' %}" alt="User Avatar"
+              style="width: 8%; height: 10%;">
+            <h3 id="name">{{ profile_full_name|default:"User" }}</h3>
+            <div class="row mt-8">
+              <span class="label">Role: {{ profile_role }}</span>
+            </div>
+          </div>
+
+        </section>
+
+        <section class="tickets">
+          <h3>Profile Picture</h3>
+          <div class="profile-picture-section">
+            <div class="profile-picture-display">
+              {% if profile_obj.profile_picture %}
+                <img src="{{ profile_obj.profile_picture.url }}" alt="Profile Picture" class="current-profile-picture">
+              {% else %}
+                <div class="default-avatar">
+                  <i class="fas fa-user"></i>
+                </div>
+              {% endif %}
+            </div>
+            <div class="profile-actions">
+              <button type="button" class="btn btn-primary" onclick="document.getElementById('profile_picture').click()">
+                <i class="fas fa-camera me-2"></i>Upload Profile Picture
+              </button>
+              <input id="profile_picture" name="profile_picture" type="file" class="form-control" accept="image/*" style="display: none;" onchange="handleFileSelect(this)">
+              {% if profile_obj.profile_picture %}
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeProfilePicture()">
+                  <i class="fas fa-trash me-1"></i>Remove
+                </button>
+              {% endif %}
+              {% if profile_obj.profile_picture %}
+                <small class="text-muted d-block mt-2">Current: <a href="{{ profile_obj.profile_picture.url }}" target="_blank">View picture</a></small>
+              {% endif %}
+            </div>
+            <form id="profilePictureForm" class="form mt-8" method="post" enctype="multipart/form-data" style="display: none;">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="profile">
+            </form>
+          </div>
+        </section>
+
+        <section class="tickets">
+          <h3>Basic information</h3>
+          <form id="profileForm" class="form mt-8" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="profile">
+            <div>
+              <label class="label" for="fullName">Full name</label>
+              <input id="fullName" name="fullName" type="text" placeholder="Your name"
+                value="{{ profile_full_name }}" />
+            </div>
+            <div>
+              <label class="label" for="email">Email</label>
+              <input id="email" name="email" type="email" placeholder="you@example.com" value="{{ profile_email }}" />
+            </div>
+            <div>
+              <label class="label" for="phone">Phone</label>
+              <input id="phone" name="phone" type="tel" placeholder="+91 XXXXX XXXXX" value="{{ profile_phone }}" />
+            </div>
+            <div class="full row">
+              <button class="btn" type="submit">Save</button>
+              <span id="saved" class="label">{% if profile_saved %}Saved.{% endif %}</span>
+            </div>
+          </form>
+        </section>
+
+        <section class="tickets">
+          <h3>Security</h3>
+          <form id="secForm" class="form mt-8" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="password">
+            <div>
+              <label class="label" for="password">New password</label>
+              <input id="password" name="password" type="password" placeholder="••••••••" autocomplete="new-password" />
+            </div>
+            <div>
+              <label class="label" for="confirm">Confirm password</label>
+              <input id="confirm" name="confirm" type="password" placeholder="••••••••" autocomplete="new-password" />
+            </div>
+            <div class="full row">
+              <button class="btn" type="submit">Update password</button>
+              <span id="secMsg" class="label">
+                {% if password_error %}{{ password_error }}{% elif password_saved %}Password updated.{% endif %}
+              </span>
+            </div>
+          </form>
+        </section>
+
+
+      </section>
+
+      <!-- Footer -->
+      <footer class="app-footer">
+        <div class="footer-content">© 2025 <a href="https://ultrakeyit.com/" target="_blank" rel="noopener noreferrer"
+            class="text-decoration-none">Ultrakey It Solutions</a>. All rights reserved.</div>
+      </footer>
+      {% endblock %}
+    </main>
+
+  </div>
+
+  <!-- JS Files -->
+  <!-- <script src="{% static 'userdashboard/js/layout.js' %}"></script> -->
+  <script src="{% static 'userdashboard/js/script.js' %}"></script>
+  <script src="{% static 'userdashboard/js/app.js' %}"></script>
+  
+  <script>
+    // Function to handle file selection and auto-upload
+    function handleFileSelect(input) {
+      if (input.files && input.files[0]) {
+        // Create form data
+        const formData = new FormData();
+        formData.append('profile_picture', input.files[0]);
+        formData.append('action', 'profile');
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+          formData.append('csrfmiddlewaretoken', csrfToken.value);
+        }
+        
+        // Submit the form
+        fetch(window.location.href, {
+          method: 'POST',
+          body: formData
+        }).then(response => {
+          if (response.ok) {
+            // Reload the page to show the updated profile picture
+            window.location.reload();
+          } else {
+            alert('Error uploading profile picture. Please try again.');
+          }
+        }).catch(error => {
+          console.error('Error:', error);
+          alert('Error uploading profile picture. Please try again.');
+        });
+      }
+    }
+
+    // Function to remove profile picture
+    function removeProfilePicture() {
+      if (confirm('Are you sure you want to remove your profile picture?')) {
+        // Create a form to submit the removal request
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = window.location.href;
+        form.style.display = 'none';
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+          const csrfInput = document.createElement('input');
+          csrfInput.type = 'hidden';
+          csrfInput.name = 'csrfmiddlewaretoken';
+          csrfInput.value = csrfToken.value;
+          form.appendChild(csrfInput);
+        }
+        
+        // Add action field
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = 'remove_profile_picture';
+        form.appendChild(actionInput);
+        
+        // Submit form
+        document.body.appendChild(form);
+        form.submit();
+      }
+    }
+  </script>
+
+</body>
+
+</html>

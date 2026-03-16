@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile Modal Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <button class="btn btn-primary" onclick="testProfileModal()">
+            <i class="bi bi-person me-2"></i> Test Profile Modal
+        </button>
+    </div>
+
+    <!-- User Profile Modal -->
+    <div class="modal fade" id="userProfileModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">User Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="userProfileContent">
+                    <!-- Content will be loaded dynamically -->
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading profile...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    function testProfileModal() {
+        console.log('Testing profile modal...');
+        
+        // First, just show the modal with test content
+        $('#userProfileContent').html(`
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <div class="avatar avatar-lg bg-light-primary rounded-circle mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                                    T
+                                </div>
+                                <h5 class="card-title">Test User</h5>
+                                <p class="text-muted">test@example.com</p>
+                                <div class="mb-3">
+                                    <span class="badge bg-primary fs-6">User</span>
+                                </div>
+                                <div class="mb-3">
+                                    <span class="badge bg-success">Active</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">User Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>This is a test profile modal to verify it works correctly.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `);
+        
+        try {
+            var modal = new bootstrap.Modal(document.getElementById('userProfileModal'));
+            modal.show();
+            console.log('Modal should be visible now');
+        } catch (error) {
+            console.error('Error showing modal:', error);
+            alert('Error: ' + error.message);
+        }
+    }
+    </script>
+</body>
+</html>

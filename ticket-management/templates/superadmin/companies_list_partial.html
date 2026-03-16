@@ -1,0 +1,83 @@
+{% if companies %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Company Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Plan</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for company in companies %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm bg-primary text-white rounded d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px; border-radius: 50%;">
+                                {{ company.name.0|upper }}
+                            </div>
+                            <div>
+                                <div class="fw-medium">{{ company.name }}</div>
+                                {% if company.address %}
+                                    <small class="text-muted">{{ company.address|truncatechars:50 }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ company.email }}</td>
+                    <td>{{ company.phone|default:"-" }}</td>
+                    <td>
+                        {% if company.plan %}
+                            <span class="badge bg-info">{{ company.plan.name }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">No Plan</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if company.subscription_status == 'active' %}
+                            <span class="badge bg-success">Active</span>
+                        {% elif company.subscription_status == 'trial' %}
+                            <span class="badge bg-primary">Trial</span>
+                        {% elif company.subscription_status == 'expired' %}
+                            <span class="badge bg-danger">Expired</span>
+                        {% elif company.subscription_status == 'cancelled' %}
+                            <span class="badge bg-warning">Cancelled</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ company.subscription_status|title }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ company.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'superadmin:company_detail' company.id %}" class="btn btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{% url 'superadmin:company_edit' company.id %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button type="button" class="btn btn-outline-danger" onclick="confirmDelete('{{ company.id }}', '{{ company.name|escapejs }}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="bi bi-buildings text-muted" style="font-size: 4rem;"></i>
+        </div>
+        <h4 class="text-muted">No Companies Found</h4>
+        <p class="text-muted">There are no companies registered in the system yet.</p>
+        <button class="btn btn-primary" data-bs-toggle="offcanvas" data-bs-target="#addCompanyOffcanvas" aria-controls="addCompanyOffcanvas">
+            <i class="bi bi-plus-circle"></i> Add First Company
+        </button>
+    </div>
+{% endif %}

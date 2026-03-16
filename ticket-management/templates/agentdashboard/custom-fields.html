@@ -1,0 +1,891 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Custom Fields</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'agentdashboard/css/custom-fields.css' %}">
+    <link rel="stylesheet" href="{% static 'agentdashboard/css/style.css' %}">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Include Sidebar (server-side include to ensure visibility) -->
+        <div id="sidebar-container">
+            <!-- Content will be loaded by JavaScript -->
+        </div>
+
+        <div class="main-container">
+            <!-- Include Header (server-side include to ensure visibility) -->
+            <div id="header-container">
+                <!-- Content will be loaded by JavaScript -->
+            </div>
+
+            <!-- Main Content -->
+            <main class="content-area">
+                <!-- CUSTOM FIELDS PAGE CONTENT -->
+                <div id="custom-fields" class="page-content active">
+                    <div class="page-header">
+                        <div>
+                            <h2>Custom Fields</h2>
+                            <p class="text-muted">Add and manage custom fields for tickets and other entities</p>
+                        </div>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newFieldModal">
+                            <i class="bi bi-plus"></i> Add Field
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <ul class="nav nav-tabs card-header-tabs" id="customFieldsTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="ticket-fields-tab" data-bs-toggle="tab"
+                                        data-bs-target="#ticket-fields" type="button" role="tab"
+                                        aria-controls="ticket-fields" aria-selected="true">Ticket Fields</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="user-fields-tab" data-bs-toggle="tab"
+                                        data-bs-target="#user-fields" type="button" role="tab"
+                                        aria-controls="user-fields" aria-selected="false">User Fields</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="company-fields-tab" data-bs-toggle="tab"
+                                        data-bs-target="#company-fields" type="button" role="tab"
+                                        aria-controls="company-fields" aria-selected="false">Company Fields</button>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body">
+                            <div class="tab-content" id="customFieldsTabsContent">
+                                <!-- Ticket Fields Tab -->
+                                <div class="tab-pane fade show active" id="ticket-fields" role="tabpanel"
+                                    aria-labelledby="ticket-fields-tab">
+                                    <div class="mb-4">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h5 class="mb-0">Ticket Fields</h5>
+                                            <div class="d-flex
+                                            <div class=" input-group" style="width: 300px;">
+                                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                                <input type="text" class="form-control" placeholder="Search fields...">
+                                            </div>
+                                            <button class="btn btn-outline-secondary ms-2">
+                                                <i class="bi bi-funnel"></i> Filter
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="sortable-fields">
+                                        <!-- Text Field Example -->
+                                        <div class="card field-card mb-3">
+                                            <div class="card-header" data-bs-toggle="collapse" data-bs-target="#field1"
+                                                aria-expanded="true">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span>Priority Level</span>
+                                                    <div>
+                                                        <span class="field-type me-2">Dropdown</span>
+                                                        <span class="badge bg-primary">Ticket</span>
+                                                        <span class="field-required ms-2">Required</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="collapse show" id="field1">
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <p class="mb-1"><strong>Field Label:</strong> Priority Level
+                                                            </p>
+                                                            <p class="mb-1"><strong>Field Key:</strong> priority_level
+                                                            </p>
+                                                            <p class="mb-0"><strong>Field Type:</strong> Dropdown</p>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <p class="mb-1"><strong>Display Order:</strong> 1</p>
+                                                            <p class="mb-1"><strong>Required:</strong> Yes</p>
+                                                            <p class="mb-0"><strong>Status:</strong> <span
+                                                                    class="text-success">Active</span></p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="field-options">
+                                                        <p class="mb-1"><strong>Options:</strong></p>
+                                                        <ul class="list-group list-group-flush">
+                                                            <li
+                                                                class="list-group-item d-flex justify-content-between align-items-center px-0 py-1 bg-transparent">
+                                                                Low
+                                                                <span class="badge bg-light text-dark">Default</span>
+                                                            </li>
+                                                            <li class="list-group-item px-0 py-1 bg-transparent">Medium
+                                                            </li>
+                                                            <li class="list-group-item px-0 py-1 bg-transparent">High
+                                                            </li>
+                                                            <li class="list-group-item px-0 py-1 bg-transparent">Urgent
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="d-flex justify-content-end mt-3">
+                                                        <button class="btn btn-sm btn-outline-primary me-2"
+                                                            data-bs-toggle="modal" data-bs-target="#editFieldModal">
+                                                            <i class="bi bi-pencil"></i> Edit
+                                                        </button>
+                                                        <button class="btn btn-sm btn-outline-danger">
+                                                            <i class="bi bi-trash"></i> Delete
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Number Field Example -->
+                                        <div class="card field-card mb-3">
+                                            <div class="card-header collapsed" data-bs-toggle="collapse"
+                                                data-bs-target="#field2" aria-expanded="false">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span>Estimated Hours</span>
+                                                    <div>
+                                                        <span class="field-type me-2">Number</span>
+                                                        <span class="badge bg-primary">Ticket</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="collapse" id="field2">
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <p class="mb-1"><strong>Field Label:</strong> Estimated
+                                                                Hours</p>
+                                                            <p class="mb-1"><strong>Field Key:</strong> estimated_hours
+                                                            </p>
+                                                            <p class="mb-0"><strong>Field Type:</strong> Number</p>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <p class="mb-1"><strong>Display Order:</strong> 2</p>
+                                                            <p class="mb-1"><strong>Required:</strong> No</p>
+                                                            <p class="mb-0"><strong>Status:</strong> <span
+                                                                    class="text-success">Active</span></p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="field-options">
+                                                        <p class="mb-1"><strong>Validation:</strong></p>
+                                                        <p class="mb-0">Minimum: 0.5, Maximum: 100, Decimals: 1</p>
+                                                    </div>
+                                                    <div class="d-flex justify-content-end mt-3">
+                                                        <button class="btn btn-sm btn-outline-primary me-2"
+                                                            data-bs-toggle="modal" data-bs-target="#editFieldModal">
+                                                            <i class="bi bi-pencil"></i> Edit
+                                                        </button>
+                                                        <button class="btn btn-sm btn-outline-danger">
+                                                            <i class="bi bi-trash"></i> Delete
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Date Field Example -->
+                                        <div class="card field-card mb-3">
+                                            <div class="card-header collapsed" data-bs-toggle="collapse"
+                                                data-bs-target="#field3" aria-expanded="false">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span>Target Resolution Date</span>
+                                                    <div>
+                                                        <span class="field-type me-2">Date</span>
+                                                        <span class="badge bg-primary">Ticket</span>
+                                                        <span class="field-required ms-2">Required</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="collapse" id="field3">
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <p class="mb-1"><strong>Field Label:</strong> Target
+                                                                Resolution Date</p>
+                                                            <p class="mb-1"><strong>Field Key:</strong>
+                                                                target_resolution_date</p>
+                                                            <p class="mb-0"><strong>Field Type:</strong> Date</p>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <p class="mb-1"><strong>Display Order:</strong> 3</p>
+                                                            <p class="mb-1"><strong>Required:</strong> Yes</p>
+                                                            <p class="mb-0"><strong>Status:</strong> <span
+                                                                    class="text-success">Active</span></p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="field-options">
+                                                        <p class="mb-1"><strong>Date Format:</strong> MM/DD/YYYY</p>
+                                                        <p class="mb-0"><strong>Default Value:</strong> Today + 3 days
+                                                        </p>
+                                                    </div>
+                                                    <div class="d-flex justify-content-end mt-3">
+                                                        <button class="btn btn-sm btn-outline-primary me-2"
+                                                            data-bs-toggle="modal" data-bs-target="#editFieldModal">
+                                                            <i class="bi bi-pencil"></i> Edit
+                                                        </button>
+                                                        <button class="btn btn-sm btn-outline-danger">
+                                                            <i class="bi bi-trash"></i> Delete
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- User Fields Tab -->
+                                <div class="tab-pane fade" id="user-fields" role="tabpanel"
+                                    aria-labelledby="user-fields-tab">
+                                    <div class="text-center py-5">
+                                        <div class="mb-3">
+                                            <i class="bi bi-person-gear" style="font-size: 3rem; color: #6c757d;"></i>
+                                        </div>
+                                        <h5>No custom user fields</h5>
+                                        <p class="text-muted">Add custom fields to collect additional information about
+                                            users</p>
+                                        <button class="btn btn-primary" data-bs-toggle="modal"
+                                            data-bs-target="#newFieldModal">
+                                            <i class="bi bi-plus"></i> Add User Field
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Company Fields Tab -->
+                                <div class="tab-pane fade" id="company-fields" role="tabpanel"
+                                    aria-labelledby="company-fields-tab">
+                                    <div class="text-center py-5">
+                                        <div class="mb-3">
+                                            <i class="bi bi-building" style="font-size: 3rem; color: #6c757d;"></i>
+                                        </div>
+                                        <h5>No custom company fields</h5>
+                                        <p class="text-muted">Add custom fields to collect additional information about
+                                            companies</p>
+                                        <button class="btn btn-primary" data-bs-toggle="modal"
+                                            data-bs-target="#newFieldModal">
+                                            <i class="bi bi-plus"></i> Add Company Field
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Include Modals -->
+    <div id="modals-container">
+        <!-- Content will be loaded by JavaScript -->
+
+        <!-- New Field Modal -->
+        <div class="modal fade" id="newFieldModal" tabindex="-1" aria-labelledby="newFieldModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="newFieldModalLabel">Add New Custom Field</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="newFieldForm">
+                        <div class="modal-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Field Type <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="fieldType" required>
+                                        <option value="">Select Field Type</option>
+                                        <optgroup label="Basic">
+                                            <option value="text">Text</option>
+                                            <option value="textarea">Text Area</option>
+                                            <option value="number">Number</option>
+                                            <option value="email">Email</option>
+                                            <option value="url">URL</option>
+                                            <option value="date">Date</option>
+                                            <option value="datetime">Date & Time</option>
+                                            <option value="time">Time</option>
+                                        </optgroup>
+                                        <optgroup label="Choice">
+                                            <option value="select">Dropdown</option>
+                                            <option value="radio">Radio Buttons</option>
+                                            <option value="checkbox">Checkbox</option>
+                                            <option value="multiselect">Multi-Select</option>
+                                        </optgroup>
+                                        <optgroup label="Advanced">
+                                            <option value="file">File Upload</option>
+                                            <option value="user">User Selector</option>
+                                            <option value="department">Department Selector</option>
+                                            <option value="ticket">Ticket Reference</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Entity Type <span class="text-danger">*</span></label>
+                                    <select class="form-select" required>
+                                        <option value="">Select Entity Type</option>
+                                        <option value="ticket" selected>Ticket</option>
+                                        <option value="user">User</option>
+                                        <option value="company">Company</option>
+                                        <option value="asset">Asset</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Field Label <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" placeholder="e.g., Priority Level" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Field Key <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">custom_</span>
+                                        <input type="text" class="form-control" placeholder="priority_level" required>
+                                    </div>
+                                    <small class="form-text text-muted">Only lowercase letters, numbers, and underscores
+                                        allowed</small>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" rows="2"
+                                    placeholder="Brief description of this field"></textarea>
+                                <small class="form-text text-muted">This will be shown as help text below the
+                                    field</small>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="fieldRequired">
+                                        <label class="form-check-label" for="fieldRequired">Required Field</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="fieldActive" checked>
+                                        <label class="form-check-label" for="fieldActive">Active</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="fieldAgentOnly">
+                                        <label class="form-check-label" for="fieldAgentOnly">Agents Only</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Dynamic Options for Select/Radio/Checkbox -->
+                            <div class="field-options-container mb-3" style="display: none;">
+                                <label class="form-label">Options <span class="text-danger">*</span></label>
+                                <div id="fieldOptions">
+                                    <div class="input-group mb-2">
+                                        <input type="text" class="form-control" placeholder="Option 1">
+                                        <button class="btn btn-outline-danger" type="button">
+                                            <i class="bi bi-x"></i>
+                                        </button>
+                                    </div>
+                                    <div class="input-group mb-2">
+                                        <input type="text" class="form-control" placeholder="Option 2">
+                                        <button class="btn btn-outline-danger" type="button">
+                                            <i class="bi bi-x"></i>
+                                        </button>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-plus"></i> Add Option
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Validation Rules -->
+                            <div class="validation-rules mb-3" style="display: none;">
+                                <label class="form-label">Validation Rules</label>
+                                <div class="row">
+                                    <div class="col-md-4 mb-2">
+                                        <label class="form-label">Min Length</label>
+                                        <input type="number" class="form-control" min="0">
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <label class="form-label">Max Length</label>
+                                        <input type="number" class="form-control" min="1">
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <label class="form-label">Pattern</label>
+                                        <input type="text" class="form-control" placeholder="e.g., [A-Za-z]+">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Number Specific -->
+                            <div class="number-rules mb-3" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Minimum Value</label>
+                                        <input type="number" class="form-control">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Maximum Value</label>
+                                        <input type="number" class="form-control">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Decimal Places</label>
+                                        <select class="form-select">
+                                            <option value="0">None (Integer)</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Date Specific -->
+                            <div class="date-rules mb-3" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Date Format</label>
+                                        <select class="form-select">
+                                            <option value="mm/dd/yyyy">MM/DD/YYYY</option>
+                                            <option value="dd/mm/yyyy">DD/MM/YYYY</option>
+                                            <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+                                            <option value="mm/dd/yyyy hh:ii">MM/DD/YYYY HH:MM</option>
+                                            <option value="custom">Custom Format</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Default Value</label>
+                                        <select class="form-select">
+                                            <option value="">None</option>
+                                            <option value="today">Today</option>
+                                            <option value="tomorrow">Tomorrow</option>
+                                            <option value="+1 week">Next Week</option>
+                                            <option value="+1 month">Next Month</option>
+                                            <option value="custom">Custom Date</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- File Upload Specific -->
+                            <div class="file-rules mb-3" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Allowed File Types</label>
+                                        <select class="form-select" multiple>
+                                            <option value="image/*" selected>Images</option>
+                                            <option value="application/pdf">PDF</option>
+                                            <option value="application/msword">Word</option>
+                                            <option value="application/vnd.ms-excel">Excel</option>
+                                            <option value="text/plain">Text Files</option>
+                                            <option value="custom">Custom Types</option>
+                                        </select>
+                                        <small class="form-text text-muted">Leave empty to allow all file types</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Maximum File Size (MB)</label>
+                                        <input type="number" class="form-control" value="10" min="1" max="100">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Display Settings -->
+                            <div class="card mt-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Display Settings</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Display Order</label>
+                                            <input type="number" class="form-control" value="0" min="0">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Width</label>
+                                            <select class="form-select">
+                                                <option value="col-12">Full Width</option>
+                                                <option value="col-md-6" selected>Half Width</option>
+                                                <option value="col-md-4">One Third</option>
+                                                <option value="col-md-3">One Fourth</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Visibility</label>
+                                            <select class="form-select">
+                                                <option value="always" selected>Always Visible</option>
+                                                <option value="ticket_create">Ticket Creation Only</option>
+                                                <option value="ticket_edit">Ticket Edit Only</option>
+                                                <option value="condition">Conditional</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Create Field</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Field Modal -->
+        <div class="modal fade" id="editFieldModal" tabindex="-1" aria-labelledby="editFieldModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editFieldModalLabel">Edit Custom Field</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="editFieldForm">
+                        <div class="modal-body">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                You're editing the "Priority Level" dropdown field.
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Field Type</label>
+                                    <select class="form-select" disabled>
+                                        <option>Dropdown</option>
+                                    </select>
+                                    <small class="form-text text-muted">Field type cannot be changed after
+                                        creation</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Entity Type</label>
+                                    <select class="form-select" disabled>
+                                        <option>Ticket</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Field Label <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" value="Priority Level" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Field Key <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">custom_</span>
+                                        <input type="text" class="form-control" value="priority_level" required>
+                                    </div>
+                                    <small class="form-text text-muted">Only lowercase letters, numbers, and underscores
+                                        allowed</small>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control"
+                                    rows="2">Select the priority level for this ticket</textarea>
+                                <small class="form-text text-muted">This will be shown as help text below the
+                                    field</small>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="editFieldRequired" checked>
+                                        <label class="form-check-label" for="editFieldRequired">Required Field</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="editFieldActive" checked>
+                                        <label class="form-check-label" for="editFieldActive">Active</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="editFieldAgentOnly">
+                                        <label class="form-check-label" for="editFieldAgentOnly">Agents Only</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Options for Dropdown -->
+                            <div class="field-options-container mb-3">
+                                <label class="form-label">Options <span class="text-danger">*</span></label>
+                                <div id="editFieldOptions">
+                                    <div class="input-group mb-2">
+                                        <input type="text" class="form-control" value="Low">
+                                        <div class="input-group-text">
+                                            <div class="form-check
+                                            <input class=" form-check-input" type="radio" name="defaultOption" checked>
+                                            </div>
+                                            <button class="btn btn-outline-danger" type="button">
+                                                <i class="bi bi-x"></i>
+                                            </button>
+                                        </div>
+                                        <div class="input-group mb-2">
+                                            <input type="text" class="form-control" value="Medium">
+                                            <div class="input-group-text">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="defaultOption">
+                                                </div>
+                                            </div>
+                                            <button class="btn btn-outline-danger" type="button">
+                                                <i class="bi bi-x"></i>
+                                            </button>
+                                        </div>
+                                        <div class="input-group mb-2">
+                                            <input type="text" class="form-control" value="High">
+                                            <div class="input-group-text">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="defaultOption">
+                                                </div>
+                                            </div>
+                                            <button class="btn btn-outline-danger" type="button">
+                                                <i class="bi bi-x"></i>
+                                            </button>
+                                        </div>
+                                        <div class="input-group mb-2">
+                                            <input type="text" class="form-control" value="Urgent">
+                                            <div class="input-group-text">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="defaultOption">
+                                                </div>
+                                            </div>
+                                            <button class="btn btn-outline-danger" type="button">
+                                                <i class="bi bi-x"></i>
+                                            </button>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-plus"></i> Add Option
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Display Settings -->
+                                <div class="card mt-4">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Display Settings</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <label class="form-label">Display Order</label>
+                                                <input type="number" class="form-control" value="1" min="0">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">Width</label>
+                                                <select class="form-select">
+                                                    <option value="col-12">Full Width</option>
+                                                    <option value="col-md-6" selected>Half Width</option>
+                                                    <option value="col-md-4">One Third</option>
+                                                    <option value="col-md-3">One Fourth</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">Visibility</label>
+                                                <select class="form-select">
+                                                    <option value="always" selected>Always Visible</option>
+                                                    <option value="ticket_create">Ticket Creation Only</option>
+                                                    <option value="ticket_edit">Ticket Edit Only</option>
+                                                    <option value="condition">Conditional</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Field Usage -->
+                                <div class="card mt-4">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Field Usage</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Used In</th>
+                                                        <th>Status</th>
+                                                        <th>Required</th>
+                                                        <th>Display Order</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Ticket Creation Form</td>
+                                                        <td>
+                                                            <div class="form-check form-switch">
+                                                                <input class="form-check-input" type="checkbox" checked>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="form-check form-switch">
+                                                                <input class="form-check-input" type="checkbox" checked>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <input type="number" class="form-control form-control-sm"
+                                                                value="3" style="width: 70px;">
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Ticket Details Page</td>
+                                                        <td>
+                                                            <div class="form-check form-switch">
+                                                                <input class="form-check-input" type="checkbox" checked>
+                                                            </div>
+                                                        </td>
+                                                        <td>-</td>
+                                                        <td>
+                                                            <input type="number" class="form-control form-control-sm"
+                                                                value="2" style="width: 70px;">
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Ticket List Columns</td>
+                                                        <td>
+                                                            <div class="form-check form-switch">
+                                                                <input class="form-check-input" type="checkbox">
+                                                            </div>
+                                                        </td>
+                                                        <td>-</td>
+                                                        <td>-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Ticket Filters</td>
+                                                        <td>
+                                                            <div class="form-check form-switch">
+                                                                <input class="form-check-input" type="checkbox" checked>
+                                                            </div>
+                                                        </td>
+                                                        <td>-</td>
+                                                        <td>-</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-danger me-auto" data-bs-dismiss="modal">
+                                    <i class="bi bi-trash me-1"></i> Delete Field
+                                </button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+    <!-- Core JavaScript -->
+    
+
+    <!-- Utility function for loading components -->
+    
+
+    <!-- Application Scripts -->
+    
+    
+    <!-- Load header/sidebar/modals via agent_dashboard_page -->
+    <script>
+        function loadComponent(url, elementId) {
+            return fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        element.innerHTML = html;
+                        
+                        // If loading the sidebar, set the active nav item
+                        if (url.includes('sidebar.html')) {
+                            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                            let pageName = currentPage.replace('.html', '') || 'dashboard';
+                            // Map index to dashboard so the correct nav item is highlighted
+                            if (pageName === 'index') pageName = 'dashboard';
+                            const activeNavItem = document.querySelector(`.nav-item[data-page="${pageName}"]`);
+                            if (activeNavItem) {
+                                // Remove active class from all nav items
+                                document.querySelectorAll('.nav-item').forEach(item => {
+                                    item.classList.remove('active');
+                                });
+                                activeNavItem.classList.add('active');
+                            }
+                        }
+                        
+                        // If loading the header, initialize it after a short delay
+                        if (url.includes('header.html') && window.initializeHeader) {
+                            setTimeout(() => {
+                                window.initializeHeader();
+                            }, 50);
+                        }
+                        
+                        return true;
+                    }
+                    return false;
+                })
+                .catch(error => {
+                    console.error('Error loading component:', error);
+                    return false;
+                });
+        }
+        
+        // Initialize components when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load header if container exists
+            if (document.getElementById('header-container')) {
+                loadComponent('{{ header_url }}', 'header-container')
+                    .then(function(){
+                        if (window.initializeHeader) {
+                            window.initializeHeader();
+                        }
+                    });
+            }
+            
+            // Load sidebar if container exists
+            if (document.getElementById('sidebar-container')) {
+                loadComponent('{{ sidebar_url }}', 'sidebar-container');
+            }
+            
+            // Load modals if container exists
+            if (document.getElementById('modals-container')) {
+                loadComponent('{{ modals_url }}', 'modals-container');
+            }
+            
+            // Listen for navigation events (for single-page navigation)
+            document.body.addEventListener('click', function(e) {
+                // Check if the click was on a navigation link
+                const navLink = e.target.closest('a[data-page]');
+                if (navLink) {
+                    // Re-initialize header after a short delay to allow the page to update
+                    setTimeout(() => {
+                        if (window.initializeHeader) {
+                            window.initializeHeader();
+                        }
+                    }, 100);
+                }
+            });
+        });
+    </script>
+    
+    <!-- Application Scripts -->
+    <script src="{% static 'agentdashboard/js/script.js' %}"></script>
+    <script src="{% static 'agentdashboard/js/header.js' %}"></script>
+</body>
+
+</html>

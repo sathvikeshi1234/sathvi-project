@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Include Payment Modal -->
+{% include 'admin_payment_modal.html' %}
+
+<div class="container-fluid py-3">
+    <!-- Header -->
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <div class="text-uppercase small opacity-75">Overview</div>
+            <h4>Admin Dashboard</h4>
+        </div>
+        <div>
+            <span class="badge bg-primary">Admin</span>
+        </div>
+    </div>
+
+    <!-- Welcome Section -->
+    <div class="card sa-card mb-4">
+        <div class="card-body">
+            <div class="d-flex align-items-center">
+                <div class="avatar avatar-lg bg-light-primary rounded-circle me-3">
+                    <i class="bi bi-person fs-4"></i>
+                </div>
+                <div>
+                    <h5 class="mb-1">Welcome, {{ request.user.username }}</h5>
+                    <p class="text-muted mb-0">This is your admin dashboard. Manage your team and operations from here.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card sa-card h-100">
+                <div class="card-body text-center">
+                    <div class="avatar avatar-lg bg-light-success rounded-circle p-3 mb-3">
+                        <i class="bi bi-people fs-4"></i>
+                    </div>
+                    <h6 class="mb-2">Manage Users</h6>
+                    <p class="text-muted small mb-3">View and manage team members</p>
+                    <a href="/superadmin/users/" class="btn btn-sm btn-success">View Users</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card sa-card h-100">
+                <div class="card-body text-center">
+                    <div class="avatar avatar-lg bg-light-warning rounded-circle p-3 mb-3">
+                        <i class="bi bi-building fs-4"></i>
+                    </div>
+                    <h6 class="mb-2">Companies</h6>
+                    <p class="text-muted small mb-3">Manage company accounts</p>
+                    <a href="/superadmin/companies/" class="btn btn-sm btn-warning">View Companies</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card sa-card h-100">
+                <div class="card-body text-center">
+                    <div class="avatar avatar-lg bg-light-info rounded-circle p-3 mb-3">
+                        <i class="bi bi-clipboard-data fs-4"></i>
+                    </div>
+                    <h6 class="mb-2">Reports</h6>
+                    <p class="text-muted small mb-3">View analytics and reports</p>
+                    <a href="/superadmin/reports/" class="btn btn-sm btn-info">View Reports</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card sa-card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Recent Activity</h5>
+        </div>
+        <div class="card-body">
+            <div class="text-center py-4">
+                <i class="bi bi-clock-history text-muted" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-2">No recent activity to display</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<a href="{% url 'logout' %}" class="btn btn-outline-danger">Logout</a>
+
+{% endblock %}

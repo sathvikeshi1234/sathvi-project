@@ -1,0 +1,26 @@
+{% load static %}
+<div class="ticket-detail-inner">
+  <div class="ticket-detail-header">
+    <h2 class="ticket-detail-title">Ticket Details - {{ ticket.ticket_id }}</h2>
+  </div>
+  <div class="ticket-detail-body">
+    <div class="ticket-detail-grid">
+      <div class="ticket-detail-col">
+        <div class="ticket-detail-row"><strong>Subject:</strong> {{ ticket.title }}</div>
+        <div class="ticket-detail-row"><strong>Customer:</strong> {{ ticket.created_by.username }}</div>
+        <div class="ticket-detail-row"><strong>Status:</strong> {{ ticket.status }}</div>
+        <div class="ticket-detail-row"><strong>Priority:</strong> {{ ticket.priority }}</div>
+      </div>
+      <div class="ticket-detail-col">
+        <div class="ticket-detail-row"><strong>Category:</strong> {{ ticket.category|default:'-' }}</div>
+        <div class="ticket-detail-row"><strong>Created:</strong> {{ ticket.created_at }}</div>
+        <div class="ticket-detail-row"><strong>Updated:</strong> {{ ticket.updated_at }}</div>
+      </div>
+    </div>
+    <hr>
+    <div class="ticket-detail-description">
+      <strong>Description</strong>
+      <p>{{ ticket.description|linebreaksbr }}</p>
+    </div>
+  </div>
+</div>

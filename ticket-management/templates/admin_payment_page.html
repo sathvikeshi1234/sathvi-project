@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Payment · Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <div class="text-uppercase small opacity-75">Payments</div>
+            <h4>Complete Your Payment</h4>
+        </div>
+        <div>
+            <a href="{% url 'dashboards:admin_dashboard' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <main class="content-area">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            {% if plan_name %}
+                                Complete Payment for {{ plan_name|title }} Plan
+                            {% else %}
+                                Complete New Payment
+                            {% endif %}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if plan_name and price %}
+                        <div class="alert alert-info mb-4">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Selected Plan:</strong> {{ plan_name|title }} - ₹{{ price }}/month
+                        </div>
+                        {% endif %}
+
+                        <form method="post" id="paymentForm">
+                            {% csrf_token %}
+                            
+                            <!-- Payment Method Selection -->
+                            <div class="row g-3 mb-4">
+                                <div class="col-12">
+                                    <label class="form-label">Payment Method <span class="text-danger">*</span></label>
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="payment_method" id="credit_card" value="credit_card" checked>
+                                                <label class="form-check-label" for="credit_card">
+                                                    <i class="bi bi-credit-card me-2"></i>
+                                                    Credit Card
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="payment_method" id="debit_card" value="debit_card">
+                                                <label class="form-check-label" for="debit_card">
+                                                    <i class="bi bi-credit-card me-2"></i>
+                                                    Debit Card
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="payment_method" id="upi" value="upi">
+                                                <label class="form-check-label" for="upi">
+                                                    <i class="bi bi-phone me-2"></i>
+                                                    UPI
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="payment_method" id="net_banking" value="net_banking">
+                                                <label class="form-check-label" for="net_banking">
+                                                    <i class="bi bi-bank me-2"></i>
+                                                    Net Banking
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Card Details -->
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Cardholder Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="cardholder_name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" name="email" required>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Card Number <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="card_number" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Expiry Date <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="expiry_date" placeholder="MM/YY" maxlength="5" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">CVV <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="cvv" placeholder="123" maxlength="4" required>
+                                </div>
+                            </div>
+
+                            <!-- Billing Address -->
+                            <div class="row g-3 mb-4">
+                                <div class="col-12">
+                                    <h6 class="mb-3">Billing Address</h6>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Address Line 1 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="address_line1" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Address Line 2</label>
+                                    <input type="text" class="form-control" name="address_line2">
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">City <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="city" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">State <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="state" required>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">PIN Code <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="pin_code" maxlength="6" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Country <span class="text-danger">*</span></label>
+                                    <select class="form-select" name="country" required>
+                                        <option value="">Select country...</option>
+                                        <option value="IN">India</option>
+                                        <option value="US">United States</option>
+                                        <option value="UK">United Kingdom</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Hidden fields for plan data -->
+                            <input type="hidden" name="plan" value="{{ plan|default:'basic' }}">
+                            <input type="hidden" name="price" value="{{ price|default:'199' }}">
+
+                            <!-- Submit Button -->
+                            <div class="row g-3">
+                                <div class="col-12 text-center">
+                                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                                        <i class="bi bi-lock-fill me-2"></i>
+                                        Complete Payment - ₹{{ price|default:'199' }}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<style>
+.form-label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 0.75rem 1rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: #6e8efb;
+    box-shadow: 0 0 0 0.2rem rgba(110, 142, 251, 0.15);
+}
+
+.form-check {
+    margin-bottom: 1rem;
+}
+
+.form-check-input {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem;
+    margin-right: 0.5rem;
+}
+
+.form-check-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.form-check-input:checked {
+    background-color: #6e8efb;
+    border-color: #6e8efb;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%);
+    border: none;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(110, 142, 251, 0.3);
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #f8f9fc 0%, #6e8efb 100%);
+    border-bottom: 1px solid #e3e6f0;
+    font-weight: 600;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const plan = urlParams.get('plan');
+    const price = urlParams.get('price');
+    
+    // Update hidden fields and display
+    if (plan) {
+        document.querySelector('input[name="plan"]').value = plan;
+        document.querySelector('input[name="price"]').value = price;
+    }
+    
+    // Format card number input
+    const cardNumberInput = document.querySelector('input[name="card_number"]');
+    if (cardNumberInput) {
+        cardNumberInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s/g, '');
+            let formattedValue = '';
+            for (let i = 0; i < value.length; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formattedValue += ' ';
+                }
+                formattedValue += value[i];
+            }
+            e.target.value = formattedValue;
+        });
+    }
+    
+    // Format expiry date input
+    const expiryInput = document.querySelector('input[name="expiry_date"]');
+    if (expiryInput) {
+        expiryInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length === 2 && !value.includes('/')) {
+                value = value.slice(0, 2) + '/' + value.slice(2);
+            }
+            e.target.value = value;
+        });
+    }
+    
+    // Handle form submission
+    const form = document.getElementById('paymentForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show processing state
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="bi bi-arrow-clockwise me-2"></i> Processing...';
+            }
+            
+            // Simulate payment processing
+            setTimeout(() => {
+                // Here you would integrate with actual payment gateway
+                alert('Payment processed successfully! (This is a demo)');
+                
+                // Redirect back to dashboard
+                window.location.href = '{% url "dashboards:admin_dashboard" %}';
+            }, 2000);
+        });
+    }
+});
+</script>
+{% endblock %}

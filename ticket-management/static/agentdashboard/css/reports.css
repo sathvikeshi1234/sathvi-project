@@ -1,0 +1,49 @@
+/* Agent Dashboard Reports CSS */
+
+/* Chart containers */
+#tickets-overview-chart,
+#ticket-status-chart,
+#tickets-by-priority-chart,
+#tickets-by-channel-chart {
+    width: 100% !important;
+    height: 300px !important;
+    display: block !important;
+}
+
+/* Make sure charts are visible */
+canvas {
+    max-width: 100%;
+    height: auto !important;
+}
+
+/* Chart card containers */
+.card-body {
+    position: relative;
+}
+
+.card-body canvas {
+    position: relative;
+    z-index: 1;
+}
+
+/* Fix for chart responsiveness */
+@media (max-width: 768px) {
+    #tickets-overview-chart,
+    #ticket-status-chart,
+    #tickets-by-priority-chart,
+    #tickets-by-channel-chart {
+        height: 250px !important;
+    }
+}
+
+/* Ensure charts don't get hidden */
+.flex-grow-1 {
+    position: relative;
+}
+
+/* Chart container styling */
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}

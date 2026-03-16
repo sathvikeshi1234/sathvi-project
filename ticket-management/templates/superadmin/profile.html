@@ -1,0 +1,2531 @@
+{% extends 'superadmin/base.html' %}
+
+{% load static %}
+
+
+
+{% block title %}Profile - Super Admin{% endblock %}
+
+
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    <div class="row">
+
+        <!-- Profile Sidebar -->
+
+        <div class="col-lg-4 col-xl-3 mb-4">
+
+            <div class="card sa-card">
+
+                <div class="card-body text-center">
+
+                    <!-- Profile Avatar -->
+
+                    <div class="profile-avatar-container mb-4">
+
+                        <div class="profile-avatar-lg" id="profileAvatarDisplay">
+
+                            {% if request.user.is_authenticated and request.user.userprofile.profile_picture %}
+
+                                <img src="{{ request.user.userprofile.profile_picture.url }}" alt="Profile Picture" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+
+                            {% else %}
+
+                                {{ request.user.get_full_name|default:request.user.username|slice:":1"|upper }}
+
+                            {% endif %}
+
+                        </div>
+
+                        <input type="file" id="profilePictureInput" accept="image/*" style="display: none;">
+
+                        <div class="position-absolute bottom-0 end-0 d-flex gap-1">
+                            <button class="btn btn-sm btn-primary rounded-circle" onclick="document.getElementById('profilePictureInput').click()" title="Upload Picture">
+                                <i class="bi bi-camera"></i>
+                            </button>
+                            {% if request.user.is_authenticated and request.user.userprofile.profile_picture %}
+                                <button class="btn btn-sm btn-danger rounded-circle" onclick="removeProfilePicture()" title="Remove Picture">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                    
+
+                    <!-- Profile Info -->
+
+                    <h5 class="mb-1">
+
+                        {% if request.user.is_authenticated %}
+
+                            {{ request.user.get_full_name|default:request.user.username }}
+
+                        {% else %}
+
+                            Super Admin
+
+                        {% endif %}
+
+                    </h5>
+
+                    <p class="text-muted mb-3">
+
+                        {% if request.user.is_authenticated %}
+
+                            {{ request.user.email }}
+
+                        {% else %}
+
+                            superadmin@tickethub.com
+
+                        {% endif %}
+
+                    </p>
+
+                    
+
+                    <!-- Status Badge -->
+
+                    <div class="mb-3">
+
+                        <span class="badge bg-success">Active</span>
+
+                        <span class="badge bg-primary">Super Admin</span>
+
+                    </div>
+
+                    
+
+                    <!-- Profile Stats -->
+
+                    <div class="row text-center mb-4">
+
+                        <div class="col-4">
+
+                            <div class="stat-item">
+
+                                <h6 class="mb-0">152</h6>
+
+                                <small class="text-muted">Tickets</small>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-4">
+
+                            <div class="stat-item">
+
+                                <h6 class="mb-0">48</h6>
+
+                                <small class="text-muted">Companies</small>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-4">
+
+                            <div class="stat-item">
+
+                                <h6 class="mb-0">1.2k</h6>
+
+                                <small class="text-muted">Users</small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    
+
+                    <!-- Quick Actions -->
+
+                    <div class="d-grid gap-2">
+
+                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editPersonalInfoModal">
+
+                            <i class="bi bi-pencil me-2"></i>Edit Profile
+
+                        </button>
+
+                        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+
+                            <i class="bi bi-lock me-2"></i>Change Password
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            
+
+            <!-- Quick Links Card -->
+
+            <div class="card sa-card mt-3">
+
+                <div class="card-body">
+
+                    <h6 class="card-title mb-3">Quick Links</h6>
+
+                    <div class="list-group list-group-flush">
+
+                        <a href="#" class="list-group-item list-group-item-action border-0 px-0" data-bs-toggle="modal" data-bs-target="#accountSettingsModal">
+
+                            <i class="bi bi-gear me-2"></i>Account Settings
+
+                        </a>
+
+                        <a href="#" class="list-group-item list-group-item-action border-0 px-0" data-bs-toggle="modal" data-bs-target="#notificationModal">
+
+                            <i class="bi bi-bell me-2"></i>Notification Preferences
+
+                        </a>
+
+                        <a href="#" class="list-group-item list-group-item-action border-0 px-0" data-bs-toggle="modal" data-bs-target="#securityModal">
+
+                            <i class="bi bi-shield-check me-2"></i>Security Settings
+
+                        </a>
+
+                        <a href="#" class="list-group-item list-group-item-action border-0 px-0" data-bs-toggle="modal" data-bs-target="#loginHistoryModal">
+
+                            <i class="bi bi-clock-history me-2"></i>Login History
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        
+
+        <!-- Main Content Area -->
+
+        <div class="col-lg-8 col-xl-9">
+
+            <!-- Personal Information -->
+
+            <div class="card sa-card mb-4">
+
+                <div class="card-header d-flex justify-content-between align-items-center">
+
+                    <h5 class="mb-0">Personal Information</h5>
+
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editPersonalInfoModal">
+
+                        <i class="bi bi-pencil"></i> Edit
+
+                    </button>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label text-muted">First Name</label>
+
+                            <p class="form-control-plaintext">
+
+                                {% if request.user.is_authenticated %}
+
+                                    {{ request.user.first_name|default:"John" }}
+
+                                {% else %}
+
+                                    John
+
+                                {% endif %}
+
+                            </p>
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label text-muted">Last Name</label>
+
+                            <p class="form-control-plaintext">
+
+                                {% if request.user.is_authenticated %}
+
+                                    {{ request.user.last_name|default:"Doe" }}
+
+                                {% else %}
+
+                                    Doe
+
+                                {% endif %}
+
+                            </p>
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label text-muted">Email Address</label>
+
+                            <p class="form-control-plaintext">
+
+                                {% if request.user.is_authenticated %}
+
+                                    {{ request.user.email }}
+
+                                {% else %}
+
+                                    superadmin@tickethub.com
+
+                                {% endif %}
+
+                            </p>
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label text-muted">Phone Number</label>
+
+                            <p class="form-control-plaintext">{{ profile_settings.profile_phone|default:'—' }}</p>
+
+                        </div>
+
+                        <div class="col-12 mb-3">
+
+                            <label class="form-label text-muted">Address</label>
+
+                            <p class="form-control-plaintext">{{ profile_settings.profile_address|default:'—' }}</p>
+
+                        </div>
+
+                        
+                    </div>
+
+                </div>
+
+            </div>
+
+            
+
+            <!-- Professional Information -->
+
+            <div class="card sa-card mb-4">
+
+                <div class="card-header d-flex justify-content-between align-items-center">
+
+                    <h5 class="mb-0">Professional Information</h5>
+
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProfessionalInfoModal">
+
+                        <i class="bi bi-pencil"></i> Edit
+
+                    </button>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label text-muted">Department</label>
+
+                            <p class="form-control-plaintext">{{ profile_settings.department|default:'System Administration' }}</p>
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label text-muted">Role</label>
+
+                            <p class="form-control-plaintext">{{ profile_settings.role|default:'Super Administrator' }}</p>
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label text-muted">Employee ID</label>
+
+                            <p class="form-control-plaintext">{{ profile_settings.employee_id|default:'SA-001' }}</p>
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label text-muted">Join Date</label>
+
+                            <p class="form-control-plaintext">{{ profile_settings.join_date|date:'F j, Y'|default:'March 1, 2020' }}</p>
+
+                        </div>
+
+                        <div class="col-12 mb-3">
+
+                            <label class="form-label text-muted">Skills</label>
+
+                            <div class="d-flex flex-wrap gap-2">
+
+                                {% if profile_settings.skills %}
+
+                                    {{ profile_settings.skills|default:'' }}
+
+                                {% else %}
+
+                                    <span class="badge bg-primary">System Administration</span>
+
+                                    <span class="badge bg-info">Database Management</span>
+
+                                    <span class="badge bg-success">Network Security</span>
+
+                                    <span class="badge bg-warning">Project Management</span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            
+
+            <!-- Recent Activity -->
+
+            <div class="card sa-card mb-4">
+
+                <div class="card-header">
+
+                    <h5 class="mb-0">Recent Activity</h5>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="timeline">
+
+                        <div class="timeline-item">
+
+                            <div class="timeline-marker bg-primary"></div>
+
+                            <div class="timeline-content">
+
+                                <h6 class="mb-1">Updated Company Settings</h6>
+
+                                <p class="text-muted mb-1">Modified settings for Tech Corp Inc.</p>
+
+                                <small class="text-muted">2 hours ago</small>
+
+                            </div>
+
+                        </div>
+
+                        <div class="timeline-item">
+
+                            <div class="timeline-marker bg-success"></div>
+
+                            <div class="timeline-content">
+
+                                <h6 class="mb-1">Created New User</h6>
+
+                                <p class="text-muted mb-1">Added new admin user for Marketing Department</p>
+
+                                <small class="text-muted">5 hours ago</small>
+
+                            </div>
+
+                        </div>
+
+                        <div class="timeline-item">
+
+                            <div class="timeline-marker bg-warning"></div>
+
+                            <div class="timeline-content">
+
+                                <h6 class="mb-1">System Maintenance</h6>
+
+                                <p class="text-muted mb-1">Performed scheduled system maintenance</p>
+
+                                <small class="text-muted">1 day ago</small>
+
+                            </div>
+
+                        </div>
+
+                        <div class="timeline-item">
+
+                            <div class="timeline-marker bg-info"></div>
+
+                            <div class="timeline-content">
+
+                                <h6 class="mb-1">Generated Reports</h6>
+
+                                <p class="text-muted mb-1">Generated monthly usage reports</p>
+
+                                <small class="text-muted">2 days ago</small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            
+
+            <!-- Security Settings -->
+
+            <div class="card sa-card">
+
+                <div class="card-header d-flex justify-content-between align-items-center">
+
+                    <h5 class="mb-0">Security Settings</h5>
+
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editSecurityModal">
+
+                        <i class="bi bi-pencil"></i> Edit
+
+                    </button>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label text-muted">Two-Factor Authentication</label>
+
+                            <div class="form-check form-switch">
+
+                                <input class="form-check-input" type="checkbox" id="twoFactorEnabled" checked>
+
+                                <label class="form-check-label" for="twoFactorEnabled">
+
+                                    Enabled
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label text-muted">Email Notifications</label>
+
+                            <div class="form-check form-switch">
+
+                                <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+
+                                <label class="form-check-label" for="emailNotifications">
+
+                                    Enabled
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label text-muted">Login Alerts</label>
+
+                            <div class="form-check form-switch">
+
+                                <input class="form-check-input" type="checkbox" id="loginAlerts" checked>
+
+                                <label class="form-check-label" for="loginAlerts">
+
+                                    Enabled
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label text-muted">Session Timeout</label>
+
+                            <p class="form-control-plaintext">30 minutes</p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<!-- Change Password Modal -->
+
+<div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-modal="true">
+
+    <div class="modal-dialog" role="document">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <form id="changePasswordForm">
+
+                    <input type="text" name="username" autocomplete="username" class="visually-hidden" value="{{ request.user.username }}">
+
+                    <div class="mb-3">
+
+                        <label class="form-label">Current Password</label>
+
+                        <input type="password" class="form-control" name="current_password" autocomplete="current-password" required>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">New Password</label>
+
+                        <input type="password" class="form-control" name="new_password" autocomplete="new-password" required>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">Confirm New Password</label>
+
+                        <input type="password" class="form-control" name="confirm_password" autocomplete="new-password" required>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                <button type="button" class="btn btn-primary" onclick="changePassword()">Change Password</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- Edit Personal Info Modal -->
+
+<div class="modal fade" id="editPersonalInfoModal" tabindex="-1" role="dialog" aria-labelledby="editPersonalInfoModalLabel" aria-modal="true">
+
+    <div class="modal-dialog" role="document">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title" id="editPersonalInfoModalLabel">Edit Personal Information</h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <form id="editPersonalInfoForm">
+
+                    {% csrf_token %}
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">First Name</label>
+
+                            <input type="text" class="form-control" name="first_name" value="{{ request.user.first_name }}">
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">Last Name</label>
+
+                            <input type="text" class="form-control" name="last_name" value="{{ request.user.last_name }}">
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">Email</label>
+
+                            <input type="email" class="form-control" name="email" value="{{ request.user.email }}">
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">Phone</label>
+
+                            <input type="tel" class="form-control" name="phone" value="{{ profile_settings.profile_phone|default:'' }}">
+
+                        </div>
+
+                        <div class="col-12 mb-3">
+
+                            <label class="form-label">Address</label>
+
+                            <textarea class="form-control" name="address" rows="2">{{ profile_settings.profile_address|default:'' }}</textarea>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                <button type="button" class="btn btn-primary" onclick="savePersonalInfo()">Save Changes</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- Edit Professional Info Modal -->
+
+<div class="modal fade" id="editProfessionalInfoModal" tabindex="-1" role="dialog" aria-labelledby="editProfessionalInfoModalLabel" aria-modal="true">
+
+    <div class="modal-dialog" role="document">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title" id="editProfessionalInfoModalLabel">Edit Professional Information</h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <form id="editProfessionalInfoForm">
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">Department</label>
+
+                            <input type="text" class="form-control" name="department" value="{{ profile_settings.department|default:'System Administration' }}">
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">Role</label>
+
+                            <input type="text" class="form-control" name="role" value="{{ profile_settings.role|default:'Super Administrator' }}">
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">Employee ID</label>
+
+                            <input type="text" class="form-control" name="employee_id" value="{{ profile_settings.employee_id|default:'SA-001' }}">
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">Join Date</label>
+
+                            <input type="date" class="form-control" name="join_date" value="{{ profile_settings.join_date|date:'Y-m-d'|default:'2020-03-01' }}">
+
+                        </div>
+
+                        <div class="col-12 mb-3">
+
+                            <label class="form-label">Skills</label>
+
+                            <input type="text" class="form-control" name="skills" value="{{ profile_settings.skills|default:'System Administration, Database Management, Network Security, Project Management' }}">
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                <button type="button" class="btn btn-primary" onclick="saveProfessionalInfo()">Save Changes</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- Security Settings Modal -->
+
+<div class="modal fade" id="editSecurityModal" tabindex="-1" role="dialog" aria-labelledby="editSecurityModalLabel" aria-modal="true">
+
+    <div class="modal-dialog" role="document">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title" id="editSecurityModalLabel">Security Settings</h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <form id="editSecurityForm">
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">Two-Factor Authentication</label>
+
+                            <div class="form-check form-switch">
+
+                                <input class="form-check-input" type="checkbox" name="two_factor" checked>
+
+                                <label class="form-check-label">Enabled</label>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">Email Notifications</label>
+
+                            <div class="form-check form-switch">
+
+                                <input class="form-check-input" type="checkbox" name="email_notifications" checked>
+
+                                <label class="form-check-label">Enabled</label>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">Login Alerts</label>
+
+                            <div class="form-check form-switch">
+
+                                <input class="form-check-input" type="checkbox" name="login_alerts" checked>
+
+                                <label class="form-check-label">Enabled</label>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">Session Timeout (minutes)</label>
+
+                            <input type="number" class="form-control" name="session_timeout" value="30" min="5" max="120">
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                <button type="button" class="btn btn-primary" onclick="saveSecuritySettings()">Save Changes</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- Account Settings Modal -->
+
+<div class="modal fade" id="accountSettingsModal" tabindex="-1" role="dialog" aria-labelledby="accountSettingsModalLabel" aria-modal="true">
+
+    <div class="modal-dialog" role="document">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title" id="accountSettingsModalLabel">Account Settings</h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <form id="accountSettingsForm">
+
+                    <div class="mb-3">
+
+                        <label class="form-label">Language</label>
+
+                        <select class="form-control" name="language">
+
+                            <option value="en" selected>English</option>
+
+                            <option value="es">Spanish</option>
+
+                            <option value="fr">French</option>
+
+                            <option value="de">German</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">Timezone</label>
+
+                        <select class="form-control" name="timezone">
+
+                            <option value="UTC" selected>UTC</option>
+
+                            <option value="EST">Eastern Time</option>
+
+                            <option value="PST">Pacific Time</option>
+
+                            <option value="IST">India Standard Time</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">Date Format</label>
+
+                        <select class="form-control" name="date_format">
+
+                            <option value="MM/DD/YYYY" selected>MM/DD/YYYY</option>
+
+                            <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+
+                            <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+
+                        </select>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                <button type="button" class="btn btn-primary" onclick="saveAccountSettings()">Save Changes</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- Notification Preferences Modal -->
+
+<div class="modal fade" id="notificationModal" tabindex="-1" role="dialog" aria-labelledby="notificationModalLabel" aria-modal="true">
+
+    <div class="modal-dialog" role="document">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title" id="notificationModalLabel">Notification Preferences</h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <form id="notificationForm">
+
+                    <div class="mb-3">
+
+                        <h6>Email Notifications</h6>
+
+                        <div class="form-check mb-2">
+
+                            <input class="form-check-input" type="checkbox" name="email_login_alerts" checked>
+
+                            <label class="form-check-label">Login alerts</label>
+
+                        </div>
+
+                        <div class="form-check mb-2">
+
+                            <input class="form-check-input" type="checkbox" name="email_security_alerts" checked>
+
+                            <label class="form-check-label">Security alerts</label>
+
+                        </div>
+
+                        <div class="form-check mb-2">
+
+                            <input class="form-check-input" type="checkbox" name="email_system_updates" checked>
+
+                            <label class="form-check-label">System updates</label>
+
+                        </div>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <h6>Push Notifications</h6>
+
+                        <div class="form-check mb-2">
+
+                            <input class="form-check-input" type="checkbox" name="push_new_messages" checked>
+
+                            <label class="form-check-label">New messages</label>
+
+                        </div>
+
+                        <div class="form-check mb-2">
+
+                            <input class="form-check-input" type="checkbox" name="push_task_reminders" checked>
+
+                            <label class="form-check-label">Task reminders</label>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                <button type="button" class="btn btn-primary" onclick="saveNotificationSettings()">Save Changes</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- Login History Modal -->
+
+<div class="modal fade" id="loginHistoryModal" tabindex="-1" role="dialog" aria-labelledby="loginHistoryModalLabel" aria-modal="true">
+
+    <div class="modal-dialog modal-lg" role="document">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title" id="loginHistoryModalLabel">Login History</h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Date & Time</th>
+
+                                <th>IP Address</th>
+
+                                <th>Device</th>
+
+                                <th>Location</th>
+
+                                <th>Status</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+
+                                <td>Jan 10, 2026 12:30 PM</td>
+
+                                <td>192.168.1.100</td>
+
+                                <td>Chrome / Windows</td>
+
+                                <td>New York, USA</td>
+
+                                <td><span class="badge bg-success">Success</span></td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>Jan 9, 2026 09:15 AM</td>
+
+                                <td>192.168.1.100</td>
+
+                                <td>Firefox / Windows</td>
+
+                                <td>New York, USA</td>
+
+                                <td><span class="badge bg-success">Success</span></td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>Jan 8, 2026 03:45 PM</td>
+
+                                <td>10.0.0.1</td>
+
+                                <td>Safari / macOS</td>
+
+                                <td>California, USA</td>
+
+                                <td><span class="badge bg-warning">Failed</span></td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<style>
+
+/* Profile Page Styles */
+
+.profile-avatar-container {
+
+    position: relative;
+
+    display: inline-block;
+
+}
+
+
+
+.profile-avatar-lg {
+
+    width: 120px;
+
+    height: 120px;
+
+    background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%);
+
+    color: white;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 3rem;
+
+    font-weight: 600;
+
+    margin: 0 auto;
+
+    overflow: hidden;
+
+    position: relative;
+
+}
+
+
+
+.profile-avatar-lg img {
+
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+
+}
+
+
+
+.stat-item h6 {
+
+    color: var(--primary-color);
+
+    font-weight: 600;
+
+}
+
+
+
+.timeline {
+
+    position: relative;
+
+    padding-left: 30px;
+
+}
+
+
+
+.timeline::before {
+
+    content: '';
+
+    position: absolute;
+
+    left: 15px;
+
+    top: 0;
+
+    bottom: 0;
+
+    width: 2px;
+
+    background: #e3e6f0;
+
+}
+
+
+
+.timeline-item {
+
+    position: relative;
+
+    margin-bottom: 2rem;
+
+}
+
+
+
+.timeline-marker {
+
+    position: absolute;
+
+    left: -23px;
+
+    top: 5px;
+
+    width: 12px;
+
+    height: 12px;
+
+    border-radius: 50%;
+
+    border: 2px solid white;
+
+}
+
+
+
+.timeline-content h6 {
+
+    color: #374151;
+
+    font-weight: 600;
+
+}
+
+
+
+.timeline-content p {
+
+    font-size: 0.875rem;
+
+}
+
+
+
+/* Dark Mode Styles for Profile */
+
+body.dark-mode .sa-card {
+
+    background: #2d2d2d;
+
+    color: #ffffff;
+
+}
+
+
+
+body.dark-mode .card-header {
+
+    background: #404040;
+
+    border-bottom-color: #555555;
+
+}
+
+
+
+body.dark-mode .form-control-plaintext {
+
+    color: #ffffff;
+
+}
+
+
+
+body.dark-mode .text-muted {
+
+    color: #b0b0b0 !important;
+
+}
+
+
+
+body.dark-mode .list-group-item {
+
+    background: transparent;
+
+    color: #b0b0b0;
+
+    border-color: #404040;
+
+}
+
+
+
+body.dark-mode .list-group-item:hover {
+
+    background: rgba(110, 142, 251, 0.1);
+
+    color: var(--primary-color);
+
+}
+
+
+
+body.dark-mode .timeline::before {
+
+    background: #404040;
+
+}
+
+
+
+body.dark-mode .timeline-content h6 {
+
+    color: #ffffff;
+
+}
+
+
+
+body.dark-mode .form-check-label {
+
+    color: #b0b0b0;
+
+}
+
+
+
+/* Responsive Design */
+
+@media (max-width: 768px) {
+
+    .profile-avatar-lg {
+
+        width: 100px;
+
+        height: 100px;
+
+        font-size: 2.5rem;
+
+    }
+
+    
+
+    .stat-item h6 {
+
+        font-size: 0.9rem;
+
+    }
+
+    
+
+    .stat-item small {
+
+        font-size: 0.7rem;
+
+    }
+
+    
+
+    .timeline {
+
+        padding-left: 20px;
+
+    }
+
+    
+
+    .timeline-marker {
+
+        left: -18px;
+
+    }
+
+}
+
+
+
+@media (max-width: 576px) {
+
+    .container-fluid {
+
+        padding-left: 1rem;
+
+        padding-right: 1rem;
+
+    }
+
+    
+
+    .profile-avatar-lg {
+
+        width: 80px;
+
+        height: 80px;
+
+        font-size: 2rem;
+
+    }
+
+    
+
+    .card-body {
+
+        padding: 1rem;
+
+    }
+
+    
+
+    .row > .col-md-6 {
+
+        margin-bottom: 1rem;
+
+    }
+
+}
+
+</style>
+
+
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+
+    // Initialize tooltips
+
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+
+    });
+
+    
+
+    // Handle profile picture upload
+
+    const profilePictureInput = document.getElementById('profilePictureInput');
+
+    if (profilePictureInput) {
+
+        profilePictureInput.addEventListener('change', function(e) {
+
+            const file = e.target.files[0];
+
+            if (file) {
+
+                if (file.type.startsWith('image/')) {
+
+                    uploadProfilePicture(file);
+
+                } else {
+
+                    showNotification('Please select a valid image file', 'error');
+
+                }
+
+            }
+
+        });
+
+    }
+
+    
+
+    // Handle security settings switches
+
+    const twoFactorEnabled = document.getElementById('twoFactorEnabled');
+
+    const emailNotifications = document.getElementById('emailNotifications');
+
+    const loginAlerts = document.getElementById('loginAlerts');
+
+    
+
+    function updateSecuritySetting(setting, value) {
+
+        // Here you would typically make an AJAX call to update setting
+
+        console.log(`Updating ${setting} to: ${value}`);
+
+        // Show success message
+
+        showNotification(`${setting} ${value ? 'enabled' : 'disabled'} successfully`, 'success');
+
+    }
+
+    
+
+    if (twoFactorEnabled) {
+
+        twoFactorEnabled.addEventListener('change', function() {
+
+            updateSecuritySetting('Two-Factor Authentication', this.checked);
+
+        });
+
+    }
+
+    
+
+    if (emailNotifications) {
+
+        emailNotifications.addEventListener('change', function() {
+
+            updateSecuritySetting('Email Notifications', this.checked);
+
+        });
+
+    }
+
+    
+
+    if (loginAlerts) {
+
+        loginAlerts.addEventListener('change', function() {
+
+            updateSecuritySetting('Login Alerts', this.checked);
+
+        });
+
+    }
+
+});
+
+
+
+// Helper function to get cookie value by name
+
+function getCookie(name) {
+
+    let cookieValue = null;
+
+    if (document.cookie && document.cookie !== '') {
+
+        const cookies = document.cookie.split(';');
+
+        for (let i = 0; i < cookies.length; i++) {
+
+            const cookie = cookies[i].trim();
+
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+
+                break;
+
+            }
+
+        }
+
+    }
+
+    return cookieValue;
+
+}
+
+
+
+// Profile picture upload function
+
+function uploadProfilePicture(file) {
+
+    const formData = new FormData();
+
+    formData.append('profile_picture', file);
+
+    formData.append('action', 'upload_profile_picture');
+
+    
+
+    // Get CSRF token - try cookie first, then hidden input
+
+    let csrfToken = getCookie('csrftoken');
+
+    if (!csrfToken) {
+
+        const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+
+        if (csrfInput) {
+
+            csrfToken = csrfInput.value;
+
+        }
+
+    }
+
+    
+
+    // Always append CSRF token to FormData (for multipart/form-data)
+
+    if (csrfToken) {
+
+        formData.append('csrfmiddlewaretoken', csrfToken);
+
+    }
+
+    
+
+    console.log('CSRF Token found:', !!csrfToken);
+
+    console.log('Form data keys:', Array.from(formData.keys()));
+
+    
+
+    // Show loading state
+
+    showNotification('Uploading profile picture...', 'info');
+
+    
+
+    // Log the URL being posted to
+
+    console.log('Uploading to URL:', window.location.href);
+
+    
+
+    // Build headers
+
+    const headers = {};
+
+    if (csrfToken) {
+
+        headers['X-CSRFToken'] = csrfToken;
+
+    }
+
+    
+
+    // Send AJAX request to upload profile picture
+    fetch('/superadmin/profile/', {
+        method: 'POST',
+        body: formData,
+        headers: headers
+    })
+
+    .then(response => {
+
+        console.log('Response received - Status:', response.status, 'Content-Type:', response.headers.get('content-type'));
+
+        
+
+        // Check if response is JSON
+
+        const contentType = response.headers.get('content-type') || '';
+
+        if (!contentType.includes('application/json')) {
+
+            // If not JSON, log the response text for debugging
+
+            return response.text().then(text => {
+
+                console.error('Non-JSON response:', {
+
+                    status: response.status,
+
+                    contentType: contentType,
+
+                    text: text.substring(0, 500)
+
+                });
+
+                throw new Error(`Expected JSON but got ${contentType || 'unknown type'}. Status: ${response.status}`);
+
+            });
+
+        }
+
+        if (!response.ok) {
+
+            throw new Error(`Server responded with status: ${response.status}`);
+
+        }
+
+        return response.json();
+
+    })
+
+    .then(data => {
+
+        console.log('Parsed JSON data:', data);
+
+        if (data && data.success) {
+
+            showNotification('Profile picture uploaded successfully!', 'success');
+
+            // Update the avatar display with the uploaded image
+
+            if (data.picture_url) {
+
+                updateAvatarDisplay(data.picture_url);
+
+                // Refresh page after a short delay to show the new image
+
+                setTimeout(() => location.reload(), 1000);
+
+            } else {
+
+                updateAvatarDisplay(URL.createObjectURL(file));
+
+            }
+
+        } else {
+
+            showNotification('Error uploading profile picture: ' + (data?.message || 'Unknown error'), 'error');
+
+        }
+
+    })
+
+    .catch(error => {
+
+        console.error('Upload error:', error);
+
+        showNotification('Error uploading profile picture: ' + error.message, 'error');
+
+    });
+
+}
+
+
+
+// Remove profile picture function
+function removeProfilePicture() {
+    if (confirm('Are you sure you want to remove your profile picture?')) {
+        const formData = new FormData();
+        formData.append('action', 'remove_profile_picture');
+        
+        // Get CSRF token
+        let csrfToken = getCookie('csrftoken');
+        if (!csrfToken) {
+            const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (csrfInput) {
+                csrfToken = csrfInput.value;
+            }
+        }
+        
+        if (csrfToken) {
+            formData.append('csrfmiddlewaretoken', csrfToken);
+        }
+        
+        showNotification('Removing profile picture...', 'info');
+        
+        fetch('/superadmin/profile/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.success) {
+                showNotification('Profile picture removed successfully!', 'success');
+                // Refresh page to show the updated avatar
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showNotification('Error removing profile picture: ' + (data?.message || 'Unknown error'), 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Remove error:', error);
+            showNotification('Error removing profile picture: ' + error.message, 'error');
+        });
+    }
+}
+
+
+
+// Update avatar display
+
+function updateAvatarDisplay(imageUrl) {
+
+    const avatar = document.querySelector('.profile-avatar-lg');
+
+    if (avatar) {
+
+        avatar.style.backgroundImage = `url(${imageUrl})`;
+
+        avatar.style.backgroundSize = 'cover';
+
+        avatar.style.backgroundPosition = 'center';
+
+        avatar.textContent = ''; // Remove text if image is set
+
+    }
+
+}
+
+
+
+// Profile editing functions
+
+
+
+
+function changePassword() {
+
+    const form = document.getElementById('changePasswordForm');
+
+    const currentPassword = form.current_password.value;
+
+    const newPassword = form.new_password.value;
+
+    const confirmPassword = form.confirm_password.value;
+
+    
+
+    // Validate passwords
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+
+        showNotification('Please fill in all password fields', 'error');
+
+        return;
+
+    }
+
+    
+
+    if (newPassword !== confirmPassword) {
+
+        showNotification('New passwords do not match', 'error');
+
+        return;
+
+    }
+
+    
+
+    if (newPassword.length < 8) {
+
+        showNotification('Password must be at least 8 characters long', 'error');
+
+        return;
+
+    }
+
+    
+
+    // Show loading
+
+    showNotification('Changing password...', 'info');
+
+    
+
+    // Simulate password change (replace with actual AJAX call)
+
+    setTimeout(() => {
+
+        showNotification('Password changed successfully!', 'success');
+
+        bootstrap.Modal.getInstance(document.getElementById('changePasswordModal')).hide();
+
+        form.reset();
+
+    }, 1000);
+
+}
+
+
+
+
+function savePersonalInfo() {
+
+    const form = document.getElementById('editPersonalInfoForm');
+
+    const formData = new FormData(form);
+
+    
+
+    // Prepare data in the format backend expects
+
+    const data = {
+        action: 'save_personal_info',
+        first_name: formData.get('first_name'),
+        last_name: formData.get('last_name'),
+        email: formData.get('email'),
+        phone: formData.get('phone'),
+        address: formData.get('address')
+    };
+
+    
+
+    // Validate form
+
+    if (!validatePersonalInfoForm(formData)) {
+
+        return;
+
+    }
+
+    
+
+    // Get CSRF token
+
+    let csrfToken = getCookie('csrftoken');
+
+    if (!csrfToken) {
+
+        const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+
+        if (csrfInput) {
+
+            csrfToken = csrfInput.value;
+
+        }
+
+    }
+
+    
+
+    // Show loading
+
+    showNotification('Saving personal information...', 'info');
+
+    
+
+    // Send form data (not JSON) to match backend expectations
+
+    const formBody = new URLSearchParams();
+
+    for (const key in data) {
+
+        formBody.append(key, data[key]);
+
+    }
+
+    formBody.append('csrfmiddlewaretoken', csrfToken || '');
+
+    
+
+    // Send POST request
+
+    fetch('/superadmin/profile/', {
+
+        method: 'POST',
+
+        headers: {
+
+            'Content-Type': 'application/x-www-form-urlencoded',
+
+            'X-Requested-With': 'XMLHttpRequest'
+
+        },
+
+        body: formBody.toString()
+
+    })
+
+    .then(response => {
+
+        if (!response.ok) {
+
+            throw new Error(`Server responded with status: ${response.status}`);
+
+        }
+
+        return response.json();
+
+    })
+
+    .then(data => {
+
+        if (data && data.success) {
+
+            showNotification('Personal information saved successfully!', 'success');
+
+            bootstrap.Modal.getInstance(document.getElementById('editPersonalInfoModal')).hide();
+
+            // Reload page to show updated information from server
+
+            setTimeout(() => location.reload(), 1000);
+
+        } else {
+
+            showNotification('Error: ' + (data?.message || 'Unknown error'), 'error');
+
+        }
+
+    })
+
+    .catch(error => {
+
+        console.error('Error saving personal info:', error);
+
+        showNotification('Error saving personal information: ' + error.message, 'error');
+
+    });
+
+}
+
+
+
+function saveProfessionalInfo() {
+
+    const form = document.getElementById('editProfessionalInfoForm');
+
+    const formData = new FormData(form);
+
+    
+
+    // Prepare data in the format backend expects
+
+    const data = {
+
+        action: 'save_professional_info',
+
+        department: formData.get('department'),
+
+        role: formData.get('role'),
+
+        employee_id: formData.get('employee_id'),
+
+        join_date: formData.get('join_date'),
+
+        skills: formData.get('skills')
+
+    };
+
+    
+
+    // Show loading
+
+    showNotification('Saving professional information...', 'info');
+
+    
+
+    // Get CSRF token
+
+    let csrfToken = getCookie('csrftoken');
+
+    if (!csrfToken) {
+
+        const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+
+        if (csrfInput) {
+
+            csrfToken = csrfInput.value;
+
+        }
+
+    }
+
+    
+
+    // Send form data (not JSON) to match backend expectations
+
+    const formBody = new URLSearchParams();
+
+    for (const key in data) {
+
+        formBody.append(key, data[key]);
+
+    }
+
+    formBody.append('csrfmiddlewaretoken', csrfToken || '');
+
+    
+
+    // Send POST request
+
+    fetch('/superadmin/profile/', {
+
+        method: 'POST',
+
+        headers: {
+
+            'Content-Type': 'application/x-www-form-urlencoded',
+
+            'X-Requested-With': 'XMLHttpRequest'
+
+        },
+
+        body: formBody.toString()
+
+    })
+
+    .then(response => {
+
+        if (!response.ok) {
+
+            throw new Error(`Server responded with status: ${response.status}`);
+
+        }
+
+        return response.json();
+
+    })
+
+    .then(data => {
+
+        if (data && data.success) {
+
+            showNotification('Professional information saved successfully!', 'success');
+
+            bootstrap.Modal.getInstance(document.getElementById('editProfessionalInfoModal')).hide();
+
+            // Reload page to show updated information
+
+            setTimeout(() => location.reload(), 1000);
+
+        } else {
+
+            showNotification('Error: ' + (data?.message || 'Unknown error'), 'error');
+
+        }
+
+    })
+
+    .catch(error => {
+
+        console.error('Error saving professional info:', error);
+
+        showNotification('Error saving professional information: ' + error.message, 'error');
+
+    });
+
+}
+
+
+
+function saveSecuritySettings() {
+
+    const form = document.getElementById('editSecurityForm');
+
+    const formData = new FormData(form);
+
+    
+
+    // Show loading
+
+    showNotification('Saving security settings...', 'info');
+
+    
+
+    // Simulate save (replace with actual AJAX call)
+
+    setTimeout(() => {
+
+        showNotification('Security settings saved successfully!', 'success');
+
+        bootstrap.Modal.getInstance(document.getElementById('editSecurityModal')).hide();
+
+    }, 1000);
+
+}
+
+
+
+function saveAccountSettings() {
+
+    const form = document.getElementById('accountSettingsForm');
+
+    const formData = new FormData(form);
+
+    
+
+    // Show loading
+
+    showNotification('Saving account settings...', 'info');
+
+    
+
+    // Simulate save (replace with actual AJAX call)
+
+    setTimeout(() => {
+
+        showNotification('Account settings saved successfully!', 'success');
+
+        bootstrap.Modal.getInstance(document.getElementById('accountSettingsModal')).hide();
+
+    }, 1000);
+
+}
+
+
+
+function saveNotificationSettings() {
+
+    const form = document.getElementById('notificationForm');
+
+    const formData = new FormData(form);
+
+    
+
+    // Show loading
+
+    showNotification('Saving notification preferences...', 'info');
+
+    
+
+    // Simulate save (replace with actual AJAX call)
+
+    setTimeout(() => {
+
+        showNotification('Notification preferences saved successfully!', 'success');
+
+        bootstrap.Modal.getInstance(document.getElementById('notificationModal')).hide();
+
+    }, 1000);
+
+}
+
+
+
+// Form validation functions
+
+function validateProfileForm(formData) {
+
+    const email = formData.get('email');
+
+    if (!email || !isValidEmail(email)) {
+
+        showNotification('Please enter a valid email address', 'error');
+
+        return false;
+
+    }
+
+    return true;
+
+}
+
+
+
+function validatePersonalInfoForm(formData) {
+
+    const firstName = formData.get('first_name');
+
+    const lastName = formData.get('last_name');
+
+    const email = formData.get('email');
+
+    
+
+    if (!firstName || !lastName) {
+
+        showNotification('Please enter your first and last name', 'error');
+
+        return false;
+
+    }
+
+    
+
+    if (!email || !isValidEmail(email)) {
+
+        showNotification('Please enter a valid email address', 'error');
+
+        return false;
+
+    }
+
+    
+
+    return true;
+
+}
+
+
+
+function isValidEmail(email) {
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    return emailRegex.test(email);
+
+}
+
+
+
+// Notification helper function
+
+function showNotification(message, type = 'info') {
+
+    // Remove existing notifications
+
+    const existingNotifications = document.querySelectorAll('.alert-position-fixed');
+
+    existingNotifications.forEach(notification => notification.remove());
+
+    
+
+    // Create notification element
+
+    const notification = document.createElement('div');
+
+    notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+
+    notification.innerHTML = `
+
+        ${message}
+
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+
+    `;
+
+    
+
+    document.body.appendChild(notification);
+
+    
+
+    // Auto-remove after 3 seconds
+
+    setTimeout(() => {
+
+        if (notification.parentNode) {
+
+            notification.remove();
+
+        }
+
+    }, 3000);
+
+}
+
+
+
+// Fix accessibility issues with modals using inert attribute approach
+
+document.addEventListener('DOMContentLoaded', function() {
+
+    const modals = document.querySelectorAll('.modal');
+
+    
+
+    modals.forEach(modal => {
+
+        modal.addEventListener('show.bs.modal', function() {
+
+            // Set inert to prevent focus issues before showing
+
+            this.setAttribute('inert', '');
+
+        });
+
+        
+
+        modal.addEventListener('shown.bs.modal', function() {
+
+            // Remove inert when modal is fully shown
+
+            this.removeAttribute('inert');
+
+            // Remove aria-hidden as Bootstrap handles this
+
+            this.removeAttribute('aria-hidden');
+
+            
+
+            // Focus on the first focusable element in the modal
+
+            const focusableElements = this.querySelectorAll('button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+
+            if (focusableElements.length > 0) {
+
+                focusableElements[0].focus();
+
+            }
+
+        });
+
+        
+
+        modal.addEventListener('hide.bs.modal', function() {
+
+            // Set inert again to prevent focus issues during hiding
+
+            this.setAttribute('inert', '');
+
+            // Move focus back to the trigger element if possible
+
+            const trigger = document.querySelector('[data-bs-target="#' + this.id + '"]');
+
+            if (trigger) {
+
+                trigger.focus();
+
+            }
+
+        });
+
+        
+
+        modal.addEventListener('hidden.bs.modal', function() {
+
+            // Remove inert after modal is fully hidden
+
+            this.removeAttribute('inert');
+
+            // Let Bootstrap handle aria-hidden
+
+        });
+
+    });
+
+    
+
+    
+});
+
+</script>
+
+{% endblock %}
+

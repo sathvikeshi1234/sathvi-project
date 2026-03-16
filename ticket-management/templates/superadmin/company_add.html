@@ -1,0 +1,248 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Add Company - SuperAdmin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'superadmin:companies_list' %}">Companies</a>
+                            </li>
+                            <li class="breadcrumb-item active">Add Company</li>
+                        </ol>
+                    </nav>
+                    <h1 class="h3 mb-0">Add New Company</h1>
+                    <p class="text-muted mb-0">Create a new company account</p>
+                </div>
+                <div>
+                    <a href="{% url 'superadmin:companies_list' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Companies
+                    </a>
+                </div>
+            </div>
+
+            <!-- Add Company Form -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card sa-card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Company Information</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <form method="post" id="companyCreateForm">
+                                {% csrf_token %}
+                                
+                                <!-- Basic Company Information -->
+                                <div class="mb-4">
+                                    <h6 class="text-muted mb-3">Basic Information</h6>
+                                    
+                                    <div class="mb-3">
+                                        <label for="companyName" class="form-label">Company Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="companyName" name="name" required>
+                                        <div class="form-text">Enter the official company name</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="companyEmail" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                        <input type="email" class="form-control" id="companyEmail" name="email" required>
+                                        <div class="form-text">Company's primary email address</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="companyPhone" class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-control" id="companyPhone" name="phone">
+                                        <div class="form-text">Company's contact phone number</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="companyAddress" class="form-label">Address</label>
+                                        <textarea class="form-control" id="companyAddress" name="address" rows="3"></textarea>
+                                        <div class="form-text">Company's physical address</div>
+                                    </div>
+                                </div>
+
+                                <!-- Subscription Information -->
+                                <div class="mb-4">
+                                    <h6 class="text-muted mb-3">Subscription Information</h6>
+                                    
+                                    <div class="mb-3">
+                                        <label for="companyPlan" class="form-label">Subscription Plan</label>
+                                        <select class="form-select" id="companyPlan" name="plan">
+                                            <option value="">Select a plan</option>
+                                            {% for plan in plans %}
+                                                <option value="{{ plan.name }}">{{ plan.name }} - ${{ plan.price }}/month</option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-text">Choose a subscription plan for the company</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="subscriptionStatus" class="form-label">Subscription Status</label>
+                                        <select class="form-select" id="subscriptionStatus" name="subscription_status">
+                                            <option value="trial">Trial</option>
+                                            <option value="active">Active</option>
+                                            <option value="expired">Expired</option>
+                                            <option value="cancelled">Cancelled</option>
+                                        </select>
+                                        <div class="form-text">Initial subscription status</div>
+                                    </div>
+                                </div>
+
+                                <!-- Form Actions -->
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                                        <i class="bi bi-check-circle me-2"></i>Create Company
+                                    </button>
+                                    <a href="{% url 'superadmin:companies_list' %}" class="btn btn-secondary">
+                                        <i class="bi bi-x-circle me-2"></i>Cancel
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Company Information Card -->
+                <div class="col-md-4">
+                    <div class="card sa-card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Company Guidelines</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6 class="text-primary">Required Information</h6>
+                                <p class="small text-muted">Company name and email address are mandatory fields. Email must be unique and valid.</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6 class="text-primary">Subscription Plans</h6>
+                                <p class="small text-muted">Select an appropriate plan for the company. You can always change this later from the company details page.</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6 class="text-primary">Trial Period</h6>
+                                <p class="small text-muted">New companies typically start with a trial period to evaluate the service before committing to a paid plan.</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6 class="text-primary">Company Status</h6>
+                                <p class="small text-muted">All new companies are created as active by default. You can deactivate them later if needed.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="card sa-card mt-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Quick Stats</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Total Companies:</span>
+                                <span class="badge bg-primary">{{ plans.count }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Available Plans:</span>
+                                <span class="badge bg-success">{{ plans.count }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">Active Status:</span>
+                                <span class="badge bg-info">Ready</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('companyCreateForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Basic validation
+        const name = document.getElementById('companyName').value.trim();
+        const email = document.getElementById('companyEmail').value.trim();
+        
+        if (!name || !email) {
+            alert('Company name and email are required.');
+            return;
+        }
+        
+        // Email validation
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            alert('Please enter a valid email address.');
+            return;
+        }
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Creating...';
+        
+        // Submit form
+        const formData = new FormData(form);
+        
+        fetch('{% url "superadmin:company_create" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                const successAlert = document.createElement('div');
+                successAlert.className = 'alert alert-success alert-dismissible fade show';
+                successAlert.innerHTML = `
+                    ${data.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                form.parentElement.insertBefore(successAlert, form);
+                
+                // Reset form
+                form.reset();
+                
+                // Redirect after 2 seconds
+                setTimeout(() => {
+                    window.location.href = '{% url "superadmin:companies_list" %}';
+                }, 2000);
+            } else {
+                // Show error message
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while creating the company.');
+        })
+        .finally(() => {
+            // Reset button state
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Create Company';
+        });
+    });
+});
+</script>
+{% endblock %}
