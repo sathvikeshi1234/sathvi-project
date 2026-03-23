@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Backend Messages</title>
+</head>
+<body>
+    <h1>Test Backend Messages</h1>
+    <button onclick="testBackendMessages()">Test Backend Messages</button>
+    <button onclick="clearBackendMessages()">Clear Backend Messages</button>
+    <div id="result"></div>
+    
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        async function testBackendMessages() {
+            try {
+                // Test with contact ID 4 (as shown in console logs)
+                const response = await fetch('/tickets/api/chat/messages/?contact_id=4');
+                const data = await response.json();
+                
+                let html = '<h3>Backend Messages (Contact ID: 4):</h3>';
+                html += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                html += '<p>Total messages: ' + data.length + '</p>';
+                
+                document.getElementById('result').innerHTML = html;
+            } catch (error) {
+                document.getElementById('result').innerHTML = 'Error: ' + error.message;
+            }
+        }
+
+        async function clearBackendMessages() {
+            try {
+                const response = await fetch('/tickets/api/chat/clear/?contact_id=4', {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                
+                const data = await response.json();
+                
+                let html = '<h3>Clear Result:</h3>';
+                html += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                
+                document.getElementById('result').innerHTML = html;
+                
+                // Test messages again after clearing
+                setTimeout(testBackendMessages, 1000);
+            } catch (error) {
+                document.getElementById('result').innerHTML = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

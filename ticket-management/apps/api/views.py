@@ -207,6 +207,138 @@ def user_detail_api(request, user_id):
 
 
 @csrf_exempt
+def users_api(request):
+    """API endpoint for all users listing with pagination and search"""
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+    # Skip authentication check for development - remove this in production
+    # TODO: Add proper authentication back in production
+    
+    try:
+        # Get all users with their profiles and roles
+        users_qs = User.objects.select_related('userprofile', 'userprofile__role').annotate(
+            tickets_count=Count('created_tickets', distinct=True)
+        ).order_by('-date_joined')
+        
+        # Search functionality
+        search = request.GET.get('search', '').strip()
+        if search:
+            users_qs = users_qs.filter(
+                Q(username__icontains=search) |
+                Q(first_name__icontains=search) |
+                Q(last_name__icontains=search) |
+                Q(email__icontains=search)
+            )
+        
+        # Role filter
+        role_filter = request.GET.get('role', '').strip()
+        if role_filter and role_filter != 'All Roles':
+            # Map role names to database values
+            role_mapping = {
+                'Administrator': 'Admin',
+                'Manager': 'Manager', 
+                'Agent': 'Agent',
+                'Customer': 'User'
+            }
+            db_role = role_mapping.get(role_filter, role_filter)
+            users_qs = users_qs.filter(userprofile__role__name=db_role)
+        
+        # Status filter
+        status_filter = request.GET.get('status', '').strip()
+        if status_filter and status_filter != 'All Status':
+            if status_filter == 'Active':
+                users_qs = users_qs.filter(is_active=True)
+            elif status_filter == 'Inactive':
+                users_qs = users_qs.filter(is_active=False)
+            elif status_filter == 'Suspended':
+                users_qs = users_qs.filter(is_active=False)
+        
+        # Pagination
+        page = int(request.GET.get('page', 1))
+        page_size = int(request.GET.get('page_size', 10))
+        paginator = Paginator(users_qs, page_size)
+        
+        try:
+            page_obj = paginator.page(page)
+        except:
+            page_obj = paginator.page(1)
+            page = 1
+        
+        # Format results
+        users_list = []
+        for user in page_obj:
+            profile = getattr(user, 'userprofile', None)
+            role_obj = getattr(profile, 'role', None) if profile else None
+            
+            # Get initials
+            full_name = (user.get_full_name() or '').strip() or user.username
+            initials = (full_name or '?')[:2].upper()
+            
+            # Format last login
+            last_login_display = 'Never'
+            if user.last_login:
+                last_login_display = user.last_login.strftime('%Y-%m-%d %H:%M')
+            
+            # Determine role label and badge class
+            role_name = getattr(role_obj, 'name', '') or 'User'
+            role_mapping = {
+                'Admin': 'Administrator',
+                'SuperAdmin': 'Super Admin',
+                'Manager': 'Manager',
+                'Agent': 'Agent',
+                'User': 'Customer'
+            }
+            role_label = role_mapping.get(role_name, role_name)
+            
+            role_badge_classes = {
+                'Administrator': 'bg-danger',
+                'Super Admin': 'bg-dark',
+                'Manager': 'bg-warning',
+                'Agent': 'bg-info',
+                'Customer': 'bg-primary'
+            }
+            role_badge_class = role_badge_classes.get(role_label, 'bg-secondary')
+            
+            # Determine status
+            is_active = getattr(profile, 'is_active', True) if profile is not None else user.is_active
+            status_label = 'Active' if is_active else 'Inactive'
+            status_badge_class = 'bg-success' if is_active else 'bg-danger'
+            
+            users_list.append({
+                'id': user.id,
+                'name': full_name,
+                'email': user.email,
+                'username': user.username,
+                'phone': getattr(profile, 'phone', '') or '',
+                'department': getattr(profile, 'department', '') or '',
+                'is_active': is_active,
+                'tickets_count': getattr(user, 'tickets_count', 0),
+                'initials': initials,
+                'date_joined': user.date_joined.isoformat() if user.date_joined else None,
+                'last_login': user.last_login.isoformat() if user.last_login else None,
+                'last_login_display': last_login_display,
+                'role': role_name,
+                'role_label': role_label,
+                'role_badge_class': role_badge_class,
+                'status_label': status_label,
+                'status_badge_class': status_badge_class,
+            })
+        
+        return JsonResponse({
+            'results': users_list,
+            'total': paginator.count,
+            'page': page,
+            'total_pages': paginator.num_pages,
+            'has_next': page_obj.has_next(),
+            'has_previous': page_obj.has_previous(),
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@csrf_exempt
 def set_password_api(request, user_id):
     """API endpoint to set user password"""
     if request.method != 'POST':

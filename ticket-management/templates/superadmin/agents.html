@@ -1,0 +1,409 @@
+{% extends 'superadmin/base.html' %}
+{% load static %}
+
+{% block title %}Agents - SuperAdmin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Breadcrumb Navigation -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'superadmin:superadmin_dashboard' %}">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item active">Agents</li>
+                </ol>
+            </nav>
+            
+            <!-- Page Header with Statistics -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Agents</h1>
+                    <p class="text-muted mb-0">Manage all system agents</p>
+                </div>
+                <div>
+                    <button class="btn btn-primary" data-bs-toggle="offcanvas" data-bs-target="#addAgentOffcanvas">
+                        <i class="bi bi-plus-circle"></i> Add Agent
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card sa-card">
+                        <div class="card-body text-center">
+                            <div class="stat-icon bg-primary text-white mx-auto mb-3">
+                                <i class="bi bi-person-workspace"></i>
+                            </div>
+                            <h3 class="mb-1">{{ total_agents }}</h3>
+                            <p class="text-muted mb-0">Total Agents</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card sa-card">
+                        <div class="card-body text-center">
+                            <div class="stat-icon bg-success text-white mx-auto mb-3">
+                                <i class="bi bi-person-check"></i>
+                            </div>
+                            <h3 class="mb-1">{{ active_agents }}</h3>
+                            <p class="text-muted mb-0">Active Agents</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card sa-card">
+                        <div class="card-body text-center">
+                            <div class="stat-icon bg-danger text-white mx-auto mb-3">
+                                <i class="bi bi-person-x"></i>
+                            </div>
+                            <h3 class="mb-1">{{ inactive_agents }}</h3>
+                            <p class="text-muted mb-0">Inactive Agents</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card sa-card">
+                <div class="card-body">
+                    {% if agents %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Agent</th>
+                                        <th>Email</th>
+                                        <th>Department</th>
+                                        <th>Status</th>
+                                        <th>Joined</th>
+                                        <th>Last Login</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="agentsTableBody">
+                                    {% for agent in agents %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm bg-primary text-white rounded d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px ; border-radius: 50%;">
+                                                    {{ agent.username.0|upper }}
+                                                </div>
+                                                <div>
+                                                    <div class="fw-medium">{{ agent.get_full_name|default:agent.username }}</div>
+                                                    <small class="text-muted">@{{ agent.username }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ agent.email }}</td>
+                                        <td>
+                                            {% if agent.userprofile.department %}
+                                                <span class="badge bg-info">{{ agent.userprofile.department }}</span>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if agent.is_active %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Inactive</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ agent.date_joined|date:"M d, Y" }}</td>
+                                        <td>
+                                            {% if agent.last_login %}
+                                                {{ agent.last_login|date:"M d, Y H:i" }}
+                                            {% else %}
+                                                <span class="text-muted">Never</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{% url 'superadmin:user_detail' agent.id %}" class="btn btn-outline-primary" title="View Agent">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a href="{% url 'superadmin:user_edit' agent.id %}" class="btn btn-outline-secondary" title="Edit Agent">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <button class="btn btn-outline-warning toggle-status-btn" 
+                                                data-user-id="{ agent.id }" 
+                                                data-username="{{ agent.username|escapejs }}" 
+                                                data-new-status="{% if agent.is_active %}false{% else %}true{% endif %}"
+                                                title="{% if agent.is_active %}Deactivate{% else %}Activate{% endif %} Agent">
+                                                    <i class="bi bi-{% if agent.is_active %}pause{% else %}play{% endif %}"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination Controls -->
+                        {% if agents.has_other_pages %}
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <div class="text-muted">
+                                Showing {{ agents.start_index }}-{{ agents.end_index }} of {{ agents.paginator.count }} agents
+                            </div>
+                            <nav>
+                                <ul class="pagination mb-0">
+                                    {% if agents.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ agents.previous_page_number }}">
+                                                <i class="bi bi-chevron-left"></i> Previous
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    
+                                    {% for num in agents.paginator.page_range %}
+                                        {% if agents.number == num %}
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ num }}</span>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if agents.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ agents.next_page_number }}">
+                                                Next <i class="bi bi-chevron-right"></i>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <i class="bi bi-person-workspace text-muted" style="font-size: 4rem;"></i>
+                            </div>
+                            <h4 class="text-muted">No Agents Found</h4>
+                            <p class="text-muted">There are no agents registered in the system yet.</p>
+                            <button class="btn btn-primary" data-bs-toggle="offcanvas" data-bs-target="#addAgentOffcanvas">
+                                <i class="bi bi-plus-circle"></i> Add First Agent
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Agent Offcanvas -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="addAgentOffcanvas" aria-labelledby="addAgentOffcanvasLabel" style="width: 600px;">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="addAgentOffcanvasLabel">
+            <i class="bi bi-person-plus me-2"></i>Add New Agent
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <form id="addAgentForm">
+            {% csrf_token %}
+            
+            <!-- Agent Information -->
+            <div class="mb-4">
+                <h6 class="text-muted mb-3">Agent Information</h6>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="firstName" name="first_name" autocomplete="given-name" required>
+                        <div class="invalid-feedback">Please provide a first name.</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="lastName" name="last_name" autocomplete="family-name" required>
+                        <div class="invalid-feedback">Please provide a last name.</div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="username" name="username" autocomplete="username" required>
+                        <div class="invalid-feedback">Please provide a username.</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="email" name="email" autocomplete="email" required>
+                        <div class="invalid-feedback">Please provide a valid email address.</div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="password" name="password" autocomplete="new-password" required>
+                        <div class="invalid-feedback">Password must be at least 8 characters.</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="confirmPassword" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirm_password" autocomplete="new-password" required>
+                        <div class="invalid-feedback">Passwords do not match.</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Agent Details -->
+            <div class="mb-4">
+                <h6 class="text-muted mb-3">Agent Details</h6>
+                
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <label for="department" class="form-label">Department</label>
+                        <input type="text" class="form-control" id="department" name="department" placeholder="e.g., Technical Support">
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
+                        <select class="form-select" id="status" name="is_active" required>
+                            <option value="">Select Status</option>
+                            <option value="true" selected>Active</option>
+                            <option value="false">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="skills" class="form-label">Skills</label>
+                        <textarea class="form-control" id="skills" name="skills" rows="2" placeholder="e.g., Technical Support, Customer Service, IT Support"></textarea>
+                        <small class="text-muted">Enter comma-separated skills</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Form buttons inside form -->
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="offcanvas">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitAgentForm(event)">
+                    <i class="bi bi-person-plus me-2"></i>Add Agent
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="text-center py-3 mt-4 mb-2 text-muted small border-top">
+    <div class="d-flex justify-content-between align-items-center">
+        <span>&copy; 2024 Ultrakey IT Solutions</span>
+        <span>Agents Management</span>
+        <span>Support</span>
+    </div>
+</footer>
+
+<script>
+// Form submission function
+function submitAgentForm(e) {
+    e.preventDefault();
+    console.log('=== SUBMIT AGENT FORM CALLED ===');
+    
+    // Get form element
+    const form = document.getElementById('addAgentForm');
+    
+    // Basic validation
+    const firstName = document.getElementById('firstName');
+    const lastName = document.getElementById('lastName');
+    const username = document.getElementById('username');
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirmPassword');
+    
+    if (!firstName.value || !lastName.value || !username.value || !email.value || !password.value || !confirmPassword.value) {
+        console.log('VALIDATION FAILED: Missing required fields');
+        alert('Please fill all required fields');
+        return false;
+    }
+    
+    if (password.value !== confirmPassword.value) {
+        console.log('VALIDATION FAILED: Passwords do not match');
+        alert('Passwords do not match');
+        return false;
+    }
+    
+    console.log('VALIDATION PASSED - Submitting form...');
+    
+    // Create form data
+    const formData = new FormData(form);
+    formData.append('role', 'agent');
+    
+    console.log('Submitting agent data...');
+    for (let [key, value] of formData.entries()) {
+        console.log(key + ':', value);
+    }
+    
+    // Submit via AJAX
+    fetch('/superadmin/users/create/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+            console.log('SUCCESS: Agent created successfully');
+            alert('Agent created successfully!');
+            bootstrap.Offcanvas.getInstance(document.getElementById('addAgentOffcanvas')).hide();
+            setTimeout(() => {
+                console.log('Reloading page...');
+                window.location.reload();
+            }, 1000);
+        } else {
+            console.log('ERROR: Server returned error:', data.message);
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('AJAX Error:', error);
+        alert('Network error: ' + error.message);
+    });
+    
+    return false;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const addAgentForm = document.getElementById('addAgentForm');
+    const offcanvasElement = document.getElementById('addAgentOffcanvas');
+    let offcanvas;
+    
+    // Initialize Bootstrap offcanvas
+    offcanvas = new bootstrap.Offcanvas(offcanvasElement);
+    
+    // Cancel button handler
+    document.querySelector('[data-bs-dismiss="offcanvas"]').addEventListener('click', function() {
+        addAgentForm.reset();
+        
+        // Reset validation states
+        const inputs = addAgentForm.querySelectorAll('.form-control');
+        inputs.forEach(input => {
+            input.classList.remove('is-invalid');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            if (feedback) {
+                feedback.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
+
+{% endblock %}

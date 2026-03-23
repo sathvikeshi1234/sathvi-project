@@ -146,18 +146,23 @@ setTimeout(() => {
            
             console.log('Action button clicked');
            
+            // Find the menu panel again to ensure it's available
+            const currentMenuPanel = container.querySelector('.action-menu-panel');
+            if (!currentMenuPanel) {
+                console.error('Menu panel not found!');
+                return;
+            }
+           
             // Close all other action menus
             document.querySelectorAll('.action-menu-panel.active').forEach(panel => {
-                if (panel !== menuPanel) {
+                if (panel !== currentMenuPanel) {
                     panel.classList.remove('active');
                 }
             });
            
             // Toggle this action menu
-            if (menuPanel) {
-                menuPanel.classList.toggle('active');
-                console.log('Action menu toggled:', menuPanel.classList.contains('active'));
-            }
+            currentMenuPanel.classList.toggle('active');
+            console.log('Action menu toggled:', currentMenuPanel.classList.contains('active'));
         });
     });
    
@@ -242,7 +247,11 @@ setTimeout(() => {
     const allModals = document.querySelectorAll('[id*="Modal"]');
     console.log('All modals found:', allModals.length);
     allModals.forEach((modal, index) => {
-        console.log(`Modal ${index}:`, modal.id);
+        if (modal && modal.id) {
+            console.log(`Modal ${index}:`, modal.id);
+        } else {
+            console.log(`Modal ${index}: null or no id`);
+        }
     });
     
     // Add form submission handler for reset password

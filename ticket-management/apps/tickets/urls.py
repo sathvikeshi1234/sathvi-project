@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import DashboardStatsView, RecentTicketsView, TicketListCreateView, TicketStatusUpdateView, MutedChatView, TicketCommentListCreateView, TicketCommentDetailView 
+from .views import DashboardStatsView, RecentTicketsView, TicketListCreateView, TicketStatusUpdateView, MutedChatView, TicketCommentListCreateView, TicketCommentDetailView, ClearChatView, BlockUserView, ChatStatusView, ChatMessageListView 
 
 urlpatterns = [
     path("", views.ticket_list, name="ticket_list"),
@@ -19,4 +19,8 @@ urlpatterns = [
     path("api/tickets/", TicketListCreateView.as_view(), name="api-tickets"),
     path("api/tickets/<int:pk>/status/", TicketStatusUpdateView.as_view(), name="api-ticket-status"),
     path("api/chat/mute/", MutedChatView.as_view(), name="api-chat-mute"),
+    path("api/chat/clear/", ClearChatView.as_view(), name="api-chat-clear"),
+    path("api/chat/block/", BlockUserView.as_view(), name="api-chat-block"),
+    path("api/chat/status/", ChatStatusView.as_view(), name="api-chat-status"),
+    path("api/chat/messages/", ChatMessageListView.as_view(), name="api-chat-messages"),
 ]

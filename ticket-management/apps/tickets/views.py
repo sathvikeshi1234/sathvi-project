@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import models
-from .models import Ticket, MutedChat, TicketAttachment, TicketStatusHistory, TicketComment
+from .models import Ticket, MutedChat, TicketAttachment, TicketStatusHistory, TicketComment, ChatMessage
 from .forms import TicketForm
 from .serializers import DashboardStatsSerializer, RecentTicketSerializer, TicketSerializer, TicketCommentSerializer
 from rest_framework.views import APIView
@@ -494,3 +494,137 @@ class TicketCommentDetailView(APIView):
             return True
         
         return False
+
+
+class ClearChatView(APIView):
+    """Clear chat messages between current user and a contact"""
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        contact_id = request.data.get('contact_id') or request.query_params.get('contact_id')
+        if not contact_id:
+            return Response({'detail': 'contact_id is required'}, status=400)
+        
+        try:
+            contact = User.objects.get(id=contact_id)
+        except User.DoesNotExist:
+            return Response({'detail': 'User not found'}, status=404)
+        
+        # Delete all chat messages between the two users
+        deleted_count, _ = ChatMessage.objects.filter(
+            models.Q(sender=request.user, recipient=contact) |
+            models.Q(sender=contact, recipient=request.user)
+        ).delete()
+        
+        return Response({
+            'detail': 'Chat cleared',
+            'deleted_count': deleted_count
+        }, status=200)
+
+
+class BlockUserView(APIView):
+    """Block/unblock a user from chatting"""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        contact_id = request.data.get('contact_id')
+        if not contact_id:
+            return Response({'detail': 'contact_id is required'}, status=400)
+        
+        try:
+            contact = User.objects.get(id=contact_id)
+        except User.DoesNotExist:
+            return Response({'detail': 'User not found'}, status=404)
+        
+        # Check if already blocked
+        if hasattr(request.user, 'blocked_users'):
+            already_blocked = request.user.blocked_users.filter(id=contact.id).exists()
+        else:
+            already_blocked = False
+        
+        if already_blocked:
+            return Response({'detail': 'Already blocked'}, status=400)
+        
+        # For now, we'll use the MutedChat model as a simple blocking mechanism
+        # In a real implementation, you might want a separate BlockedUser model
+        MutedChat.objects.get_or_create(user=request.user, contact=contact)
+        
+        return Response({'detail': 'User blocked'}, status=201)
+
+    def delete(self, request):
+        contact_id = request.data.get('contact_id') or request.query_params.get('contact_id')
+        if not contact_id:
+            return Response({'detail': 'contact_id is required'}, status=400)
+        
+        try:
+            contact = User.objects.get(id=contact_id)
+        except User.DoesNotExist:
+            return Response({'detail': 'User not found'}, status=404)
+        
+        # Unblock the user (remove from muted chats)
+        qs = MutedChat.objects.filter(user=request.user, contact=contact)
+        if qs.exists():
+            qs.delete()
+            return Response({'detail': 'User unblocked'}, status=200)
+        
+        return Response({'detail': 'User was not blocked'}, status=404)
+
+
+class ChatStatusView(APIView):
+    """Get chat status (muted/blocked) for a contact"""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        contact_id = request.query_params.get('contact_id')
+        if not contact_id:
+            return Response({'detail': 'contact_id is required'}, status=400)
+        
+        try:
+            contact = User.objects.get(id=contact_id)
+        except User.DoesNotExist:
+            return Response({'detail': 'User not found'}, status=404)
+        
+        # Check if muted
+        is_muted = MutedChat.objects.filter(
+            user=request.user, 
+            contact=contact
+        ).exists()
+        
+        return Response({
+            'is_muted': is_muted,
+            'is_blocked': is_muted  # For now, blocked and muted are the same
+        }, status=200)
+
+
+class ChatMessageListView(APIView):
+    """List chat messages between current user and a contact"""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        contact_id = request.query_params.get('contact_id')
+        if not contact_id:
+            return Response({'detail': 'contact_id is required'}, status=400)
+        
+        try:
+            contact = User.objects.get(id=contact_id)
+        except User.DoesNotExist:
+            return Response({'detail': 'User not found'}, status=404)
+        
+        # Get chat messages between the two users
+        messages = ChatMessage.objects.filter(
+            Q(sender=request.user, recipient=contact) |
+            Q(sender=contact, recipient=request.user)
+        ).order_by('created_at')
+        
+        message_list = []
+        for msg in messages:
+            message_list.append({
+                'id': msg.id,
+                'text': msg.text,
+                'sender': msg.sender.id,
+                'recipient': msg.recipient.id,
+                'created_at': msg.created_at.isoformat() if msg.created_at else None,
+                'is_read': msg.is_read,
+            })
+        
+        return Response(message_list, status=200)

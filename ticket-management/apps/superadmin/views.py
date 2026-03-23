@@ -1887,12 +1887,29 @@ def transaction_details(request, payment_id):
 @login_required(login_url='superadmin:superadmin_login')
 def users_list(request):
     if not is_admin_or_superadmin(request.user):
-        return redirect('superadmin:superadmin_login')
+        return redirect('superadmin:superadmin_dashboard')
     
-    users = User.objects.select_related('userprofile__role').order_by('-date_joined')
+    try:
+        from users.models import Role, UserProfile
+    except ImportError:
+        messages.error(request, 'User models not available. Please check app configuration.')
+        return redirect('superadmin:superadmin_dashboard')
+    
+    # Get regular users (only users with User role, excluding Agents, Admins, and SuperAdmins)
+    regular_users = User.objects.filter(
+        Q(userprofile__role__name='User') &
+        ~Q(userprofile__role__name='Agent') &
+        ~Q(userprofile__role__name='Admin') &
+        ~Q(is_superuser=True)
+    ).distinct().order_by('-date_joined')
+    
+    # Calculate statistics for User role users only
+    total_users = regular_users.count()
+    active_users = regular_users.filter(is_active=True).count()
+    inactive_users = total_users - active_users
     
     # Pagination: 7 users per page
-    paginator = Paginator(users, 7)
+    paginator = Paginator(regular_users, 7)
     page = request.GET.get('page')
     
     try:
@@ -1904,16 +1921,290 @@ def users_list(request):
         # If page is out of range, deliver last page
         users = paginator.page(paginator.num_pages)
     
+    # Calculate start_index and end_index for template
+    users.start_index = (users.number - 1) * paginator.per_page + 1
+    users.end_index = min(users.number * paginator.per_page, paginator.count)
+    
     # Get all companies for the dropdown
     companies = Company.objects.filter(is_active=True).order_by('name')
     
     context = {
         'users': users,
+        'total_users': total_users,
+        'active_users': active_users,
+        'inactive_users': inactive_users,
         'all_companies': companies,
         'sa_page': 'users'
     }
     
     return render(request, 'superadmin/users.html', context)
+
+
+@login_required(login_url='superadmin:superadmin_login')
+def agents_list(request):
+    """Agents management page to view and manage agent users"""
+    if not is_admin_or_superadmin(request.user):
+        return redirect('superadmin:superadmin_login')
+    
+    try:
+        from users.models import Role, UserProfile
+    except ImportError:
+        messages.error(request, 'User models not available. Please check app configuration.')
+        return redirect('superadmin:superadmin_dashboard')
+    
+    # Get agent users (only users with Agent role)
+    # TEMPORARY: Show all users first to debug
+    all_users = User.objects.all().order_by('-date_joined')
+    agent_users = User.objects.filter(
+        userprofile__role__name='Agent'
+    ).distinct().order_by('-date_joined')
+    
+    # Debug: Check what agents are found
+    print(f"=== AGENTS LIST DEBUG ===")
+    print(f"Total ALL users found: {all_users.count()}")
+    print(f"Total agent users found: {agent_users.count()}")
+    
+    # Show all users with their profiles
+    print("All users in system:")
+    for user in all_users:
+        profile_info = "No profile"
+        if hasattr(user, 'userprofile') and user.userprofile:
+            profile_info = f"Role={user.userprofile.role.name}, Dept={getattr(user.userprofile, 'department', 'None')}"
+        print(f"  - {user.username} (ID: {user.id}, Active: {user.is_active}) - {profile_info}")
+    
+    print("\nAgent users specifically:")
+    for agent in agent_users:
+        if hasattr(agent, 'userprofile') and agent.userprofile:
+            print(f"  - {agent.username} (ID: {agent.id}, Active: {agent.is_active})")
+            print(f"    Profile: Role={agent.userprofile.role.name}, Dept={agent.userprofile.department}")
+        else:
+            print(f"  - {agent.username} (ID: {agent.id}, Active: {agent.is_active}) - No profile found!")
+    
+    # Use agent_users for the actual display
+    display_users = agent_users
+    
+    # Calculate statistics for Agent role users
+    total_agents = agent_users.count()
+    active_agents = agent_users.filter(is_active=True).count()
+    inactive_agents = total_agents - active_agents
+    
+    # Pagination
+    page = request.GET.get('page', 1)
+    paginator = Paginator(display_users, 10)  # Show 10 agent users per page
+    
+    try:
+        agents = paginator.page(page)
+    except PageNotAnInteger:
+        agents = paginator.page(1)
+    except EmptyPage:
+        agents = paginator.page(paginator.num_pages)
+    
+    # Calculate start_index and end_index for template
+    agents.start_index = (agents.number - 1) * paginator.per_page + 1
+    agents.end_index = min(agents.number * paginator.per_page, paginator.count)
+    
+    context = {
+        'agents': agents,
+        'total_agents': total_agents,
+        'active_agents': active_agents,
+        'inactive_agents': inactive_agents,
+        'sa_page': 'agents'
+    }
+    
+    return render(request, 'superadmin/agents.html', context)
+
+
+@require_POST
+@login_required(login_url='superadmin:superadmin_login')
+def create_user(request):
+    """Create a new user with specified role"""
+    print(f"=== CREATE USER DEBUG ===")
+    print(f"Method: {request.method}")
+    print(f"User authenticated: {request.user.is_authenticated}")
+    print(f"User: {request.user.username}")
+    print(f"Is superuser: {request.user.is_superuser}")
+    print(f"POST data: {dict(request.POST)}")
+    
+    if not is_admin_or_superadmin(request.user):
+        print("DEBUG: Permission denied - user is not admin or superadmin")
+        return JsonResponse({
+            'success': False,
+            'message': 'Permission denied'
+        }, status=403)
+    
+    try:
+        from users.models import Role, UserProfile
+        from django.contrib.auth.models import User
+        from django.db import transaction
+    except ImportError:
+        return JsonResponse({
+            'success': False,
+            'message': 'User models not available. Please check app configuration.'
+        }, status=500)
+    
+    # Get form data
+    first_name = request.POST.get('first_name', '').strip()
+    last_name = request.POST.get('last_name', '').strip()
+    username = request.POST.get('username', '').strip()
+    email = request.POST.get('email', '').strip()
+    password = request.POST.get('password', '')
+    confirm_password = request.POST.get('confirm_password', '')
+    role_name = request.POST.get('role', 'user').strip()
+    is_active = request.POST.get('is_active', 'true').lower() == 'true'
+    company_id = request.POST.get('company', '').strip()
+    
+    # Agent-specific fields
+    department = request.POST.get('department', '').strip()
+    employee_id = request.POST.get('employee_id', '').strip()
+    skills = request.POST.get('skills', '').strip()
+    
+    print(f"Parsed form data:")
+    print(f"  first_name: '{first_name}'")
+    print(f"  last_name: '{last_name}'")
+    print(f"  username: '{username}'")
+    print(f"  email: '{email}'")
+    print(f"  password: {'*' * len(password) if password else 'None'}")
+    print(f"  role_name: '{role_name}'")
+    print(f"  company_id: '{company_id}'")
+    print(f"  department: '{department}'")
+    print(f"  employee_id: '{employee_id}'")
+    print(f"  skills: '{skills}'")
+    
+    # Validation
+    if not all([first_name, last_name, username, email, password, confirm_password]):
+        print("DEBUG: Validation failed - missing required fields")
+        return JsonResponse({
+            'success': False,
+            'message': 'All required fields must be filled'
+        }, status=400)
+    
+    if password != confirm_password:
+        return JsonResponse({
+            'success': False,
+            'message': 'Passwords do not match'
+        }, status=400)
+    
+    if len(password) < 8:
+        return JsonResponse({
+            'success': False,
+            'message': 'Password must be at least 8 characters long'
+        }, status=400)
+    
+    if User.objects.filter(username=username).exists():
+        return JsonResponse({
+            'success': False,
+            'message': 'Username already exists'
+        }, status=400)
+    
+    if User.objects.filter(email=email).exists():
+        return JsonResponse({
+            'success': False,
+            'message': 'Email already exists'
+        }, status=400)
+    
+    # Validate role
+    valid_roles = ['user', 'agent', 'admin', 'manager']
+    if role_name not in valid_roles:
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid role specified'
+        }, status=400)
+    
+    try:
+        with transaction.atomic():
+            print("DEBUG: Starting user creation transaction")
+            
+            # Create user
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                is_active=is_active
+            )
+            print(f"DEBUG: User created successfully - ID: {user.id}, Username: {user.username}")
+            
+            # Get or create role
+            role, created = Role.objects.get_or_create(name=role_name.capitalize())
+            print(f"DEBUG: Role {'created' if created else 'found'} - {role.name}")
+            
+            # Check for and clean up any orphaned UserProfiles for this user
+            orphaned_profiles = UserProfile.objects.filter(user=user)
+            if orphaned_profiles.exists():
+                print(f"DEBUG: Found {orphaned_profiles.count()} orphaned UserProfiles for user {user.username}")
+                # Delete orphaned profiles
+                orphaned_profiles.delete()
+                print(f"DEBUG: Deleted orphaned UserProfiles")
+            
+            # Create user profile
+            profile = UserProfile.objects.create(
+                user=user,
+                role=role
+            )
+            print(f"DEBUG: UserProfile created - ID: {profile.id}")
+            
+            # Add agent-specific fields if creating an agent
+            if role_name == 'agent':
+                print(f"DEBUG: Adding agent-specific fields")
+                if department:
+                    profile.department = department
+                    print(f"DEBUG: Set department: {department}")
+                if employee_id:
+                    profile.employee_id = employee_id
+                    print(f"DEBUG: Set employee_id: {employee_id}")
+                if skills:
+                    profile.skills = skills
+                    print(f"DEBUG: Set skills: {skills}")
+                profile.save()
+                print("DEBUG: Agent profile updated and saved")
+            
+            # Assign user to company if specified
+            if company_id:
+                try:
+                    from .models import Company
+                    company = Company.objects.get(id=company_id)
+                    company.users.add(profile)
+                    print(f"DEBUG: User assigned to company: {company.name}")
+                except Company.DoesNotExist:
+                    print(f"DEBUG: Company with ID {company_id} not found")
+                except Exception as e:
+                    print(f"DEBUG: Error assigning user to company: {str(e)}")
+            
+            print("DEBUG: User creation completed successfully")
+            return JsonResponse({
+                'success': True,
+                'message': f'{role_name.capitalize()} created successfully!'
+            })
+            
+    except Exception as e:
+        print(f"DEBUG: Exception occurred during user creation: {str(e)}")
+        print(f"DEBUG: Exception type: {type(e).__name__}")
+        import traceback
+        print(f"DEBUG: Traceback: {traceback.format_exc()}")
+        
+        # Handle specific database constraint errors
+        error_message = str(e)
+        if "Duplicate entry" in error_message and "user_id" in error_message:
+            return JsonResponse({
+                'success': False,
+                'message': 'Database conflict detected. Please try a different username or contact administrator to clean up the database.'
+            }, status=400)
+        elif "username" in error_message and "already exists" in error_message.lower():
+            return JsonResponse({
+                'success': False,
+                'message': 'Username already exists. Please choose a different username.'
+            }, status=400)
+        elif "email" in error_message and "already exists" in error_message.lower():
+            return JsonResponse({
+                'success': False,
+                'message': 'Email already exists. Please use a different email address.'
+            }, status=400)
+        else:
+            return JsonResponse({
+                'success': False,
+                'message': f'Error creating user: {str(e)}'
+            }, status=500)
 
 
 @login_required(login_url='superadmin:superadmin_login')
@@ -1956,6 +2247,93 @@ def admin_management(request):
     }
     
     return render(request, 'superadmin/admin_management.html', context)
+
+
+@require_POST
+def add_admin(request):
+    """AJAX endpoint to create a new admin user"""
+    try:
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        password = request.POST.get('password', '')
+        is_staff = request.POST.get('is_staff') == 'true'
+        is_superuser = request.POST.get('is_superuser') == 'true'
+
+        if not username or not email or not password:
+            return JsonResponse({'success': False, 'message': 'Username, email, and password are required.'})
+
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({'success': False, 'message': 'A user with that username already exists.'})
+
+        if User.objects.filter(email=email).exists():
+            return JsonResponse({'success': False, 'message': 'A user with that email already exists.'})
+
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            is_staff=is_staff,
+            is_superuser=is_superuser,
+        )
+
+        # Assign Admin role via UserProfile
+        try:
+            admin_role, _ = Role.objects.get_or_create(name='Admin')
+            profile, _ = UserProfile.objects.get_or_create(user=user)
+            profile.role = admin_role
+            profile.save()
+        except Exception:
+            pass  # Role assignment is best-effort
+
+        return JsonResponse({'success': True, 'message': 'Admin user created successfully.'})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+@require_POST
+def toggle_user_status(request, user_id):
+    """Toggle user active/inactive status"""
+    if not is_admin_or_superadmin(request.user):
+        return JsonResponse({'success': False, 'message': 'Permission denied'}, status=403)
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Invalid request method'})
+    
+    user = get_object_or_404(User, id=user_id)
+    
+    # Prevent users from toggling their own status
+    if user.id == request.user.id:
+        return JsonResponse({'success': False, 'message': 'Cannot toggle your own status'})
+    
+    # Only SuperAdmins can toggle SuperAdmin users
+    if user.is_superuser and not request.user.is_superuser:
+        return JsonResponse({'success': False, 'message': 'Only SuperAdmins can modify SuperAdmin users'})
+    
+    try:
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        
+        # Toggle the current status
+        current_status = profile.is_active
+        new_status = not current_status
+        
+        profile.is_active = new_status
+        profile.save()
+        
+        # Also update Django user is_active status
+        user.is_active = new_status
+        user.save()
+        
+        action = 'activated' if new_status else 'deactivated'
+        
+        return JsonResponse({'success': True, 'message': f'User {action} successfully', 'new_status': new_status})
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
 
 
 def superadmin_login(request):

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Chat Actions</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Debug Chat Actions</h1>
+        
+        <div class="mb-3">
+            <label>Contact ID:</label>
+            <input type="number" id="contactId" value="1" class="form-control">
+        </div>
+        
+        <div class="mb-3">
+            <button onclick="checkStatus()" class="btn btn-info">Check Status</button>
+            <button onclick="testMute()" class="btn btn-primary">Test Mute</button>
+            <button onclick="testUnmute()" class="btn btn-secondary">Test Unmute</button>
+            <button onclick="testClear()" class="btn btn-warning">Test Clear Chat</button>
+            <button onclick="testBlock()" class="btn btn-danger">Test Block</button>
+            <button onclick="testUnblock()" class="btn btn-success">Test Unblock</button>
+        </div>
+        
+        <div id="result" class="mt-3"></div>
+    </div>
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function log(message) {
+            console.log(message);
+            const result = document.getElementById('result');
+            result.innerHTML += '<div>' + message + '</div>';
+        }
+
+        async function checkStatus() {
+            const contactId = document.getElementById('contactId').value;
+            log('Checking status for contact ' + contactId + '...');
+            
+            try {
+                const response = await fetch(`/tickets/api/chat/status/?contact_id=${contactId}`);
+                const data = await response.json();
+                
+                log('Status Response: ' + JSON.stringify(data, null, 2));
+            } catch (error) {
+                log('Error checking status: ' + error.message);
+            }
+        }
+
+        async function testMute() {
+            const contactId = document.getElementById('contactId').value;
+            log('Testing mute for contact ' + contactId + '...');
+            
+            try {
+                const response = await fetch('/tickets/api/chat/mute/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        contact_id: contactId
+                    })
+                });
+                
+                const data = await response.json();
+                log('Mute Response: ' + JSON.stringify(data, null, 2));
+                
+                // Check status after mute
+                await checkStatus();
+            } catch (error) {
+                log('Error muting: ' + error.message);
+            }
+        }
+
+        async function testUnmute() {
+            const contactId = document.getElementById('contactId').value;
+            log('Testing unmute for contact ' + contactId + '...');
+            
+            try {
+                const response = await fetch(`/tickets/api/chat/mute/?contact_id=${contactId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                
+                const data = await response.json();
+                log('Unmute Response: ' + JSON.stringify(data, null, 2));
+                
+                // Check status after unmute
+                await checkStatus();
+            } catch (error) {
+                log('Error unmuting: ' + error.message);
+            }
+        }
+
+        async function testClear() {
+            const contactId = document.getElementById('contactId').value;
+            log('Testing clear chat for contact ' + contactId + '...');
+            
+            try {
+                const response = await fetch(`/tickets/api/chat/clear/?contact_id=${contactId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                
+                const data = await response.json();
+                log('Clear Chat Response: ' + JSON.stringify(data, null, 2));
+            } catch (error) {
+                log('Error clearing chat: ' + error.message);
+            }
+        }
+
+        async function testBlock() {
+            const contactId = document.getElementById('contactId').value;
+            log('Testing block for contact ' + contactId + '...');
+            
+            try {
+                const response = await fetch('/tickets/api/chat/block/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        contact_id: contactId
+                    })
+                });
+                
+                const data = await response.json();
+                log('Block Response: ' + JSON.stringify(data, null, 2));
+                
+                // Check status after block
+                await checkStatus();
+            } catch (error) {
+                log('Error blocking: ' + error.message);
+            }
+        }
+
+        async function testUnblock() {
+            const contactId = document.getElementById('contactId').value;
+            log('Testing unblock for contact ' + contactId + '...');
+            
+            try {
+                const response = await fetch(`/tickets/api/chat/block/?contact_id=${contactId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                
+                const data = await response.json();
+                log('Unblock Response: ' + JSON.stringify(data, null, 2));
+                
+                // Check status after unblock
+                await checkStatus();
+            } catch (error) {
+                log('Error unblocking: ' + error.message);
+            }
+        }
+
+        // Check status on page load
+        window.onload = function() {
+            checkStatus();
+        };
+    </script>
+</body>
+</html>

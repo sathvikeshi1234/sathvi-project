@@ -43,6 +43,11 @@
             <span class="nav-text">Users</span>
         </a>
 
+        <a href="{% url 'superadmin:agents_list' %}" class="nav-item {% if request.resolver_match.url_name == 'agents_list' %}active{% endif %}" data-page="agents">
+            <i class="bi bi-person-workspace iconside" aria-hidden="true"></i>
+            <span class="nav-text">Agents</span>
+        </a>
+
         <a href="{% url 'superadmin:admin_management' %}" class="nav-item {% if request.resolver_match.url_name == 'admin_management' %}active{% endif %}" data-page="admin-management">
             <i class="bi bi-person-badge iconside" aria-hidden="true"></i>
             <span class="nav-text">Admin Management</span>

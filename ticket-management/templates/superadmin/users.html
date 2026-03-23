@@ -30,6 +30,43 @@
                 </div>
             </div>
 
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card sa-card">
+                        <div class="card-body text-center">
+                            <div class="stat-icon bg-primary text-white mx-auto mb-3">
+                                <i class="bi bi-people"></i>
+                            </div>
+                            <h3 class="mb-1">{{ total_users }}</h3>
+                            <p class="text-muted mb-0">Total Users</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card sa-card">
+                        <div class="card-body text-center">
+                            <div class="stat-icon bg-success text-white mx-auto mb-3">
+                                <i class="bi bi-person-check"></i>
+                            </div>
+                            <h3 class="mb-1">{{ active_users }}</h3>
+                            <p class="text-muted mb-0">Active Users</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card sa-card">
+                        <div class="card-body text-center">
+                            <div class="stat-icon bg-danger text-white mx-auto mb-3">
+                                <i class="bi bi-person-x"></i>
+                            </div>
+                            <h3 class="mb-1">{{ inactive_users }}</h3>
+                            <p class="text-muted mb-0">Inactive Users</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="card sa-card">
                 <div class="card-body">
                     {% if users %}
@@ -180,12 +217,12 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="firstName" name="first_name" required>
+                        <input type="text" class="form-control" id="firstName" name="first_name" autocomplete="given-name" required>
                         <div class="invalid-feedback">Please provide a first name.</div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="lastName" name="last_name" required>
+                        <input type="text" class="form-control" id="lastName" name="last_name" autocomplete="family-name" required>
                         <div class="invalid-feedback">Please provide a last name.</div>
                     </div>
                 </div>
@@ -193,12 +230,12 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="username" name="username" required>
+                        <input type="text" class="form-control" id="username" name="username" autocomplete="username" required>
                         <div class="invalid-feedback">Please provide a username.</div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control" id="email" name="email" required>
+                        <input type="email" class="form-control" id="email" name="email" autocomplete="email" required>
                         <div class="invalid-feedback">Please provide a valid email address.</div>
                     </div>
                 </div>
@@ -206,12 +243,12 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                        <input type="password" class="form-control" id="password" name="password" autocomplete="new-password" required>
                         <div class="invalid-feedback">Password must be at least 8 characters.</div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="confirmPassword" class="form-label">Confirm Password <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirm_password" autocomplete="new-password" required>
                         <div class="invalid-feedback">Passwords do not match.</div>
                     </div>
                 </div>
@@ -259,13 +296,41 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Agent-specific fields (hidden by default) -->
+            <div class="mb-4" id="agentFields" style="display: none;">
+                <h6 class="text-muted mb-3">Agent Information</h6>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="department" class="form-label">Department</label>
+                        <input type="text" class="form-control" id="department" name="department" placeholder="e.g., Technical Support">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="employeeId" class="form-label">Employee ID</label>
+                        <input type="text" class="form-control" id="employeeId" name="employee_id" placeholder="e.g., EMP001">
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <label for="skills" class="form-label">Skills</label>
+                        <textarea class="form-control" id="skills" name="skills" rows="3" placeholder="e.g., Technical Support, Customer Service, Problem Solving"></textarea>
+                        <small class="text-muted">Enter skills separated by commas</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Submit buttons inside form -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="offcanvas">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-person-plus me-2"></i>Add User
+                    </button>
+                </div>
+            </div>
         </form>
-    </div>
-    <div class="offcanvas-footer" style="margin: 10px;">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="offcanvas">Cancel</button>
-        <button type="submit" form="addUserForm" class="btn btn-primary">
-            <i class="bi bi-person-plus me-2"></i>Add User
-        </button>
     </div>
 </div>
 
@@ -280,6 +345,7 @@
 
 {% endblock %}
 
+{% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const addUserForm = document.getElementById('addUserForm');
@@ -289,11 +355,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize Bootstrap offcanvas
     offcanvas = new bootstrap.Offcanvas(offcanvasElement);
     
+    // Role change handler to show/hide agent fields
+    const roleSelect = document.getElementById('role');
+    const agentFields = document.getElementById('agentFields');
+    
+    roleSelect.addEventListener('change', function() {
+        if (this.value === 'agent') {
+            agentFields.style.display = 'block';
+        } else {
+            agentFields.style.display = 'none';
+        }
+    });
+    
     // Form submission
-    addUserForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Reset previous validation states
+    if (addUserForm) {
+        addUserForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Reset previous validation states
         const inputs = addUserForm.querySelectorAll('.form-control');
         inputs.forEach(input => {
             input.classList.remove('is-invalid');
@@ -371,14 +450,20 @@ document.addEventListener('DOMContentLoaded', function() {
         // Submit form via AJAX
         const formData = new FormData(addUserForm);
         
+        // Get CSRF token
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
         fetch('/superadmin/users/create/', {
             method: 'POST',
             body: formData,
             headers: {
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrftoken
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 // Show success toast
@@ -398,13 +483,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Fetch Error:', error);
             showToast('Error!', 'An unexpected error occurred. Please try again.', 'danger');
         });
     });
+    } else {
+        console.error('Form not found!');
+    }
     
     // Cancel button handler
-    document.querySelector('[data-bs-dismiss="offcanvas"]').addEventListener('click', function() {
+    document.querySelector('button[data-bs-dismiss="offcanvas"]').addEventListener('click', function() {
         addUserForm.reset();
         
         // Reset validation states
@@ -420,22 +508,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Function to refresh user list
     function refreshUserList() {
-        fetch(window.location.href + '?ajax=1')
-            .then(response => response.text())
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const newTableBody = doc.querySelector('#usersTableBody');
-                const currentTableBody = document.querySelector('#usersTableBody');
-                
-                if (newTableBody && currentTableBody) {
-                    currentTableBody.innerHTML = newTableBody.innerHTML;
-                }
-            })
-            .catch(error => {
-                console.error('Error refreshing user list:', error);
-                showToast('Error!', 'Failed to refresh user list. Please refresh the page.', 'warning');
-            });
+        // Simply reload the page to refresh the user list
+        setTimeout(() => {
+            window.location.href = '/superadmin/users/';  // Go to clean URL without parameters
+        }, 1500);  // Give more time for user to see success message
     }
     
     // Toast notification function
@@ -450,12 +526,17 @@ document.addEventListener('DOMContentLoaded', function() {
         toastContainer.setAttribute('role', 'alert');
         toastContainer.setAttribute('aria-live', 'assertive');
         toastContainer.setAttribute('aria-atomic', 'true');
+        toastContainer.style.position = 'fixed';
+        toastContainer.style.top = '20px';
+        toastContainer.style.right = '20px';
+        toastContainer.style.zIndex = '9999';
         
         toastContainer.innerHTML = `
             <div class="d-flex">
                 <div class="toast-body">
-                    ${message}
+                    <strong>${title}:</strong> ${message}
                 </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
         `;
         
@@ -480,3 +561,4 @@ function confirmDeleteUser(userId, userName) {
     }
 }
 </script>
+{% endblock %}

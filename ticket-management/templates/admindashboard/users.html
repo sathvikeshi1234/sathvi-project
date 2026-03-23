@@ -31,7 +31,6 @@
                     <div class="page-header">
                         <div>
                             <h2>User Management</h2>
-                            <button onclick="console.log('Test button clicked!'); alert('JavaScript is working!');" class="btn btn-info ms-3">Test Console</button>
                         </div>
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newUserModal">
                             <i class="bi bi-plus"></i> Add User
@@ -672,10 +671,6 @@
     
     <!-- Utility function for loading components -->
     <script>
-        // Immediate test to see if script loads
-        console.log('=== USERS PAGE SCRIPT LOADING ===');
-        alert('Users page script is loading!');
-        
         // Function to load HTML content into an element
         function loadComponent(url, elementId) {
             return fetch(url)

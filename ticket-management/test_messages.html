@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Chat Messages</title>
+</head>
+<body>
+    <h1>Test Chat Messages</h1>
+    <button onclick="testCreateMessage()">Create Test Message</button>
+    <button onclick="testClearMessages()">Clear All Messages</button>
+    <button onclick="testListMessages()">List Messages</button>
+    <div id="result"></div>
+    
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        async function testCreateMessage() {
+            try {
+                const response = await fetch('/tickets/api/chat/messages/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        recipient_id: 1, // Change this to a valid user ID
+                        text: 'Test message from ' + new Date().toLocaleTimeString()
+                    })
+                });
+                
+                const data = await response.json();
+                document.getElementById('result').innerHTML = 'Create Response: ' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('result').innerHTML = 'Error: ' + error.message;
+            }
+        }
+
+        async function testClearMessages() {
+            try {
+                const response = await fetch('/tickets/api/chat/clear/?contact_id=1', {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                
+                const data = await response.json();
+                document.getElementById('result').innerHTML = 'Clear Response: ' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('result').innerHTML = 'Error: ' + error.message;
+            }
+        }
+
+        async function testListMessages() {
+            try {
+                const response = await fetch('/tickets/api/chat/messages/?contact_id=1');
+                const data = await response.json();
+                document.getElementById('result').innerHTML = 'Messages: ' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('result').innerHTML = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

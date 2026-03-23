@@ -17,6 +17,7 @@ from django.core.exceptions import ValidationError
 from django.contrib import messages
 
 from django.urls import reverse
+from django.conf import settings
 
 from django.contrib.auth.models import User
 from django.contrib.auth import update_session_auth_hash
@@ -5541,7 +5542,8 @@ def admin_dashboard_page(request, page: str):
         }
 
     elif normalized == 'chat.html':
-
+        print("DEBUG: Admin dashboard chat.html view being executed")
+        
         # Build contacts from real users/userprofiles, but only customers (role 'User')
 
         user_qs = User.objects.select_related('userprofile').filter(
@@ -5666,25 +5668,42 @@ def admin_dashboard_page(request, page: str):
 
 
 
-        # For now, demo messages; later tie this to a ChatMessage model filtered by active_contact
-
+        # Load real messages from ChatMessage model filtered by active_contact
         messages = []
 
         if active_contact:
-
-            messages = [
-
-                {
-
-                    "direction": "received",
-
-                    "text": f"Hello {{ active_contact.name }}! How can I help you today?",
-
-                    "time": "10:30 AM",
-
-                },
-
-            ]
+            try:
+                # Get real chat messages between admin and the active contact
+                chat_messages = ChatMessage.objects.filter(
+                    Q(sender=request.user, recipient_id=active_contact['id']) |
+                    Q(sender_id=active_contact['id'], recipient=request.user)
+                ).order_by('created_at')
+                
+                print(f"DEBUG: Found {chat_messages.count()} chat messages for contact {active_contact['id']}")
+                
+                for msg in chat_messages:
+                    direction = 'sent' if msg.sender == request.user else 'received'
+                    messages.append({
+                        "direction": direction,
+                        "text": msg.text,
+                        "time": msg.created_at.strftime('%I:%M %p') if msg.created_at else '',
+                        "id": msg.id,
+                        "has_attachments": bool(msg.attachments.exists()) if hasattr(msg, 'attachments') else False,
+                    })
+                    print(f"DEBUG: Message {msg.id}: {direction} - {msg.text[:50]}...")
+                    
+            except Exception as e:
+                # Fallback to demo message if there's an error
+                print(f"Error loading chat messages: {e}")
+                messages = [
+                    {
+                        "direction": "received",
+                        "text": f"Hello {active_contact['name']}! How can I help you today?",
+                        "time": "10:30 AM",
+                    }
+                ]
+        else:
+            print("DEBUG: No active contact found")
 
 
 

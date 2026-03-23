@@ -134,8 +134,11 @@
                             </div>
                             
                             <div class="chat-messages-body" id="chat-messages">
+                                <!-- DEBUG: Messages from backend -->
+                                <script>console.log('DEBUG: Backend messages:', {{ messages|safe }});</script>
+                                
                                 {% if messages %}
-                                    <div class="message-date">Today</div>
+                                    <div class="message-date">Today ({{ messages|length }} messages)</div>
                                     {% for m in messages %}
                                     <div class="message {{ m.direction }}">
                                         {% if m.direction == 'received' %}
@@ -1999,6 +2002,457 @@
             font-size: 0.75rem;
         }
     </style>
+    
+    <!-- Chat Actions JavaScript -->
+    <script>
+        // Initialize chat actions when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeChatActions();
+            // Update menu after a short delay to ensure everything is loaded
+            setTimeout(async () => {
+                await updateChatActionMenu();
+            }, 1000);
+        });
+        
+        function initializeChatActions() {
+            console.log('Initializing chat actions...');
+            
+            // Add click handlers to dropdown items
+            const dropdownItems = document.querySelectorAll('.dropdown-item');
+            console.log('Found dropdown items:', dropdownItems.length);
+            
+            dropdownItems.forEach((item, index) => {
+                const text = item.textContent.trim();
+                console.log(`Dropdown item ${index}: "${text}"`);
+                
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Clicked dropdown item:', text);
+                    
+                    const action = this.textContent.trim();
+                    const contactId = getCurrentContactId();
+                    
+                    console.log('Action:', action, 'Contact ID:', contactId);
+                    
+                    if (!contactId) {
+                        showNotification('Please select a contact first', 'warning');
+                        return;
+                    }
+                    
+                    switch(action) {
+                        case 'Mute':
+                            console.log('Calling handleMuteChat');
+                            handleMuteChat(contactId);
+                            break;
+                        case 'Unmute':
+                            console.log('Calling handleUnmuteChat');
+                            handleUnmuteChat(contactId);
+                            break;
+                        case 'Clear Chat':
+                            console.log('Calling handleClearChat');
+                            handleClearChat(contactId);
+                            break;
+                        case 'Block':
+                            console.log('Calling handleBlockUser');
+                            handleBlockUser(contactId);
+                            break;
+                        case 'Unblock':
+                            console.log('Calling handleUnblockUser');
+                            handleUnblockUser(contactId);
+                            break;
+                    }
+                });
+            });
+            
+            // Update menu when contact changes
+            console.log('Updating chat action menu...');
+            updateChatActionMenu();
+        }
+        
+        function getCurrentContactId() {
+            // Try to get from active contact
+            const activeContact = document.querySelector('.contact-item.active');
+            if (activeContact) {
+                const contactData = activeContact.getAttribute('data-contact');
+                if (contactData) {
+                    try {
+                        const data = JSON.parse(contactData);
+                        return data.id;
+                    } catch (e) {
+                        console.error('Error parsing contact data:', e);
+                    }
+                }
+            }
+            return null;
+        }
+        
+        // Check if a contact is currently muted (from backend data)
+        async function checkMuteStatus(contactIdParam) {
+            try {
+                const contactId = contactIdParam || getCurrentContactId();
+                if (!contactId) return false;
+                
+                const response = await fetch(`/tickets/api/chat/status/?contact_id=${contactId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.is_muted;
+                }
+                return false;
+            } catch (error) {
+                console.error('Error checking mute status:', error);
+                return false;
+            }
+        }
+        
+        // Check if a contact is currently blocked (from backend data)
+        async function checkBlockStatus(contactIdParam) {
+            try {
+                const contactId = contactIdParam || getCurrentContactId();
+                if (!contactId) return false;
+                
+                const response = await fetch(`/tickets/api/chat/status/?contact_id=${contactId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.is_blocked;
+                }
+                return false;
+            } catch (error) {
+                console.error('Error checking block status:', error);
+                return false;
+            }
+        }
+        
+        async function handleMuteChat(contactId) {
+            try {
+                const response = await fetch('/tickets/api/chat/mute/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        contact_id: contactId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showNotification('Chat muted successfully', 'success');
+                    updateContactMuteStatus(contactId, true);
+                } else {
+                    showNotification(data.detail || 'Failed to mute chat', 'error');
+                }
+            } catch (error) {
+                console.error('Error muting chat:', error);
+                showNotification('An error occurred while muting chat', 'error');
+            }
+        }
+        
+        async function handleUnmuteChat(contactId) {
+            try {
+                const response = await fetch('/tickets/api/chat/mute/?contact_id=' + contactId, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showNotification('Chat unmuted successfully', 'success');
+                    updateContactMuteStatus(contactId, false);
+                } else {
+                    showNotification(data.detail || 'Failed to unmute chat', 'error');
+                }
+            } catch (error) {
+                console.error('Error unmuting chat:', error);
+                showNotification('An error occurred while unmuting chat', 'error');
+            }
+        }
+        
+        async function handleClearChat(contactId) {
+            if (!confirm('Are you sure you want to clear all chat messages? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/tickets/api/chat/clear/?contact_id=' + contactId, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showNotification(`Chat cleared successfully (${data.deleted_count} messages deleted)`, 'success');
+                    // Clear the chat messages from UI
+                    clearChatMessages();
+                } else {
+                    showNotification(data.detail || 'Failed to clear chat', 'error');
+                }
+            } catch (error) {
+                console.error('Error clearing chat:', error);
+                showNotification('An error occurred while clearing chat', 'error');
+            }
+        }
+        
+        async function handleBlockUser(contactId) {
+            if (!confirm('Are you sure you want to block this user? You will not receive messages from them anymore.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/tickets/api/chat/block/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        contact_id: contactId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showNotification('User blocked successfully', 'success');
+                    updateContactBlockStatus(contactId, true);
+                } else {
+                    showNotification(data.detail || 'Failed to block user', 'error');
+                }
+            } catch (error) {
+                console.error('Error blocking user:', error);
+                showNotification('An error occurred while blocking user', 'error');
+            }
+        }
+        
+        async function handleUnblockUser(contactId) {
+            try {
+                const response = await fetch('/tickets/api/chat/block/?contact_id=' + contactId, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showNotification('User unblocked successfully', 'success');
+                    updateContactBlockStatus(contactId, false);
+                } else {
+                    showNotification(data.detail || 'Failed to unblock user', 'error');
+                }
+            } catch (error) {
+                console.error('Error unblocking user:', error);
+                showNotification('An error occurred while unblocking user', 'error');
+            }
+        }
+        
+        function updateContactMuteStatus(contactId, isMuted) {
+            const activeContact = document.querySelector('.contact-item.active');
+            if (activeContact) {
+                const muteButton = activeContact.querySelector('.mute-status');
+                if (isMuted) {
+                    activeContact.classList.add('muted');
+                    if (!muteButton) {
+                        const muteIndicator = document.createElement('span');
+                        muteIndicator.className = 'mute-status text-muted small';
+                        muteIndicator.innerHTML = '<i class="bi bi-mute"></i> Muted';
+                        activeContact.querySelector('.contact-info').appendChild(muteIndicator);
+                    }
+                } else {
+                    activeContact.classList.remove('muted');
+                    if (muteButton) {
+                        muteButton.remove();
+                    }
+                }
+                
+                // Update the menu after changing status
+                updateChatActionMenu(contactId);
+            }
+        }
+        
+        function updateContactBlockStatus(contactId, isBlocked) {
+            const activeContact = document.querySelector('.contact-item.active');
+            if (activeContact) {
+                if (isBlocked) {
+                    activeContact.classList.add('blocked');
+                    // Add blocked indicator
+                    const blockIndicator = document.createElement('span');
+                    blockIndicator.className = 'block-status text-danger small';
+                    blockIndicator.innerHTML = '<i class="bi bi-x-circle"></i> Blocked';
+                    activeContact.querySelector('.contact-info').appendChild(blockIndicator);
+                } else {
+                    activeContact.classList.remove('blocked');
+                    const blockIndicator = activeContact.querySelector('.block-status');
+                    if (blockIndicator) {
+                        blockIndicator.remove();
+                    }
+                }
+                
+                // Update the menu after changing status
+                updateChatActionMenu(contactId);
+            }
+        }
+        
+        function clearChatMessages() {
+            const chatMessages = document.getElementById('chat-messages');
+            if (chatMessages) {
+                // Clear all messages except the "No messages yet" placeholder
+                const messages = chatMessages.querySelectorAll('.message');
+                messages.forEach(msg => msg.remove());
+                
+                // Add placeholder if no messages
+                if (!chatMessages.querySelector('.message')) {
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'text-muted small px-3 py-2';
+                    placeholder.textContent = 'No messages yet. Start the conversation.';
+                    chatMessages.appendChild(placeholder);
+                }
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            // Create a simple notification (you can enhance this with a proper toast component)
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+        
+        // Update dropdown menu based on current status
+        async function updateChatActionMenu(contactIdParam) {
+            console.log('updateChatActionMenu called with contactId:', contactIdParam);
+            
+            const contactId = contactIdParam || getCurrentContactId();
+            console.log('Final contactId:', contactId);
+            
+            if (!contactId) {
+                console.log('No contact ID, skipping menu update');
+                return;
+            }
+            
+            // Get all dropdown items
+            const dropdownItems = document.querySelectorAll('.dropdown-item');
+            console.log('Found dropdown items for menu update:', dropdownItems.length);
+            
+            let muteItem, clearItem, blockItem;
+            
+            dropdownItems.forEach((item, index) => {
+                const text = item.textContent.trim();
+                console.log(`Menu update - Dropdown item ${index}: "${text}"`);
+                
+                if (text.includes('Mute') || text.includes('Unmute')) {
+                    muteItem = item;
+                    console.log('Found mute item:', item);
+                } else if (text.includes('Clear Chat')) {
+                    clearItem = item;
+                    console.log('Found clear item:', item);
+                } else if (text.includes('Block') || text.includes('Unblock')) {
+                    blockItem = item;
+                    console.log('Found block item:', item);
+                }
+            });
+            
+            // Check current status from API
+            try {
+                console.log('Checking mute/block status...');
+                const isMuted = await checkMuteStatus(contactId);
+                const isBlocked = await checkBlockStatus(contactId);
+                
+                console.log('Status check result - isMuted:', isMuted, 'isBlocked:', isBlocked);
+                
+                // Update mute/unmute item
+                if (muteItem) {
+                    if (isMuted) {
+                        console.log('Setting menu to Unmute');
+                        muteItem.innerHTML = '<i class="bi bi-mute me-2"></i>Unmute';
+                        muteItem.classList.remove('text-muted');
+                        muteItem.classList.add('text-success');
+                    } else {
+                        console.log('Setting menu to Mute');
+                        muteItem.innerHTML = '<i class="bi bi-mute me-2"></i>Mute';
+                        muteItem.classList.remove('text-success');
+                        muteItem.classList.add('text-muted');
+                    }
+                } else {
+                    console.log('No mute item found!');
+                }
+                
+                // Update block/unblock item
+                if (blockItem) {
+                    if (isBlocked) {
+                        console.log('Setting menu to Unblock');
+                        blockItem.innerHTML = '<i class="bi bi-x-circle me-2"></i>Unblock';
+                        blockItem.classList.remove('text-danger');
+                        blockItem.classList.add('text-success');
+                    } else {
+                        console.log('Setting menu to Block');
+                        blockItem.innerHTML = '<i class="bi bi-x-circle me-2"></i>Block';
+                        blockItem.classList.remove('text-success');
+                        blockItem.classList.add('text-danger');
+                    }
+                } else {
+                    console.log('No block item found!');
+                }
+            } catch (error) {
+                console.error('Error updating chat action menu:', error);
+            }
+        }
+        
+        // Also update menu when contact selection changes
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.contact-item')) {
+                setTimeout(async () => {
+                    await updateChatActionMenu();
+                }, 100);
+            }
+        });
+        
+        // Initial menu update when page loads
+        setTimeout(async () => {
+            await updateChatActionMenu();
+        }, 500);
+        
+        // Add a manual trigger for testing (you can remove this later)
+        window.testMenuUpdate = async function() {
+            console.log('Manual menu update triggered');
+            await updateChatActionMenu();
+        };
+        
+        // Add a manual trigger for checking status
+        window.checkCurrentStatus = async function() {
+            const contactId = getCurrentContactId();
+            console.log('Current contact ID:', contactId);
+            if (contactId) {
+                const isMuted = await checkMuteStatus(contactId);
+                const isBlocked = await checkBlockStatus(contactId);
+                console.log('Current status - Muted:', isMuted, 'Blocked:', isBlocked);
+                alert(`Status:\nMuted: ${isMuted}\nBlocked: ${isBlocked}`);
+            } else {
+                alert('No contact selected');
+            }
+        };
+    </script>
+    
     <script src="{% static 'admindashboard/js/dropdown.js' %}"></script>
 </body>
 </html>

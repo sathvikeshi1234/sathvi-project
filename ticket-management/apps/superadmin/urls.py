@@ -6,7 +6,7 @@ from .import views
 
 
 
-from .views import superadmin_login, admin_login, superadmin_logout, companies_list, company_create, company_detail, company_edit, company_delete, subscriptions_list, subscription_view, users_list, recent_comments_api, ticket_search_api, get_notifications_api, superadmin_signup, plan_edit, plan_add, transaction_details, mark_notification_read, delete_notification, mark_all_notifications_read, payment_create, subscription_change_plan, subscription_renew, admin_management
+from .views import superadmin_login, admin_login, superadmin_logout, companies_list, company_create, company_detail, company_edit, company_delete, subscriptions_list, subscription_view, users_list, agents_list, create_user, recent_comments_api, ticket_search_api, get_notifications_api, superadmin_signup, plan_edit, plan_add, transaction_details, mark_notification_read, delete_notification, mark_all_notifications_read, payment_create, subscription_change_plan, subscription_renew, admin_management, add_admin
 
 
 
@@ -79,7 +79,10 @@ urlpatterns = [
 
 
     path("users/", users_list, name="users_list"),
+    path("users/create/", create_user, name="create_user"),
+    path("agents/", agents_list, name="agents_list"),
     path("admin-management/", admin_management, name="admin_management"),
+    path("admin-management/add/", add_admin, name="add_admin"),
 
 
 
@@ -98,7 +101,7 @@ urlpatterns = [
 
 
 
-    # path("users/<int:user_id>/toggle-status/", views.toggle_user_status, name="toggle_user_status"),
+    path("users/<int:user_id>/toggle-status/", views.toggle_user_status, name="toggle_user_status"),
 
 
 

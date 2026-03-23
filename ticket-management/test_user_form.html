@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Creation Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .error { color: red; }
+        .success { color: green; }
+        #agentFields { display: none; border: 1px solid #ddd; padding: 15px; margin-top: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Test User Creation Form</h1>
+    <form id="testUserForm">
+        <div class="form-group">
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" name="first_name" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" name="last_name" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="confirmPassword">Confirm Password:</label>
+            <input type="password" id="confirmPassword" name="confirm_password" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="role">Role:</label>
+            <select id="role" name="role" required>
+                <option value="">Select Role</option>
+                <option value="user">User</option>
+                <option value="agent">Agent</option>
+                <option value="admin">Admin</option>
+                <option value="manager">Manager</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="status">Status:</label>
+            <select id="status" name="is_active" required>
+                <option value="">Select Status</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="company">Company:</label>
+            <select id="company" name="company" required>
+                <option value="">Select Company</option>
+                <option value="1">Test Company</option>
+            </select>
+        </div>
+        
+        <div id="agentFields">
+            <h3>Agent Information</h3>
+            <div class="form-group">
+                <label for="department">Department:</label>
+                <input type="text" id="department" name="department" placeholder="e.g., Technical Support">
+            </div>
+            
+            <div class="form-group">
+                <label for="employeeId">Employee ID:</label>
+                <input type="text" id="employeeId" name="employee_id" placeholder="e.g., EMP001">
+            </div>
+            
+            <div class="form-group">
+                <label for="skills">Skills:</label>
+                <textarea id="skills" name="skills" placeholder="e.g., Technical Support, Customer Service"></textarea>
+            </div>
+        </div>
+        
+        <button type="submit">Create User</button>
+    </form>
+    
+    <div id="result"></div>
+    
+    <script>
+        // Show/hide agent fields based on role selection
+        document.getElementById('role').addEventListener('change', function() {
+            const agentFields = document.getElementById('agentFields');
+            if (this.value === 'agent') {
+                agentFields.style.display = 'block';
+            } else {
+                agentFields.style.display = 'none';
+            }
+        });
+        
+        // Form submission
+        document.getElementById('testUserForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const resultDiv = document.getElementById('result');
+            
+            // Get CSRF token (you'll need to get this from the actual page)
+            fetch('/superadmin/users/create/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': 'your-csrf-token-here' // Replace with actual CSRF token
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    resultDiv.innerHTML = `<div class="success">Success: ${data.message}</div>`;
+                    this.reset();
+                } else {
+                    resultDiv.innerHTML = `<div class="error">Error: ${data.message}</div>`;
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `<div class="error">Network Error: ${error.message}</div>`;
+            });
+        });
+    </script>
+</body>
+</html>
